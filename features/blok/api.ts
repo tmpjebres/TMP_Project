@@ -1,0 +1,114 @@
+import { supabaseClient } from '@/lib/supabase/client';
+import type { Blok } from '@/types';
+
+// ─── Helper: konversi row DB → Blok ──────────────────────────────────────────
+function rowToBlok(row: {
+  id: string;
+  nama: string;
+  kapasitas: number;
+  terisi: number;
+}): Blok {
+  return {
+    id: row.id,
+    nama: row.nama,
+    kapasitas: row.kapasitas,
+    terisi: row.terisi,
+  };
+}
+
+// ─── GET: Semua blok ──────────────────────────────────────────────────────────
+export async function getAllBlok(): Promise<{ data: Blok[]; error?: string }> {
+  const { data, error } = await supabaseClient
+    .from('blok')
+    .select('id, nama, kapasitas, terisi')
+    .order('nama', { ascending: true });
+
+  if (error) return { data: [], error: error.message };
+  return { data: (data ?? []).map(rowToBlok) };
+}
+
+// ─── GET: Satu blok berdasarkan ID ────────────────────────────────────────────
+export async function getBlokById(id: string): Promise<{ data: Blok | null; error?: string }> {
+  const { data, error } = await supabaseClient
+    .from('blok')
+    .select('id, nama, kapasitas, terisi')
+    .eq('id', id)
+    .single();
+
+  if (error) return { data: null, error: error.message };
+  return { data: data ? rowToBlok(data) : null };
+}
+
+// ─── CREATE: Blok baru ────────────────────────────────────────────────────────
+export async function createBlok(
+  payload: Pick<Blok, 'nama' | 'kapasitas'>
+): Promise<{ data: Blok | null; error?: string }> {
+  // Cek duplikat nama
+  const { data: existing } = await supabaseClient
+    .from('blok')
+    .select('id')
+    .eq('nama', payload.nama.trim())
+    .maybeSingle();
+
+  if (existing) return { data: null, error: `Blok "${payload.nama}" sudah ada.` };
+
+  const { data, error } = await supabaseClient
+    .from('blok')
+    .insert({
+      nama: payload.nama.trim().toUpperCase(),
+      kapasitas: Number(payload.kapasitas),
+      terisi: 0,
+    })
+    .select('id, nama, kapasitas, terisi')
+    .single();
+
+  if (error || !data) return { data: null, error: error?.message ?? 'Gagal membuat blok.' };
+  return { data: rowToBlok(data) };
+}
+
+// ─── UPDATE: Blok ─────────────────────────────────────────────────────────────
+export async function updateBlok(
+  id: string,
+  payload: Pick<Blok, 'nama' | 'kapasitas'>
+): Promise<{ data: Blok | null; error?: string }> {
+  // Cek duplikat nama (kecuali diri sendiri)
+  const { data: existing } = await supabaseClient
+    .from('blok')
+    .select('id')
+    .eq('nama', payload.nama.trim())
+    .neq('id', id)
+    .maybeSingle();
+
+  if (existing) return { data: null, error: `Blok "${payload.nama}" sudah digunakan.` };
+
+  const { data, error } = await supabaseClient
+    .from('blok')
+    .update({
+      nama: payload.nama.trim().toUpperCase(),
+      kapasitas: Number(payload.kapasitas),
+    })
+    .eq('id', id)
+    .select('id, nama, kapasitas, terisi')
+    .single();
+
+  if (error || !data) return { data: null, error: error?.message ?? 'Gagal mengupdate blok.' };
+  return { data: rowToBlok(data) };
+}
+
+// ─── DELETE: Blok ─────────────────────────────────────────────────────────────
+export async function deleteBlok(id: string): Promise<{ error?: string }> {
+  // Cek apakah ada makam di blok ini
+  const { count, error: countError } = await supabaseClient
+    .from('makam')
+    .select('id', { count: 'exact', head: true })
+    .eq('blok_id', id);
+
+  if (countError) return { error: countError.message };
+  if (count && count > 0) {
+    return { error: 'Blok masih memiliki makam dan tidak dapat dihapus.' };
+  }
+
+  const { error } = await supabaseClient.from('blok').delete().eq('id', id);
+  if (error) return { error: error.message };
+  return {};
+}
