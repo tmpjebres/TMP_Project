@@ -17,6 +17,7 @@ import {
 import { AppUser, Role } from "@/types";
 import { useAuth } from "@/lib/context/auth-context";
 import { getAllUsers, updateUserProfile, deleteUserProfile } from "@/features/user/api";
+import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -743,12 +744,8 @@ export default function UserManagement() {
           className="bg-white rounded-2xl overflow-hidden flex-1"
           style={{ border: "1px solid #e5e7eb" }}
         >
-          {loadingUsers ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400">
-              <Loader2 size={28} className="animate-spin text-violet-400" />
-              <span className="text-sm">Memuat data pengguna...</span>
-            </div>
-          ) : filtered.length === 0 ? (
+          {loadingUsers ?
+          <LoadingSpinner/> : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-2 text-neutral-400">
               <User size={32} className="opacity-30" />
               <p className="text-sm font-medium">

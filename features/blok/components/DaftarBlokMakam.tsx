@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/context/auth-context";
 import { getAllBlok, createBlok, updateBlok, deleteBlok } from "@/features/blok/api";
 import LoadingButton from "@/components/ui/LoadingButton";
 import { BlokModal } from "./BlokModal";
+import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 
 export default function DaftarBlokMakam() {
   const { isMaster } = useAuth();
@@ -116,30 +117,8 @@ export default function DaftarBlokMakam() {
         </div>
       )}
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20 text-neutral-gray">
-          <svg
-            className="animate-spin w-6 h-6 mr-3"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          Memuat data...
-        </div>
-      ) : (
+      {loading ? 
+      <LoadingSpinner/> : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {bloks.map((b) => (
             <div

@@ -6,6 +6,7 @@ import { getAllTamu, deleteTamu } from "@/features/tamu/api";
 import { supabaseClient } from "@/lib/supabase/client";
 import { Tamu, TamuUmum, TamuRombongan } from "@/types";
 import { useAuth } from "@/lib/context/auth-context";
+import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 
 function formatTanggal(iso: string) {
   if (!iso) return "—";
@@ -139,15 +140,8 @@ export default function DaftarTamu() {
 
       {/* Table */}
       <div className="bg-white rounded-xl overflow-hidden flex flex-col flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
-        {loading ? (
-          <div className="flex items-center justify-center py-20 text-neutral-gray">
-            <svg className="animate-spin w-6 h-6 mr-3" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-            Memuat data...
-          </div>
-        ) : (
+        {loading ?
+        <LoadingSpinner/> : (
           <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
