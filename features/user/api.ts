@@ -109,8 +109,8 @@ export async function updateUserProfile(
   if (updates.username !== undefined) payload.username = updates.username;
   if (updates.role !== undefined) payload.role = updates.role;
 
-  const { data, error } = await supabaseClient
-    .from("profiles")
+  const { data, error } = await (supabaseClient
+    .from("profiles") as any)
     .update(payload)
     .eq("id", userId)
     .select("id, username, role, created_at")
@@ -143,8 +143,8 @@ export async function deleteUserProfile(
     return { error: "Tidak dapat menghapus akun sendiri." };
   }
 
-  const { error } = await supabaseClient
-    .from("profiles")
+  const { error } = await (supabaseClient
+    .from("profiles") as any)
     .delete()
     .eq("id", userId);
 

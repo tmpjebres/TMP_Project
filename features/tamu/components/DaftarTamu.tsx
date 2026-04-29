@@ -77,15 +77,15 @@ export default function DaftarTamu() {
 
     if (updated.jenis === 'umum') {
       const u = updated as TamuUmum;
-      const { error: err } = await supabaseClient
-        .from('tamu_umum')
+      const { error: err } = await (supabaseClient
+        .from('tamu_umum') as any)
         .update({ tanggal: u.tanggal, nama: u.nama, tujuan: u.tujuan })
         .eq('id', u.id);
       error = err?.message;
     } else {
       const r = updated as TamuRombongan;
-      const { error: err } = await supabaseClient
-        .from('tamu_rombongan')
+      const { error: err } = await (supabaseClient
+        .from('tamu_rombongan') as any)
         .update({
           tanggal: r.tanggal,
           nama_pimpinan: r.namaPimpinan,

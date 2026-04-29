@@ -145,8 +145,8 @@ export async function createTamuUmum(
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto tamu.' };
 
 
-  const { data, error } = await supabaseClient
-    .from('tamu_umum')
+  const { data, error } = await (supabaseClient
+    .from('tamu_umum') as any)
     .insert({
       tanggal: payload.tanggal,
       nama: payload.nama.trim(),
@@ -173,8 +173,8 @@ export async function createTamuRombongan(
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto pimpinan rombongan.' };
 
 
-  const { data, error } = await supabaseClient
-    .from('tamu_rombongan')
+  const { data, error } = await (supabaseClient
+    .from('tamu_rombongan') as any)
     .insert({
       tanggal: payload.tanggal,
       nama_pimpinan: payload.namaPimpinan.trim(),
@@ -238,12 +238,15 @@ export async function getVisitStats(): Promise<{
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   const counts: Record<string, number> = {};
 
-  (umum.data ?? []).forEach(r => {
+  const umumRows = (umum.data ?? []) as { tanggal: string }[];
+  const rombRows = (rombongan.data ?? []) as { tanggal: string; jumlah_peserta?: number | null }[];
+
+  umumRows.forEach(r => {
     const month = monthNames[new Date(r.tanggal).getMonth()];
     counts[month] = (counts[month] ?? 0) + 1;
   });
 
-  (rombongan.data ?? []).forEach(r => {
+  rombRows.forEach(r => {
     const month = monthNames[new Date(r.tanggal).getMonth()];
     counts[month] = (counts[month] ?? 0) + (r.jumlah_peserta ?? 1);
   });

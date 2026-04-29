@@ -1,6 +1,25 @@
 import { supabaseClient } from '@/lib/supabase/client';
 import type { Makam } from '@/types';
 
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+
+function isoToDmy(iso: string | null): string {
+  if (!iso) return '';
+  // Expect "yyyy-mm-dd" (Supabase DATE), but be defensive
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return '';
+  const [, y, mm, dd] = m;
+  return `${dd}/${mm}/${y}`;
+}
+
+function dmyToIso(dmy: string): string | null {
+  if (!dmy) return null;
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dmy.trim());
+  if (!m) return null;
+  const [, dd, mm, y] = m;
+  return `${y}-${mm}-${dd}`;
+}
+
 // ─── Tipe row hasil join makam + blok ────────────────────────────────────────
 type MakamRow = {
   id: string;
@@ -25,14 +44,25 @@ function rowToMakam(row: MakamRow): Makam {
     nomor: row.nomor,
     nrp: row.nrp ?? '',
     pangkat: row.pangkat ?? '',
-    tanggalLahir: row.tanggal_lahir ?? '',
-    tanggalGugur: row.tanggal_gugur ?? '',
+    tanggalLahir: isoToDmy(row.tanggal_lahir),
+    tanggalGugur: isoToDmy(row.tanggal_gugur),
     kesatuan: row.kesatuan ?? '',
   };
 }
 
 // ─── Query selector (dipakai di GET) ─────────────────────────────────────────
 const MAKAM_SELECT = 'id, nama, blok_id, nomor, nrp, pangkat, tanggal_lahir, tanggal_gugur, kesatuan, blok:blok_id(nama)';
+
+async function getMakamById(id: string): Promise<{ data: Makam | null; error?: string }> {
+  const { data, error } = await supabaseClient
+    .from('makam')
+    .select(MAKAM_SELECT)
+    .eq('id', id)
+    .single();
+
+  if (error || !data) return { data: null, error: error?.message ?? 'Data makam tidak ditemukan.' };
+  return { data: rowToMakam(data as MakamRow) };
+}
 
 // ─── GET: Semua makam (dengan nama blok) ─────────────────────────────────────
 export async function getAllMakam(): Promise<{ data: Makam[]; error?: string }> {
@@ -88,7 +118,7 @@ export async function createMakam(
     .from('blok')
     .select('id, kapasitas, terisi')
     .eq('id', payload.blokId)
-    .single();
+    .single<{ id: string; kapasitas: number; terisi: number }>();
 
   if (blokError || !blok) return { data: null, error: 'Blok tidak ditemukan.' };
 
@@ -96,16 +126,16 @@ export async function createMakam(
     return { data: null, error: 'Kapasitas blok sudah penuh.' };
   }
 
-  const { data, error } = await supabaseClient
-    .from('makam')
+  const { data, error } = await (supabaseClient
+    .from('makam') as any)
     .insert({
       nama: payload.nama.trim(),
       blok_id: payload.blokId,
       nomor: payload.nomor.trim(),
       nrp: payload.nrp?.trim() || null,
       pangkat: payload.pangkat?.trim() || null,
-      tanggal_lahir: payload.tanggalLahir || null,
-      tanggal_gugur: payload.tanggalGugur || null,
+      tanggal_lahir: dmyToIso(payload.tanggalLahir),
+      tanggal_gugur: dmyToIso(payload.tanggalGugur),
       kesatuan: payload.kesatuan?.trim() || null,
     })
     .select(MAKAM_SELECT)
@@ -120,24 +150,26 @@ export async function updateMakam(
   id: string,
   payload: Omit<Makam, 'id' | 'blokNama'>
 ): Promise<{ data: Makam | null; error?: string }> {
-  const { data, error } = await supabaseClient
-    .from('makam')
+  const { error } = await (supabaseClient
+    .from('makam') as any)
     .update({
       nama: payload.nama.trim(),
       blok_id: payload.blokId,
       nomor: payload.nomor.trim(),
       nrp: payload.nrp?.trim() || null,
       pangkat: payload.pangkat?.trim() || null,
-      tanggal_lahir: payload.tanggalLahir || null,
-      tanggal_gugur: payload.tanggalGugur || null,
+      tanggal_lahir: dmyToIso(payload.tanggalLahir),
+      tanggal_gugur: dmyToIso(payload.tanggalGugur),
       kesatuan: payload.kesatuan?.trim() || null,
     })
     .eq('id', id)
-    .select(MAKAM_SELECT)
+    .select('id')
     .single();
 
-  if (error || !data) return { data: null, error: error?.message ?? 'Gagal mengupdate makam.' };
-  return { data: rowToMakam(data as MakamRow) };
+  if (error) return { data: null, error: error?.message ?? 'Gagal mengupdate makam.' };
+
+  // Fetch ulang supaya data & join `blok` konsisten
+  return await getMakamById(id);
 }
 
 // ─── DELETE: Makam ────────────────────────────────────────────────────────────

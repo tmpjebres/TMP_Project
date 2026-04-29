@@ -25,9 +25,29 @@ export const formatDateSearch = (
 ): string => {
   if (!date) return '';
 
-  const d = date instanceof Date ? date : new Date(date);
+  const parseToDate = (value: string): Date | null => {
+    const v = value.trim();
+    // dd/mm/yyyy (UI)
+    const dmy = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+    if (dmy) {
+      const [, dd, mm, yy] = dmy;
+      const d = new Date(Number(yy), Number(mm) - 1, Number(dd));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // yyyy-mm-dd (Supabase DATE)
+    const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+    if (iso) {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const fallback = new Date(v);
+    return isNaN(fallback.getTime()) ? null : fallback;
+  };
 
-  if (isNaN(d.getTime())) return '';
+  const d =
+    date instanceof Date ? date : parseToDate(String(date));
+
+  if (!d || isNaN(d.getTime())) return '';
 
   return [
     d.toISOString(), // 2024-01-01

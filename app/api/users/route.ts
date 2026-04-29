@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .select('role')
       .eq('id', caller.id)
-      .single();
+      .single<{ role: Role }>();
 
     if (callerProfile?.role !== 'master') {
       return NextResponse.json({ error: 'Hanya master yang dapat membuat user.' }, { status: 403 });
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .select('id, username, role, created_at')
       .eq('id', newUser.user.id)
-      .single();
+      .single<{ id: string; username: string; role: Role; created_at: string }>();
 
     return NextResponse.json({
       data: {
@@ -131,7 +131,7 @@ export async function DELETE(req: NextRequest) {
       .from('profiles')
       .select('role')
       .eq('id', caller.id)
-      .single();
+      .single<{ role: Role }>();
 
     if (callerProfile?.role !== 'master') {
       return NextResponse.json({ error: 'Hanya master yang dapat menghapus user.' }, { status: 403 });

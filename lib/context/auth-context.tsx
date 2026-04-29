@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('profiles')
       .select('id, username, role')
       .eq('id', supabaseUser.id)
-      .single();
+      .single<{ id: string; username: string; role: Role }>();
 
     if (error || !data) {
       console.error('[Auth] Gagal memuat profil:', error?.message);

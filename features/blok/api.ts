@@ -52,8 +52,8 @@ export async function createBlok(
 
   if (existing) return { data: null, error: `Blok "${payload.nama}" sudah ada.` };
 
-  const { data, error } = await supabaseClient
-    .from('blok')
+  const { data, error } = await (supabaseClient
+    .from('blok') as any)
     .insert({
       nama: payload.nama.trim().toUpperCase(),
       kapasitas: Number(payload.kapasitas),
@@ -81,8 +81,8 @@ export async function updateBlok(
 
   if (existing) return { data: null, error: `Blok "${payload.nama}" sudah digunakan.` };
 
-  const { data, error } = await supabaseClient
-    .from('blok')
+  const { data, error } = await (supabaseClient
+    .from('blok') as any)
     .update({
       nama: payload.nama.trim().toUpperCase(),
       kapasitas: Number(payload.kapasitas),

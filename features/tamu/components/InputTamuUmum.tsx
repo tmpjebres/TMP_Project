@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 import CameraCapture from "@/components/ui/CameraCapture";
@@ -20,11 +20,28 @@ export default function InputTamuUmum({ onNavigate }: Props) {
   const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [todayStr, setTodayStr] = useState(today());
+
+  // Realtime: kalau ganti hari (midnight), tanggal otomatis ikut berubah
+  useEffect(() => {
+    const id = window.setInterval(() => setTodayStr(today()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    setForm((f) => (f.tanggal === todayStr ? f : { ...f, tanggal: todayStr }));
+  }, [todayStr]);
 
   const set =
     (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleTanggalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    // konsep realtime: hanya boleh hari ini
+    setForm((f) => ({ ...f, tanggal: v === todayStr ? v : todayStr }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +118,9 @@ export default function InputTamuUmum({ onNavigate }: Props) {
                   required
                   className="form-input text-base py-3.5"
                   value={form.tanggal}
-                  onChange={set("tanggal")}
+                  min={todayStr}
+                  max={todayStr}
+                  onChange={handleTanggalChange}
                 />
               </div>
 
