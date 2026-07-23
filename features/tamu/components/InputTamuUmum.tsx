@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 import CameraCapture from "@/components/ui/CameraCapture";
 import { createTamuUmum } from "@/features/tamu/api";
-import { Page } from "@/types";
+import { ROUTES } from "@/lib/routes";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 const today = () => new Date().toISOString().split("T")[0];
 
-interface Props {
-  onNavigate: (p: Page) => void;
-}
-
-export default function InputTamuUmum({ onNavigate }: Props) {
+export default function InputTamuUmum() {
+  const router = useRouter();
   const [form, setForm] = useState({ tanggal: today(), nama: "", tujuan: "" });
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -84,7 +82,7 @@ export default function InputTamuUmum({ onNavigate }: Props) {
       {showToast && <Toast message="Berhasil disimpan" onDone={handleDone} />}
 
       <button
-        onClick={() => onNavigate("input-tamu")}
+        onClick={() => router.push(ROUTES["input-tamu"])}
         className="flex items-center gap-2 text-base text-neutral-gray hover:text-neutral-black mb-6 transition-colors self-start"
       >
         <ArrowLeft size={18} /> Kembali

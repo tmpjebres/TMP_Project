@@ -26,11 +26,13 @@ export default function LoginPage() {
 
     setLoading(true);
     const result = await login(username, password);
-    setLoading(false);
 
     if (!result.success) {
+      setLoading(false);
       setError(result.error ?? "Login gagal.");
+      return;
     }
+    // Sukses: biarkan loading tetap aktif sampai guard /login mengalihkan ke /dashboard.
   };
 
   return (

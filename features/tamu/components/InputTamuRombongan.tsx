@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 import CameraCapture from "@/components/ui/CameraCapture";
 import { createTamuRombongan } from "@/features/tamu/api";
-import { Page } from "@/types";
+import { ROUTES } from "@/lib/routes";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 const today = () => new Date().toISOString().split("T")[0];
@@ -17,11 +18,8 @@ const emptyForm = () => ({
   tujuan: "",
 });
 
-interface Props {
-  onNavigate: (p: Page) => void;
-}
-
-export default function InputTamuRombongan({ onNavigate }: Props) {
+export default function InputTamuRombongan() {
+  const router = useRouter();
   const [form, setForm] = useState(emptyForm());
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -103,7 +101,7 @@ export default function InputTamuRombongan({ onNavigate }: Props) {
       {showToast && <Toast message="Berhasil disimpan" onDone={handleDone} />}
 
       <button
-        onClick={() => onNavigate("input-tamu")}
+        onClick={() => router.push(ROUTES["input-tamu"])}
         className="flex items-center gap-2 text-base text-neutral-gray hover:text-neutral-black mb-6 transition-colors self-start"
       >
         <ArrowLeft size={18} /> Kembali

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -16,21 +18,20 @@ import {
   Grid3x3,
 } from "lucide-react";
 import { Page } from "@/types";
+import { ROUTES } from "@/lib/routes";
 import { useAuth } from "@/lib/context/auth-context";
 
-interface SidebarProps {
-  currentPage: Page;
-  onPageChange: (page: Page) => void;
-}
-
-export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
+export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout, isMaster } = useAuth();
+  const pathname = usePathname();
 
-  const navigate = (page: Page) => {
-    onPageChange(page);
-    setIsMobileMenuOpen(false);
-  };
+  // Halaman aktif dibaca dari URL. `also` menandai sub-halaman yang ikut
+  // menyalakan satu item nav (mis. form tamu umum/rombongan di bawah Input Tamu).
+  const isActive = (page: Page, also: Page[] = []) =>
+    [page, ...also].some((p) => pathname === ROUTES[p]);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <>
@@ -80,52 +81,57 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto flex-1">
-          <button
-            onClick={() => navigate("dashboard")}
-            className={`nav-item ${currentPage === "dashboard" ? "active" : ""}`}
+          <Link
+            href={ROUTES["dashboard"]}
+            onClick={closeMobileMenu}
+            className={`nav-item ${isActive("dashboard") ? "active" : ""}`}
           >
             <LayoutDashboard size={18} />
             <span>Dashboard</span>
-          </button>
+          </Link>
 
           <div className="mt-6">
             <p className="px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2">
               Buku Tamu
             </p>
-            <button
-              onClick={() => navigate("input-tamu")}
-              className={`nav-item ${["input-tamu", "tamu-umum", "tamu-rombongan"].includes(currentPage) ? "active" : ""}`}
+            <Link
+              href={ROUTES["input-tamu"]}
+              onClick={closeMobileMenu}
+              className={`nav-item ${isActive("input-tamu", ["tamu-umum", "tamu-rombongan"]) ? "active" : ""}`}
             >
               <Plus size={18} />
               <span>Input Tamu</span>
-            </button>
-            <button
-              onClick={() => navigate("daftar-tamu")}
-              className={`nav-item ${currentPage === "daftar-tamu" ? "active" : ""}`}
+            </Link>
+            <Link
+              href={ROUTES["daftar-tamu"]}
+              onClick={closeMobileMenu}
+              className={`nav-item ${isActive("daftar-tamu") ? "active" : ""}`}
             >
               <List size={18} />
               <span>Daftar Tamu</span>
-            </button>
+            </Link>
           </div>
 
           <div className="mt-6">
             <p className="px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2">
               Database Makam
             </p>
-            <button
-              onClick={() => navigate("daftar-blok")}
-              className={`nav-item ${currentPage === "daftar-blok" ? "active" : ""}`}
+            <Link
+              href={ROUTES["daftar-blok"]}
+              onClick={closeMobileMenu}
+              className={`nav-item ${isActive("daftar-blok") ? "active" : ""}`}
             >
               <Grid3x3 size={18} />
               <span>Blok Makam</span>
-            </button>
-            <button
-              onClick={() => navigate("daftar-makam")}
-              className={`nav-item ${currentPage === "daftar-makam" ? "active" : ""}`}
+            </Link>
+            <Link
+              href={ROUTES["daftar-makam"]}
+              onClick={closeMobileMenu}
+              className={`nav-item ${isActive("daftar-makam") ? "active" : ""}`}
             >
               <Database size={18} />
               <span>Daftar Makam</span>
-            </button>
+            </Link>
           </div>
 
           <div className="mt-6">
@@ -133,21 +139,23 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
               Sistem
             </p>
             {isMaster && (
-              <button
-                onClick={() => navigate("user-management")}
-                className={`nav-item ${currentPage === "user-management" ? "active" : ""}`}
+              <Link
+                href={ROUTES["user-management"]}
+                onClick={closeMobileMenu}
+                className={`nav-item ${isActive("user-management") ? "active" : ""}`}
               >
                 <Users size={18} />
                 <span>User Management</span>
-              </button>
+              </Link>
             )}
-            <button
-              onClick={() => navigate("profile")}
-              className={`nav-item ${currentPage === "profile" ? "active" : ""}`}
+            <Link
+              href={ROUTES["profile"]}
+              onClick={closeMobileMenu}
+              className={`nav-item ${isActive("profile") ? "active" : ""}`}
             >
               <BookUser size={18} />
               <span>Profil</span>
-            </button>
+            </Link>
           </div>
         </nav>
 

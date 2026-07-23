@@ -1,11 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { Users, UserCheck } from 'lucide-react';
 import type { Page } from '@/types';
-
-interface Props {
-  onNavigate: (p: Page) => void;
-}
+import { ROUTES } from '@/lib/routes';
 
 const CARDS = [
   {
@@ -22,7 +20,7 @@ const CARDS = [
   },
 ];
 
-export default function InputTamu({ onNavigate }: Props) {
+export default function InputTamu() {
   return (
     <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center animate-fade-in px-4">
       <div className="text-center mb-10">
@@ -37,10 +35,10 @@ export default function InputTamu({ onNavigate }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-2xl">
         {CARDS.map((card) => (
-          <button
+          <Link
             key={card.page}
-            onClick={() => onNavigate(card.page)}
-            className="group bg-white rounded-2xl text-left transition-all duration-200 cursor-pointer p-10
+            href={ROUTES[card.page]}
+            className="group block bg-white rounded-2xl text-left transition-all duration-200 cursor-pointer p-10
               border-2 border-[rgba(221,221,221,0.6)] shadow-sm
               hover:border-green-primary hover:shadow-card-hover hover:-translate-y-0.5"
           >
@@ -54,7 +52,7 @@ export default function InputTamu({ onNavigate }: Props) {
               {card.title}
             </h3>
             <p className="text-base text-neutral-gray leading-relaxed">{card.desc}</p>
-          </button>
+          </Link>
         ))}
       </div>
     </div>
