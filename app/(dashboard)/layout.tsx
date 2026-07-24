@@ -14,6 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!loading && !user) {
+      console.log('[DashboardLayout] user null → redirect ke login');
       router.replace(LOGIN_ROUTE);
     }
   }, [user, loading, router]);

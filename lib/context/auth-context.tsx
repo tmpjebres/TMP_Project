@@ -57,14 +57,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Init session saat pertama mount ──────────────────────────────────────
   useEffect(() => {
-    const initAuth = async () => {
-      const { data: { session: existing } } = await supabaseClient.auth.getSession();
-      if (existing?.user) {
-        const profile = await loadProfile(existing.user);
-        setUser(profile);
-        setSession(existing);
+    let settled = false;
+
+    // 🛡️ Safety net: kalau getSession() macet/deadlock (bug lock di supabase-js),
+    // paksa loading berhenti setelah 8 detik supaya UI tidak stuck selamanya.
+    const timeoutId = setTimeout(() => {
+      if (!settled) {
+        console.warn('[Auth] initAuth timeout — kemungkinan lock deadlock di supabase-js. Memaksa loading=false.');
+        settled = true;
+        setLoading(false);
       }
-      setLoading(false);
+    }, 8000);
+
+    const initAuth = async () => {
+      try {
+        const { data: { session: existing } } = await supabaseClient.auth.getSession();
+        if (existing?.user) {
+          const profile = await loadProfile(existing.user);
+          setUser(profile);
+          setSession(existing);
+        }
+      } catch (err) {
+        console.error('[Auth] Gagal inisialisasi sesi:', err);
+      } finally {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeoutId);
+          setLoading(false);
+        }
+      }
     };
 
     initAuth();

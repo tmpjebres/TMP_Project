@@ -2,11 +2,9 @@
 const nextConfig = {
   async redirects() {
     return [
-      // Route lama dari era navigasi berbasis state: 'input-makam' dulu me-render
-      // DaftarMakam. Dialihkan di level HTTP supaya tautan lama tidak mati.
       {
-        source: "/dashboard/input-makam",
-        destination: "/dashboard/daftar-makam",
+        source: "/input-makam",
+        destination: "/daftar-makam",
         permanent: false,
       },
     ];
@@ -25,5 +23,4 @@ const nextConfig = {
     ];
   },
 };
-
 module.exports = nextConfig
