@@ -1,7 +1,5 @@
 import type { Page } from '@/types';
 
-// Satu-satunya sumber kebenaran untuk path tiap halaman dashboard.
-// Tipe Page tetap dipakai sebagai identitas halaman; peta ini yang menerjemahkannya ke URL.
 export const ROUTES: Record<Page, string> = {
   'dashboard': '/dashboard',
   'input-tamu': '/dashboard/input-tamu',

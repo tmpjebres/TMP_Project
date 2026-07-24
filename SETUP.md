@@ -67,29 +67,90 @@ Buka http://localhost:3000 dan login dengan username + password yang sudah dibua
 ## Struktur File Backend
 
 ```
-lib/
-├── supabase/
-│   ├── client.ts            # Client browser (anon key) + factory server (service role)
-│   └── database.types.ts    # TypeScript types untuk tabel DB
-├── context/
-│   └── auth-context.tsx     # Auth state (login, logout, update password)
-└── routes.ts                # Peta URL tiap halaman — satu sumber kebenaran
-
-features/
-├── auth/components/         # LoginPage, RequireMaster (guard role master)
-├── tamu/api.ts              # CRUD tamu umum & rombongan
-├── blok/api.ts              # CRUD blok makam
-├── makam/api.ts             # CRUD data makam
-└── user/api.ts              # CRUD user management
-
-app/
-├── page.tsx                 # Root: redirect ke /login atau /dashboard
-├── login/page.tsx           # Halaman login
-├── dashboard/
-│   ├── layout.tsx           # Shell dashboard: guard sesi + Sidebar
-│   └── */page.tsx           # Satu folder per halaman (lihat peta route)
-└── api/users/route.ts       # Server-side API create/delete user
-                             # (menggunakan service role key)
+tmp/
+├── app/                                       # App Router (Next.js) — tiap folder = 1 route URL
+│   ├── layout.tsx                             # Root layout, metadata judul & deskripsi aplikasi
+│   ├── page.tsx                               # Route "/" — hanya redirect ke /dashboard atau /login sesuai sesi
+│   ├── globals.css                            # Style global (Tailwind, tema warna hijau, dsb)
+│   ├── login/
+│   │   └── page.tsx                           # Route "/login" — tampilkan LoginPage, redirect ke dashboard jika sudah login
+│   ├── dashboard/
+│   │   ├── layout.tsx                         # Shell dashboard: guard auth + Sidebar, dipakai semua route di bawahnya
+│   │   ├── page.tsx                            # Route "/dashboard" — halaman ringkasan/statistik
+│   │   ├── daftar-blok/page.tsx                # Route daftar blok makam
+│   │   ├── daftar-makam/page.tsx               # Route daftar data makam
+│   │   ├── daftar-tamu/page.tsx                # Route daftar kunjungan tamu
+│   │   ├── profile/page.tsx                    # Route profil user (ganti password)
+│   │   ├── user-management/page.tsx            # Route kelola user — dibungkus RequireMaster (khusus role master)
+│   │   └── input-tamu/
+│   │       ├── page.tsx                        # Route pilihan jenis input tamu (umum/rombongan)
+│   │       ├── tamu-umum/page.tsx              # Route form input tamu perorangan
+│   │       └── tamu-rombongan/page.tsx         # Route form input tamu rombongan
+│   └── api/
+│       └── users/route.ts                      # API Route server: POST buat user baru (khusus master, service role key)
+│
+├── components/ui/                              # Komponen UI generik/reusable
+│   ├── CameraCapture.tsx                       # Akses kamera device, ambil foto → dataURL
+│   ├── LoadingAnimation.tsx                    # LoadingSpinner (inline) & FullScreenLoader (guard route)
+│   ├── LoadingButton.tsx                       # Tombol dengan state loading & disabled
+│   ├── PaginationBar.tsx                       # Kontrol pagination
+│   ├── Sidebar.tsx                             # Navigasi sidebar; kini pakai next/link + usePathname (bukan state manual)
+│   └── Toast.tsx                               # Notifikasi toast sukses
+│
+├── data/                                       # Data mentah/sumber (bukan bagian runtime aplikasi)
+│   ├── DAFTAR NAMA PAHLAWAN DI TMP 2024 TOFIK.xlsx   # Sumber data asli daftar pahlawan (Excel)
+│   └── data_makam_cleaned.csv                  # Hasil pembersihan data makam siap-impor (nama, blok_id, nrp, pangkat, tgl lahir/gugur, kesatuan)
+│
+├── features/                                   # Modul fitur (logic & tampilan per domain)
+│   ├── auth/components/
+│   │   ├── LoginPage.tsx                       # Form login (username → email dummy, password)
+│   │   └── RequireMaster.tsx                   # Guard komponen: redirect operator yang mencoba akses halaman khusus master
+│   │
+│   ├── dashboard/components/
+│   │   └── Dashboard.tsx                       # Statistik makam, blok, kunjungan (chart recharts)
+│   │
+│   ├── blok/
+│   │   ├── api.ts                              # CRUD blok makam ke Supabase
+│   │   └── components/
+│   │       ├── BlokModal.tsx                   # Form modal tambah/edit blok
+│   │       └── DaftarBlokMakam.tsx             # Halaman daftar blok (list, tambah, edit, hapus — khusus master)
+│   │
+│   ├── makam/
+│   │   ├── api.ts                              # CRUD data makam ke Supabase + konversi format tanggal
+│   │   ├── useMakamData.ts                     # Hook gabungan fetch makam+blok, search, sort, filter
+│   │   ├── validation.ts                       # Validasi form makam
+│   │   ├── search-utils.ts                     # Normalisasi teks & index pencarian
+│   │   ├── sort-utils.ts                       # Utilitas sorting tabel
+│   │   └── components/
+│   │       ├── MakamToolbar.tsx                # Search bar, filter blok, tombol tambah
+│   │       ├── MakamModal.tsx                  # Form modal tambah/edit data makam
+│   │       ├── MakamTable.tsx                  # Tabel data makam + sorting + aksi
+│   │       └── DaftarMakam.tsx                 # Halaman utama daftar makam
+│   │
+│   ├── tamu/
+│   │   ├── api.ts                              # CRUD tamu umum & rombongan + upload foto ke Supabase Storage
+│   │   └── components/
+│   │       ├── InputTamu.tsx                   # Pilihan input tamu umum/rombongan (cards)
+│   │       ├── InputTamuUmum.tsx               # Form input tamu perorangan (+ capture foto)
+│   │       ├── InputTamuRombongan.tsx          # Form input tamu rombongan (+ capture foto)
+│   │       └── DaftarTamu.tsx                  # Daftar seluruh kunjungan tamu
+│   │
+│   └── user/
+│       ├── api.ts                              # CRUD user/profile — khusus master
+│       └── components/
+│           ├── UserManagement.tsx              # Kelola user (tambah, edit role, hapus)
+│           └── Profile.tsx                     # Profil user login: ganti password
+│
+├── lib/
+│   ├── routes.ts                               # 🆕 Sumber kebenaran tunggal pemetaan Page → URL path (ROUTES, LOGIN_ROUTE)
+│   ├── supabase/
+│   │   ├── client.ts                           # Konfigurasi Supabase client (browser & server/service role)
+│   │   └── database.types.ts                   # Types hasil generate dari skema tabel Supabase
+│   └── context/
+│       └── auth-context.tsx                    # Context auth: login, logout, updatePassword, isMaster/isOperator
+│
+└── types/
+    └── index.ts                                # Tipe data global (Role, Page, AuthUser, TamuUmum, TamuRombongan, Blok, Makam, AppUser)
 
 supabase-schema.sql          # Schema lengkap: tabel, RLS, trigger
 .env.local                   # Konfigurasi environment (JANGAN commit ke git!)
