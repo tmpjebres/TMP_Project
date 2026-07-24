@@ -1,16 +1,16 @@
 import type { Page } from '@/types';
 
 export const ROUTES: Record<Page, string> = {
-  'dashboard': '/dashboard',
-  'input-tamu': '/dashboard/input-tamu',
-  'tamu-umum': '/dashboard/input-tamu/tamu-umum',
-  'tamu-rombongan': '/dashboard/input-tamu/tamu-rombongan',
-  'daftar-tamu': '/dashboard/daftar-tamu',
-  'daftar-blok': '/dashboard/daftar-blok',
-  'daftar-makam': '/dashboard/daftar-makam',
-  'input-makam': '/dashboard/input-makam',
-  'user-management': '/dashboard/user-management',
-  'profile': '/dashboard/profile',
+  'dashboard': '/',
+  'input-tamu': '/input-tamu',
+  'tamu-umum': '/input-tamu/tamu-umum',
+  'tamu-rombongan': '/input-tamu/tamu-rombongan',
+  'daftar-tamu': '/daftar-tamu',
+  'daftar-blok': '/daftar-blok',
+  'daftar-makam': '/daftar-makam',
+  'input-makam': '/input-makam',
+  'user-management': '/user-management',
+  'profile': '/profile',
 };
 
 export const LOGIN_ROUTE = '/login';

@@ -8,11 +8,6 @@ import Sidebar from '@/components/ui/Sidebar';
 import { FullScreenLoader } from '@/components/ui/LoadingAnimation';
 
 // Shell dashboard: satu guard dan satu Sidebar untuk semua route di bawah /dashboard.
-//
-// PENTING: guard ini untuk pengarahan UX, BUKAN batas keamanan. Data dijaga oleh
-// RLS di Postgres (supabase-schema.sql); endpoint privileged dijaga verifikasi token
-// di app/api/users/route.ts. Jangan menyematkan rahasia di komponen dashboard dengan
-// asumsi halaman ini hanya bisa dibuka setelah login. Lihat "Model Keamanan" di SETUP.md.
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
