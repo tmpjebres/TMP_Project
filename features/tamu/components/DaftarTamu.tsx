@@ -1,17 +1,24 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Edit, Trash2, X, CheckCircle2, ImageOff, ZoomIn } from "lucide-react";
+import { Search, Edit, Trash2, X, CheckCircle2, ImageOff, ZoomIn, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { getAllTamu, deleteTamu } from "@/features/tamu/api";
 import { supabaseClient } from "@/lib/supabase/client";
 import { Tamu, TamuUmum, TamuRombongan } from "@/types";
 import { useAuth } from "@/lib/context/auth-context";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 
+const NAMA_BULAN = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+
 function formatTanggal(iso: string) {
   if (!iso) return "—";
-  const [y, m, d] = iso.split("-");
-  return `${d}-${m}-${y}`;
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const bulan = NAMA_BULAN[date.getMonth()];
+  return `${d} ${bulan} ${y}`;
 }
 
 function getDisplayName(t: Tamu) {
@@ -27,12 +34,27 @@ export default function DaftarTamu() {
   const [actionError, setActionError] = useState('');
   const [search, setSearch] = useState("");
   const [filterJenis, setFilterJenis] = useState<"semua" | "umum" | "rombongan">("semua");
-  const [filterTanggal, setFilterTanggal] = useState(new Date().toISOString().split("T")[0]);
+  const [filterTanggalMulai, setFilterTanggalMulai] = useState("");
+  const [filterTanggalSampai, setFilterTanggalSampai] = useState("");
   const [editTarget, setEditTarget] = useState<Tamu | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Tamu | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 15;
+
+  type SortKey = "tanggal" | "nama" | "instansi" | "peserta";
+  const [sortKey, setSortKey] = useState<SortKey>("tanggal");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(d => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+    setCurrentPage(1);
+  };
 
   // ─── Load data dari Supabase ────────────────────────────────────────────────
   useEffect(() => {
@@ -50,16 +72,46 @@ export default function DaftarTamu() {
     return tamus.filter((t) => {
       const nameMatch = getDisplayName(t).toLowerCase().includes(search.toLowerCase());
       const jenisMatch = filterJenis === "semua" || t.jenis === filterJenis;
-      const tanggalMatch = !filterTanggal || t.tanggal === filterTanggal;
+      const tanggalMatch =
+        (!filterTanggalMulai || t.tanggal >= filterTanggalMulai) &&
+        (!filterTanggalSampai || t.tanggal <= filterTanggalSampai);
       return nameMatch && jenisMatch && tanggalMatch;
     });
-  }, [tamus, search, filterJenis, filterTanggal]);
+  }, [tamus, search, filterJenis, filterTanggalMulai, filterTanggalSampai]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    const dir = sortDir === "asc" ? 1 : -1;
+
+    arr.sort((a, b) => {
+      switch (sortKey) {
+        case "tanggal":
+          return (a.tanggal > b.tanggal ? 1 : a.tanggal < b.tanggal ? -1 : 0) * dir;
+        case "nama":
+          return getDisplayName(a).localeCompare(getDisplayName(b)) * dir;
+        case "instansi": {
+          const ai = a.jenis === "rombongan" ? (a as TamuRombongan).instansi : "";
+          const bi = b.jenis === "rombongan" ? (b as TamuRombongan).instansi : "";
+          return ai.localeCompare(bi) * dir;
+        }
+        case "peserta": {
+          const ap = a.jenis === "rombongan" ? (a as TamuRombongan).jumlahPeserta : 0;
+          const bp = b.jenis === "rombongan" ? (b as TamuRombongan).jumlahPeserta : 0;
+          return (ap - bp) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return arr;
+  }, [filtered, sortKey, sortDir]);
+
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE);
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, currentPage]);
+    return sorted.slice(start, start + ITEMS_PER_PAGE);
+  }, [sorted, currentPage]);
 
   // ─── Hapus tamu (auto-detect jenis) ─────────────────────────────────────────
   const handleDelete = async () => {
@@ -129,9 +181,30 @@ export default function DaftarTamu() {
             <option value="umum">Umum</option>
             <option value="rombongan">Rombongan</option>
           </select>
-          <input type="date" className="form-input text-base" style={{ width: "auto" }} value={filterTanggal} onChange={(e) => setFilterTanggal(e.target.value)} />
-          {filterTanggal && (
-            <button onClick={() => setFilterTanggal("")} className="text-sm text-neutral-gray hover:text-neutral-black flex items-center gap-1 font-medium">
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              className="form-input text-base"
+              style={{ width: "auto" }}
+              value={filterTanggalMulai}
+              max={filterTanggalSampai || undefined}
+              onChange={(e) => setFilterTanggalMulai(e.target.value)}
+            />
+            <span className="text-neutral-gray text-sm">s/d</span>
+            <input
+              type="date"
+              className="form-input text-base"
+              style={{ width: "auto" }}
+              value={filterTanggalSampai}
+              min={filterTanggalMulai || undefined}
+              onChange={(e) => setFilterTanggalSampai(e.target.value)}
+            />
+          </div>
+          {(filterTanggalMulai || filterTanggalSampai) && (
+            <button
+              onClick={() => { setFilterTanggalMulai(""); setFilterTanggalSampai(""); }}
+              className="text-sm text-neutral-gray hover:text-neutral-black flex items-center gap-1 font-medium"
+            >
               <X size={16} /> Reset tanggal
             </button>
           )}
@@ -146,11 +219,11 @@ export default function DaftarTamu() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th style={{ fontSize: 14 }}>Tanggal</th>
+                  <SortableHeader label="Tanggal" sortKey="tanggal" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
                   <th style={{ fontSize: 14 }}>Jenis</th>
-                  <th style={{ fontSize: 14 }}>Nama / Pimpinan</th>
-                  <th style={{ fontSize: 14 }}>Instansi</th>
-                  <th style={{ fontSize: 14 }}>Peserta</th>
+                  <SortableHeader label="Nama / Pimpinan" sortKey="nama" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+                  <SortableHeader label="Instansi" sortKey="instansi" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+                  <SortableHeader label="Peserta" sortKey="peserta" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
                   <th style={{ fontSize: 14 }}>Tujuan</th>
                   <th style={{ fontSize: 14, textAlign: "center" }}>Bukti Foto</th>
                   <th style={{ fontSize: 14, textAlign: "center" }}>Aksi</th>
@@ -326,6 +399,37 @@ function EditModal({ tamu, onSave, onClose }: { tamu: Tamu; onSave: (t: Tamu) =>
         </div>
       </div>
     </div>
+  );
+}
+
+function SortableHeader({
+  label,
+  sortKey,
+  activeKey,
+  dir,
+  onSort,
+}: {
+  label: string;
+  sortKey: "tanggal" | "nama" | "instansi" | "peserta";
+  activeKey: string;
+  dir: "asc" | "desc";
+  onSort: (key: "tanggal" | "nama" | "instansi" | "peserta") => void;
+}) {
+  const isActive = activeKey === sortKey;
+  return (
+    <th style={{ fontSize: 14 }}>
+      <button
+        onClick={() => onSort(sortKey)}
+        className="flex items-center gap-1 font-semibold hover:text-neutral-black transition-colors"
+      >
+        {label}
+        {isActive ? (
+          dir === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+        ) : (
+          <ArrowUpDown size={14} className="text-neutral-gray/50" />
+        )}
+      </button>
+    </th>
   );
 }
 
