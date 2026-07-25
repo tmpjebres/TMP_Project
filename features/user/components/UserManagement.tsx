@@ -768,14 +768,14 @@ export default function UserManagement() {
                     <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
                       User
                     </th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+                    <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
                       Role
                     </th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+                    <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
                       Bergabung
                     </th>
                     {isMaster && (
-                      <th className="px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide text-right">
+                      <th className="px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide text-center">
                         Aksi
                       </th>
                     )}
@@ -802,15 +802,15 @@ export default function UserManagement() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-3.5 justify-center text-center">
                         <RoleBadge role={u.role} />
                       </td>
-                      <td className="px-5 py-3.5 text-neutral-400 text-xs">
+                      <td className="px-5 py-3.5 text-neutral-400 text-xs text-center">
                         {u.createdAt}
                       </td>
                       {isMaster && (
                         <td className="px-5 py-3.5">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-center gap-1">
                             {/* Edit */}
                             <button
                               onClick={() => setEditTarget(u)}

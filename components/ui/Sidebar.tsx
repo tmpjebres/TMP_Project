@@ -65,7 +65,7 @@ export default function Sidebar() {
               alt="Logo Surakarta"
               className="w-11 h-11 object-contain"
             />
-            <div >
+            <div>
               <h1
                 className="text-sm font-bold text-neutral-black leading-tight"
                 style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
@@ -148,40 +148,37 @@ export default function Sidebar() {
                 <span>User Management</span>
               </Link>
             )}
-            <Link
-              href={ROUTES["profile"]}
-              onClick={closeMobileMenu}
-              className={`nav-item ${isActive("profile") ? "active" : ""}`}
-            >
-              <BookUser size={18} />
-              <span>Profil</span>
-            </Link>
           </div>
         </nav>
 
         {/* Bottom Profile */}
         <div
-          className="p-4 bg-white flex-shrink-0"
+          className="p-4 bg-white flex-shrink-0 "
           style={{ borderTop: "1px solid rgba(221,221,221,0.5)" }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-green-light rounded-full flex items-center justify-center">
-              <User size={18} className="text-green-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-black truncate">
-                {user?.username}
-              </p>
-              <p className="text-xs text-neutral-gray truncate capitalize">
-                {user?.role}
-              </p>
-            </div>
+          <div className="flex items-center gap-3 hover:bg-green-light p-2 rounded-lg transition-colors">
+            <Link
+              href={ROUTES["profile"]}
+              className="flex items-center gap-3 flex-1 min-w-0 "
+            >
+              <div className="w-9 h-9 bg-green-light rounded-full flex items-center justify-center">
+                <User size={18} className="text-green-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-neutral-black truncate">
+                  {user?.username}
+                </p>
+                <p className="text-xs text-neutral-gray truncate capitalize">
+                  {user?.role}
+                </p>
+              </div>
+            </Link>
             <button
               onClick={logout}
               title="Logout"
-              className="p-2 hover:bg-neutral-light-gray rounded-lg transition-colors"
+              className="p-1.5 text-neutral-gray hover:text-white hover:bg-green-primary rounded-lg transition-colors"
             >
-              <LogOut size={16} className="text-neutral-gray" />
+              <LogOut size={16}/>
             </button>
           </div>
         </div>
