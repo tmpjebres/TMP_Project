@@ -63,6 +63,9 @@ export interface Makam {
 export interface AppUser {
   id: string;
   username: string;
+  fullName: string;
   role: Role;
+  isActive: boolean;
+  lastLoginAt: string | null;
   createdAt: string;
 }

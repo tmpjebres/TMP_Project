@@ -7,11 +7,15 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
       username: string;
+      fullName: string;
       password: string;
       role: Role;
     };
 
     // Validasi input
+    if (!body.fullName?.trim()) {
+      return NextResponse.json({ error: 'Nama lengkap wajib diisi.' }, { status: 400 });
+    }
     if (!body.username?.trim()) {
       return NextResponse.json({ error: 'Username wajib diisi.' }, { status: 400 });
     }
@@ -67,6 +71,7 @@ export async function POST(req: NextRequest) {
       email_confirm: true,
       user_metadata: {
         username: body.username.trim(),
+        full_name: body.fullName.trim(),
         role: body.role,
       },
     });
@@ -78,18 +83,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Pastikan full_name tersimpan di profiles, terlepas dari apakah trigger
+    // handle_new_user sudah membaca full_name dari user_metadata atau belum.
+    const { error: profileUpdateError } = await (serverClient
+      .from('profiles') as any)
+      .update({ full_name: body.fullName.trim() })
+      .eq('id', newUser.user.id);
+
+    if (profileUpdateError) {
+      console.error('[API/users POST] gagal set full_name:', profileUpdateError.message);
+    }
+
     // Ambil profile yang sudah dibuat trigger
     const { data: profile } = await serverClient
       .from('profiles')
-      .select('id, username, role, created_at')
+      .select('id, username, full_name, role, is_active, last_login_at, created_at')
       .eq('id', newUser.user.id)
-      .single<{ id: string; username: string; role: Role; created_at: string }>();
+      .single<{
+        id: string;
+        username: string;
+        full_name: string;
+        role: Role;
+        is_active: boolean;
+        last_login_at: string | null;
+        created_at: string;
+      }>();
 
     return NextResponse.json({
       data: {
         id: newUser.user.id,
         username: profile?.username ?? body.username.trim(),
+        fullName: profile?.full_name ?? body.fullName.trim(),
         role: profile?.role ?? body.role,
+        isActive: profile?.is_active ?? true,
+        lastLoginAt: profile?.last_login_at ?? null,
         createdAt: (profile?.created_at ?? new Date().toISOString()).split('T')[0],
       },
     });

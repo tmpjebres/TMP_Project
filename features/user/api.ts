@@ -4,13 +4,19 @@ import type { AppUser, Role } from "@/types";
 function rowToAppUser(row: {
   id: string;
   username: string;
+  full_name: string | null;
   role: string;
+  is_active: boolean | null;
+  last_login_at: string | null;
   created_at: string;
 }): AppUser {
   return {
     id: row.id,
     username: row.username,
+    fullName: row.full_name ?? row.username,
     role: row.role as Role,
+    isActive: row.is_active ?? true,
+    lastLoginAt: row.last_login_at,
     createdAt: row.created_at.split("T")[0],
   };
 }
@@ -49,7 +55,7 @@ export async function getAllUsers(): Promise<{
 }> {
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("id, username, role, created_at")
+    .select("id, username, full_name, role, is_active, last_login_at, created_at")
     .order("created_at", { ascending: true });
 
   if (error) return { data: [], error: error.message };
@@ -58,13 +64,15 @@ export async function getAllUsers(): Promise<{
 
 export async function updateUserProfile(
   userId: string,
-  updates: { username?: string; role?: Role },
+  updates: { username?: string; fullName?: string; role?: Role },
 ): Promise<{ data?: AppUser; error?: string }> {
   // Validasi input awal
   if (!userId) return { error: "ID user tidak valid." };
 
   const hasNoUpdates =
-    updates.username === undefined && updates.role === undefined;
+    updates.username === undefined &&
+    updates.fullName === undefined &&
+    updates.role === undefined;
   if (hasNoUpdates) return { error: "Tidak ada perubahan yang dikirim." };
 
   if (updates.username !== undefined) {
@@ -76,6 +84,12 @@ export async function updateUserProfile(
       return { error: "Username hanya boleh mengandung huruf, angka, dan simbol _ . -" };
     }
     updates = { ...updates, username: trimmed };
+  }
+
+  if (updates.fullName !== undefined) {
+    const trimmed = updates.fullName.trim();
+    if (!trimmed) return { error: "Nama lengkap tidak boleh kosong." };
+    updates = { ...updates, fullName: trimmed };
   }
 
   // Verifikasi hak akses
@@ -105,15 +119,16 @@ export async function updateUserProfile(
     if (existing) return { error: "Username sudah digunakan oleh user lain." };
   }
 
-  const payload: Partial<{ username: string; role: Role }> = {};
+  const payload: Partial<{ username: string; full_name: string; role: Role }> = {};
   if (updates.username !== undefined) payload.username = updates.username;
+  if (updates.fullName !== undefined) payload.full_name = updates.fullName;
   if (updates.role !== undefined) payload.role = updates.role;
 
   const { data, error } = await (supabaseClient
     .from("profiles") as any)
     .update(payload)
     .eq("id", userId)
-    .select("id, username, role, created_at")
+    .select("id, username, full_name, role, is_active, last_login_at, created_at")
     .single();
 
   if (error) {

@@ -91,6 +91,35 @@ function RoleBadge({ role }: { role: Role }) {
   );
 }
 
+// ─── Status Badge ───────────────────────────────────────────────────────────
+
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  return isActive ? (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+      Aktif
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-neutral-100 text-neutral-500 border border-neutral-200">
+      <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
+      Nonaktif
+    </span>
+  );
+}
+
+function formatLastLogin(value: string | null) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 // ─── Avatar ─────────────────────────────────────────────────────────────────
 
 function Avatar({ username, role }: { username: string; role: Role }) {
@@ -118,20 +147,30 @@ function EditUserModal({
 }: {
   user: AppUser;
   currentUserId: string;
-  onSave: (id: string, data: { username: string; role: Role }) => Promise<void>;
+  onSave: (id: string, data: { username: string; fullName: string; role: Role }) => Promise<void>;
   onClose: () => void;
 }) {
-  const [form, setForm] = useState({ username: user.username, role: user.role });
+  const [form, setForm] = useState({
+    username: user.username,
+    fullName: user.fullName,
+    role: user.role,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const isSelf = user.id === currentUserId;
 
   // Detect changes
   const hasChanges =
-    form.username.trim() !== user.username || form.role !== user.role;
+    form.username.trim() !== user.username ||
+    form.fullName.trim() !== user.fullName ||
+    form.role !== user.role;
 
   const handleSave = async () => {
     setError("");
+    if (!form.fullName.trim()) {
+      setError("Nama lengkap tidak boleh kosong.");
+      return;
+    }
     if (!form.username.trim()) {
       setError("Username tidak boleh kosong.");
       return;
@@ -145,7 +184,11 @@ function EditUserModal({
       return;
     }
     setLoading(true);
-    await onSave(user.id, { username: form.username.trim(), role: form.role });
+    await onSave(user.id, {
+      username: form.username.trim(),
+      fullName: form.fullName.trim(),
+      role: form.role,
+    });
     setLoading(false);
   };
 
@@ -180,6 +223,24 @@ function EditUserModal({
 
         {/* Body */}
         <div className="px-6 py-5 space-y-4">
+          {/* Nama Lengkap */}
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+              Nama Lengkap
+            </label>
+            <input
+              type="text"
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 bg-neutral-50
+                focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white outline-none transition-colors"
+              value={form.fullName}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, fullName: e.target.value }));
+                setError("");
+              }}
+              disabled={loading}
+            />
+          </div>
+
           {/* Username */}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
@@ -246,6 +307,13 @@ function EditUserModal({
               <p className="font-semibold flex items-center gap-1.5">
                 <AlertTriangle size={12} /> Perubahan yang akan disimpan:
               </p>
+              {form.fullName.trim() !== user.fullName && (
+                <p>
+                  Nama:{" "}
+                  <span className="line-through text-neutral-500">{user.fullName}</span>{" "}
+                  → <span className="font-semibold">{form.fullName.trim()}</span>
+                </p>
+              )}
               {form.username.trim() !== user.username && (
                 <p>
                   Username:{" "}
@@ -268,7 +336,7 @@ function EditUserModal({
         <div className="px-6 pb-6 flex gap-2.5">
           <button
             onClick={handleSave}
-            disabled={loading || !hasChanges || !form.username.trim()}
+            disabled={loading || !hasChanges || !form.username.trim() || !form.fullName.trim()}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
               bg-green-primary text-white hover:bg-green-secondary active:bg-green-primary
               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -370,20 +438,27 @@ function CreateUserModal({
   onSave,
   onClose,
 }: {
-  onSave: (d: { username: string; role: Role; password: string }) => Promise<void>;
+  onSave: (d: { username: string; fullName: string; role: Role; password: string }) => Promise<void>;
   onClose: () => void;
 }) {
   const [form, setForm] = useState({
     username: "",
+    fullName: "",
     role: "operator" as Role,
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    fullName?: string;
+    password?: string;
+  }>({});
 
   const validate = (): boolean => {
-    const errs: { username?: string; password?: string } = {};
+    const errs: { username?: string; fullName?: string; password?: string } = {};
+    if (!form.fullName.trim()) errs.fullName = "Nama lengkap wajib diisi.";
+
     if (!form.username.trim()) errs.username = "Username wajib diisi.";
     else if (form.username.trim().length < 3) errs.username = "Minimal 3 karakter.";
     else if (!/^[a-zA-Z0-9_.-]+$/.test(form.username.trim()))
@@ -401,7 +476,7 @@ function CreateUserModal({
     if (!validate()) return;
     setLoading(true);
     try {
-      await onSave({ ...form, username: form.username.trim() });
+      await onSave({ ...form, username: form.username.trim(), fullName: form.fullName.trim() });
     } catch {
       setError("Terjadi kesalahan. Coba lagi.");
     }
@@ -441,11 +516,38 @@ function CreateUserModal({
 
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-              Username
+              Nama Lengkap
             </label>
             <input
               type="text"
               autoFocus
+              className={`w-full px-3.5 py-2.5 text-sm rounded-xl border outline-none transition-colors
+                ${fieldErrors.fullName
+                  ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  : "border-neutral-200 bg-neutral-50 focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white"
+                }`}
+              placeholder="contoh: John Doe"
+              value={form.fullName}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, fullName: e.target.value }));
+                setFieldErrors((prev) => ({ ...prev, fullName: undefined }));
+              }}
+              disabled={loading}
+            />
+            {fieldErrors.fullName && (
+              <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                <AlertTriangle size={11} />
+                {fieldErrors.fullName}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+              Username
+            </label>
+            <input
+              type="text"
               className={`w-full px-3.5 py-2.5 text-sm rounded-xl border outline-none transition-colors
                 ${fieldErrors.username
                   ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
@@ -567,6 +669,7 @@ export default function UserManagement() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editTarget, setEditTarget] = useState<AppUser | null>(null);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | Role>("all");
   const { toasts, push: pushToast, dismiss } = useToast();
 
   const isMaster = user?.role === "master";
@@ -584,16 +687,23 @@ export default function UserManagement() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Filter ────────────────────────────────────────────────────────────────
-  const filtered = users.filter(
-    (u) =>
-      u.username.toLowerCase().includes(search.toLowerCase()) ||
-      u.role.toLowerCase().includes(search.toLowerCase()),
-  );
+  // ─── Filter & Sort ─────────────────────────────────────────────────────────
+  const filtered = users
+    .filter((u) => {
+      const q = search.toLowerCase();
+      return (
+        (roleFilter === "all" || u.role === roleFilter) &&
+        (u.fullName.toLowerCase().includes(q) ||
+          u.username.toLowerCase().includes(q) ||
+          u.role.toLowerCase().includes(q))
+      );
+    })
+    .sort((a, b) => a.fullName.localeCompare(b.fullName, undefined, { sensitivity: "base" }));
 
   // ─── Create ────────────────────────────────────────────────────────────────
   const handleCreate = async (data: {
     username: string;
+    fullName: string;
     role: Role;
     password: string;
   }) => {
@@ -628,7 +738,7 @@ export default function UserManagement() {
   // ─── Update ────────────────────────────────────────────────────────────────
   const handleUpdate = async (
     userId: string,
-    data: { username: string; role: Role },
+    data: { username: string; fullName: string; role: Role },
   ) => {
     const { data: updated, error } = await updateUserProfile(userId, data);
 
@@ -715,28 +825,48 @@ export default function UserManagement() {
           )}
         </div>
 
-        {/* ── Search ── */}
-        <div className="relative mb-4">
-          <Search
-            size={15}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="Cari username atau role..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-neutral-200
-              bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-colors"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+        {/* ── Search & Filter ── */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="relative flex-1">
+            <Search
+              size={15}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+            />
+            <input
+              type="text"
+              placeholder="Cari nama, username, atau role..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-neutral-200
+                bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-colors"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          <div className="relative">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value as "all" | Role)}
+              className="appearance-none pl-3.5 pr-9 py-2.5 text-sm rounded-xl border border-neutral-200
+                bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-colors
+                cursor-pointer"
             >
-              <X size={14} />
-            </button>
-          )}
+              <option value="all">Semua Role</option>
+              <option value="master">Master</option>
+              <option value="operator">Operator</option>
+            </select>
+            <ChevronDown
+              size={14}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+            />
+          </div>
         </div>
 
         {/* ── Table ── */}
@@ -749,14 +879,19 @@ export default function UserManagement() {
             <div className="flex flex-col items-center justify-center py-20 gap-2 text-neutral-400">
               <User size={32} className="opacity-30" />
               <p className="text-sm font-medium">
-                {search ? "Tidak ada hasil yang cocok." : "Belum ada user."}
+                {search || roleFilter !== "all"
+                  ? "Tidak ada hasil yang cocok."
+                  : "Belum ada user."}
               </p>
-              {search && (
+              {(search || roleFilter !== "all") && (
                 <button
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    setRoleFilter("all");
+                  }}
                   className="text-xs text-violet-500 hover:underline"
                 >
-                  Reset pencarian
+                  Reset filter
                 </button>
               )}
             </div>
@@ -766,13 +901,16 @@ export default function UserManagement() {
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50/60">
                     <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-                      User
+                      Pengguna
                     </th>
                     <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
                       Role
                     </th>
                     <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-                      Bergabung
+                      Status
+                    </th>
+                    <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+                      Login Terakhir
                     </th>
                     {isMaster && (
                       <th className="px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide text-center">
@@ -790,23 +928,31 @@ export default function UserManagement() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <Avatar username={u.username} role={u.role} />
-                          <div>
-                            <span className="font-semibold text-neutral-900">
-                              {u.username}
-                            </span>
-                            {u.id === user?.id && (
-                              <span className="ml-2 text-xs text-violet-500 font-medium bg-violet-50 px-1.5 py-0.5 rounded-md">
-                                Anda
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-neutral-900 truncate">
+                                {u.fullName}
                               </span>
-                            )}
+                              {u.id === user?.id && (
+                                <span className="text-xs text-violet-500 font-medium bg-violet-50 px-1.5 py-0.5 rounded-md flex-shrink-0">
+                                  Anda
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-neutral-400 truncate">
+                              @{u.username}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-3.5 justify-center text-center">
                         <RoleBadge role={u.role} />
                       </td>
+                      <td className="px-5 py-3.5 text-center">
+                        <StatusBadge isActive={u.isActive} />
+                      </td>
                       <td className="px-5 py-3.5 text-neutral-400 text-xs text-center">
-                        {u.createdAt}
+                        {formatLastLogin(u.lastLoginAt)}
                       </td>
                       {isMaster && (
                         <td className="px-5 py-3.5">
