@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 import CameraCapture from "@/components/ui/CameraCapture";
-import { createTamuRombongan } from "@/features/tamu/api";
-import { ROUTES } from "@/lib/routes";
 import LoadingButton from "@/components/ui/LoadingButton";
+import { createTamuRombongan } from "@/features/tamu/api";
+import { today } from "@/features/tamu/utils";
+import { useAutoTodayDate } from "@/features/tamu/hooks/useAutoTodayDate";
+import { ROUTES } from "@/lib/routes";
 
-const today = () => new Date().toISOString().split("T")[0];
-const emptyForm = () => ({
+type FormState = {
+  tanggal: string;
+  namaPimpinan: string;
+  instansi: string;
+  jumlahPeserta: string;
+  tujuan: string;
+};
+
+const emptyForm = (): FormState => ({
   tanggal: today(),
   namaPimpinan: "",
   instansi: "",
@@ -20,32 +29,18 @@ const emptyForm = () => ({
 
 export default function InputTamuRombongan() {
   const router = useRouter();
-  const [form, setForm] = useState(emptyForm());
+  const [form, setForm] = useState<FormState>(emptyForm());
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [todayStr, setTodayStr] = useState(today());
 
-  // Realtime: kalau ganti hari (midnight), tanggal otomatis ikut berubah
-  useEffect(() => {
-    const id = window.setInterval(() => setTodayStr(today()), 30_000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    setForm((f) => (f.tanggal === todayStr ? f : { ...f, tanggal: todayStr }));
-  }, [todayStr]);
+  const { todayStr, handleTanggalChange } = useAutoTodayDate<FormState>(setForm);
 
   const set =
-    (k: keyof typeof form) =>
+    (k: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const handleTanggalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setForm((f) => ({ ...f, tanggal: v === todayStr ? v : todayStr }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

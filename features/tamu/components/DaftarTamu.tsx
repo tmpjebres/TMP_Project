@@ -1,31 +1,18 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Edit, Trash2, X, CheckCircle2, ImageOff, ZoomIn, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { getAllTamu, deleteTamu } from "@/features/tamu/api";
-import { supabaseClient } from "@/lib/supabase/client";
-import { Tamu, TamuUmum, TamuRombongan } from "@/types";
+import { Search, Edit, Trash2, X, ImageOff, ZoomIn } from "lucide-react";
+import { getAllTamu, deleteTamu, updateTamu } from "@/features/tamu/api";
+import { formatTanggal, getDisplayName } from "@/features/tamu/utils";
+import { Tamu, TamuRombongan } from "@/types";
 import { useAuth } from "@/lib/context/auth-context";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
+import EditModal from "@/features/tamu/components/EditModal";
+import ConfirmDialog from "@/features/tamu/components/ConfirmDialog";
+import PhotoPreviewModal from "@/features/tamu/components/PhotoPreviewModal";
+import SortableHeader, { SortKey } from "@/features/tamu/components/SortableHeader";
 
-const NAMA_BULAN = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
-];
-
-function formatTanggal(iso: string) {
-  if (!iso) return "—";
-  const [y, m, d] = iso.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  const bulan = NAMA_BULAN[date.getMonth()];
-  return `${d} ${bulan} ${y}`;
-}
-
-function getDisplayName(t: Tamu) {
-  return t.jenis === "umum"
-    ? (t as TamuUmum).nama
-    : (t as TamuRombongan).namaPimpinan;
-}
+const ITEMS_PER_PAGE = 15;
 
 export default function DaftarTamu() {
   const { isMaster } = useAuth();
@@ -40,9 +27,7 @@ export default function DaftarTamu() {
   const [deleteTarget, setDeleteTarget] = useState<Tamu | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 15;
 
-  type SortKey = "tanggal" | "nama" | "instansi" | "peserta";
   const [sortKey, setSortKey] = useState<SortKey>("tanggal");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -69,13 +54,19 @@ export default function DaftarTamu() {
   }, []);
 
   const filtered = useMemo(() => {
+    const query = search.toLowerCase();
     return tamus.filter((t) => {
-      const nameMatch = getDisplayName(t).toLowerCase().includes(search.toLowerCase());
+      const instansi = t.jenis === "rombongan" ? (t as TamuRombongan).instansi : "";
+      const searchMatch =
+        !query ||
+        getDisplayName(t).toLowerCase().includes(query) ||
+        instansi.toLowerCase().includes(query) ||
+        t.tujuan.toLowerCase().includes(query);
       const jenisMatch = filterJenis === "semua" || t.jenis === filterJenis;
       const tanggalMatch =
         (!filterTanggalMulai || t.tanggal >= filterTanggalMulai) &&
         (!filterTanggalSampai || t.tanggal <= filterTanggalSampai);
-      return nameMatch && jenisMatch && tanggalMatch;
+      return searchMatch && jenisMatch && tanggalMatch;
     });
   }, [tamus, search, filterJenis, filterTanggalMulai, filterTanggalSampai]);
 
@@ -122,33 +113,10 @@ export default function DaftarTamu() {
     setDeleteTarget(null);
   };
 
-  // ─── Update tamu (via Supabase langsung) ────────────────────────────────────
+  // ─── Update tamu (auto-detect jenis) ────────────────────────────────────────
   const handleEditSave = async (updated: Tamu) => {
     setActionError('');
-    let error: string | undefined;
-
-    if (updated.jenis === 'umum') {
-      const u = updated as TamuUmum;
-      const { error: err } = await (supabaseClient
-        .from('tamu_umum') as any)
-        .update({ tanggal: u.tanggal, nama: u.nama, tujuan: u.tujuan })
-        .eq('id', u.id);
-      error = err?.message;
-    } else {
-      const r = updated as TamuRombongan;
-      const { error: err } = await (supabaseClient
-        .from('tamu_rombongan') as any)
-        .update({
-          tanggal: r.tanggal,
-          nama_pimpinan: r.namaPimpinan,
-          instansi: r.instansi,
-          jumlah_peserta: r.jumlahPeserta,
-          tujuan: r.tujuan,
-        })
-        .eq('id', r.id);
-      error = err?.message;
-    }
-
+    const { error } = await updateTamu(updated);
     if (error) { setActionError(error); return; }
     setTamus(prev => prev.map(t => (t.id === updated.id ? updated : t)));
     setEditTarget(null);
@@ -174,7 +142,7 @@ export default function DaftarTamu() {
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-48">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray" size={18} />
-            <input className="form-input pl-10 text-base" placeholder="Cari nama..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="form-input pl-10 text-base" placeholder="Cari nama, instansi, atau tujuan..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <select className="form-input text-base" style={{ width: "auto" }} value={filterJenis} onChange={(e) => setFilterJenis(e.target.value as "semua" | "umum" | "rombongan")}>
             <option value="semua">Semua Jenis</option>
@@ -306,34 +274,7 @@ export default function DaftarTamu() {
       </div>
 
       {photoPreview && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={() => setPhotoPreview(null)}
-        >
-          <div
-            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl max-w-lg w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 16, fontWeight: 700 }} className="text-neutral-black">
-                Bukti Foto Tamu
-              </h2>
-              <button
-                onClick={() => setPhotoPreview(null)}
-                className="p-2 hover:bg-neutral-light-gray rounded-lg transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-4">
-              <img
-                src={photoPreview}
-                alt="Bukti foto tamu"
-                className="w-full rounded-xl object-contain max-h-[70vh]"
-              />
-            </div>
-          </div>
-        </div>
+        <PhotoPreviewModal photoUrl={photoPreview} onClose={() => setPhotoPreview(null)} />
       )}
       {editTarget && <EditModal tamu={editTarget} onSave={handleEditSave} onClose={() => setEditTarget(null)} />}
       {deleteTarget && (
@@ -343,107 +284,6 @@ export default function DaftarTamu() {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
-    </div>
-  );
-}
-
-function EditModal({ tamu, onSave, onClose }: { tamu: Tamu; onSave: (t: Tamu) => void; onClose: () => void }) {
-  const [form, setForm] = useState({ ...tamu });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm(f => ({ ...f, [k]: e.target.value }));
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 20, fontWeight: 700 }} className="text-neutral-black">Edit Tamu</h2>
-          <button onClick={onClose} className="p-2 hover:bg-neutral-light-gray rounded-lg"><X size={20} /></button>
-        </div>
-        <div className="space-y-5">
-          <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">Tanggal</label>
-            <input type="date" className="form-input text-base py-3.5" value={form.tanggal} onChange={set("tanggal")} />
-          </div>
-          {tamu.jenis === "umum" ? (
-            <div>
-              <label className="block text-base font-semibold text-neutral-black mb-2">Nama</label>
-              <input type="text" className="form-input text-base py-3.5" value={(form as TamuUmum).nama} onChange={set("nama")} />
-            </div>
-          ) : (
-            <>
-              <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Nama Pimpinan</label>
-                <input type="text" className="form-input text-base py-3.5" value={(form as TamuRombongan).namaPimpinan} onChange={set("namaPimpinan")} />
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Instansi</label>
-                <input type="text" className="form-input text-base py-3.5" value={(form as TamuRombongan).instansi} onChange={set("instansi")} />
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Jumlah Peserta</label>
-                <input type="number" className="form-input text-base py-3.5" value={(form as TamuRombongan).jumlahPeserta}
-                  onChange={e => setForm(f => ({ ...f, jumlahPeserta: Number(e.target.value) }))} />
-              </div>
-            </>
-          )}
-          <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">Tujuan</label>
-            <textarea rows={3} className="form-input text-base resize-none" value={form.tujuan} onChange={set("tujuan")} />
-          </div>
-        </div>
-        <div className="flex gap-3 mt-7">
-          <button onClick={() => onSave(form as Tamu)} className="btn-primary text-base py-3">
-            <CheckCircle2 size={18} className="mr-2" /> Simpan
-          </button>
-          <button onClick={onClose} className="btn-secondary text-base py-3">Batal</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SortableHeader({
-  label,
-  sortKey,
-  activeKey,
-  dir,
-  onSort,
-}: {
-  label: string;
-  sortKey: "tanggal" | "nama" | "instansi" | "peserta";
-  activeKey: string;
-  dir: "asc" | "desc";
-  onSort: (key: "tanggal" | "nama" | "instansi" | "peserta") => void;
-}) {
-  const isActive = activeKey === sortKey;
-  return (
-    <th style={{ fontSize: 14 }}>
-      <button
-        onClick={() => onSort(sortKey)}
-        className="flex items-center gap-1 font-semibold hover:text-neutral-black transition-colors"
-      >
-        {label}
-        {isActive ? (
-          dir === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />
-        ) : (
-          <ArrowUpDown size={14} className="text-neutral-gray/50" />
-        )}
-      </button>
-    </th>
-  );
-}
-
-function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8">
-        <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black mb-3">Konfirmasi Hapus</h2>
-        <p className="text-base text-neutral-gray mb-7">{message}</p>
-        <div className="flex gap-3">
-          <button onClick={onConfirm} className="px-6 py-3 bg-status-danger text-white text-base font-semibold rounded-lg hover:opacity-90 transition-opacity">Hapus</button>
-          <button onClick={onCancel} className="btn-secondary text-base py-3">Batal</button>
-        </div>
-      </div>
     </div>
   );
 }

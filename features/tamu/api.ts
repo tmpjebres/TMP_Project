@@ -144,7 +144,6 @@ export async function createTamuUmum(
   const fotoUrl = await uploadFoto(payload.fotoBase64, 'tamu-umum', fileName);
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto tamu.' };
 
-
   const { data, error } = await (supabaseClient
     .from('tamu_umum') as any)
     .insert({
@@ -172,7 +171,6 @@ export async function createTamuRombongan(
   const fotoUrl = await uploadFoto(payload.fotoBase64, 'tamu-rombongan', fileName);
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto pimpinan rombongan.' };
 
-
   const { data, error } = await (supabaseClient
     .from('tamu_rombongan') as any)
     .insert({
@@ -189,6 +187,38 @@ export async function createTamuRombongan(
 
   if (error || !data) return { data: null, error: error?.message ?? 'Gagal menyimpan tamu rombongan.' };
   return { data: rowToTamuRombongan(data) };
+}
+
+// ─── UPDATE: Tamu Umum ────────────────────────────────────────────────────────
+export async function updateTamuUmum(tamu: TamuUmum): Promise<{ error?: string }> {
+  const { error } = await (supabaseClient
+    .from('tamu_umum') as any)
+    .update({ tanggal: tamu.tanggal, nama: tamu.nama, tujuan: tamu.tujuan })
+    .eq('id', tamu.id);
+
+  return { error: error?.message };
+}
+
+// ─── UPDATE: Tamu Rombongan ───────────────────────────────────────────────────
+export async function updateTamuRombongan(tamu: TamuRombongan): Promise<{ error?: string }> {
+  const { error } = await (supabaseClient
+    .from('tamu_rombongan') as any)
+    .update({
+      tanggal: tamu.tanggal,
+      nama_pimpinan: tamu.namaPimpinan,
+      instansi: tamu.instansi,
+      jumlah_peserta: tamu.jumlahPeserta,
+      tujuan: tamu.tujuan,
+    })
+    .eq('id', tamu.id);
+
+  return { error: error?.message };
+}
+
+// ─── UPDATE: Tamu (auto-detect jenis) ─────────────────────────────────────────
+export async function updateTamu(tamu: Tamu): Promise<{ error?: string }> {
+  if (tamu.jenis === 'umum') return updateTamuUmum(tamu as TamuUmum);
+  return updateTamuRombongan(tamu as TamuRombongan);
 }
 
 // ─── DELETE: Tamu Umum ────────────────────────────────────────────────────────
