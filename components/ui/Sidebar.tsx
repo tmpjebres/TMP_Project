@@ -16,14 +16,17 @@ import {
   X,
   BookUser,
   Grid3x3,
+  ChevronLeft,
 } from "lucide-react";
 import { Page } from "@/types";
 import { ROUTES } from "@/lib/routes";
 import { useAuth } from "@/lib/context/auth-context";
+import { useSidebar } from "@/lib/context/sidebar-context";
 
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout, isMaster } = useAuth();
+  const { collapsed, toggleCollapsed } = useSidebar();
   const pathname = usePathname();
 
   // Halaman aktif dibaca dari URL. `also` menandai sub-halaman yang ikut
@@ -45,8 +48,9 @@ export default function Sidebar() {
       <aside
         className={`
         fixed left-0 top-0 h-full bg-white z-40 flex flex-col
-        transition-transform duration-300 ease-out
-        lg:translate-x-0 lg:w-64 w-64
+        transition-all duration-300 ease-out
+        lg:translate-x-0 w-64
+        ${collapsed ? "lg:w-20" : "lg:w-64"}
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
         style={{
@@ -54,25 +58,35 @@ export default function Sidebar() {
           boxShadow: "4px 0 24px rgba(0,0,0,0.06)",
         }}
       >
+        {/* Tombol collapse (desktop only) */}
+        <button
+          onClick={toggleCollapsed}
+          title={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
+          className="hidden lg:flex absolute -right-3 top-6 w-6 h-6 items-center justify-center rounded-full bg-white text-neutral-gray hover:text-green-primary z-50"
+          style={{ border: "1px solid rgba(221,221,221,0.8)", boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}
+        >
+          <ChevronLeft size={14} className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`} />
+        </button>
+
         {/* Logo */}
         <div
-          className="h-16 flex items-center px-3 flex-shrink-0"
+          className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden"
           style={{ borderBottom: "1px solid rgba(221,221,221,0.5)" }}
         >
           <div className="flex items-center gap-1">
             <img
               src="/logo-surakarta.png"
               alt="Logo Surakarta"
-              className="w-11 h-11 object-contain"
+              className="w-11 h-11 object-contain flex-shrink-0"
             />
-            <div>
+            <div className={collapsed ? "lg:hidden" : ""}>
               <h1
-                className="text-sm font-bold text-neutral-black leading-tight"
+                className="text-sm font-bold text-neutral-black leading-tight whitespace-nowrap"
                 style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
               >
                 Dinas Sosial <br></br> Kota Surakarta
               </h1>
-              <p className="text-neutral-gray" style={{ fontSize: 10 }}>
+              <p className="text-neutral-gray whitespace-nowrap" style={{ fontSize: 10 }}>
                 Sistem Taman Makam Pahlawan
               </p>
             </div>
@@ -80,75 +94,83 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1 overflow-y-auto flex-1">
-          <Link
-            href={ROUTES["dashboard"]}
-            onClick={closeMobileMenu}
-            className={`nav-item ${isActive("dashboard") ? "active" : ""}`}
-          >
-            <LayoutDashboard size={18} />
-            <span>Dashboard</span>
-          </Link>
+        <nav className="p-4 space-y-1 overflow-y-auto overflow-x-hidden flex-1">
+          {isMaster && (
+            <Link
+              href={ROUTES["dashboard"]}
+              onClick={closeMobileMenu}
+              title="Dashboard"
+              className={`nav-item ${isActive("dashboard") ? "active" : ""}`}
+            >
+              <LayoutDashboard size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Dashboard</span>
+            </Link>
+          )}
 
           <div className="mt-6">
-            <p className="px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2">
+            <p className={`px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>
               Buku Tamu
             </p>
             <Link
               href={ROUTES["input-tamu"]}
               onClick={closeMobileMenu}
+              title="Input Tamu"
               className={`nav-item ${isActive("input-tamu", ["tamu-umum", "tamu-rombongan"]) ? "active" : ""}`}
             >
-              <Plus size={18} />
-              <span>Input Tamu</span>
+              <Plus size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Input Tamu</span>
             </Link>
             <Link
               href={ROUTES["daftar-tamu"]}
               onClick={closeMobileMenu}
+              title="Daftar Tamu"
               className={`nav-item ${isActive("daftar-tamu") ? "active" : ""}`}
             >
-              <List size={18} />
-              <span>Daftar Tamu</span>
+              <List size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Daftar Tamu</span>
             </Link>
           </div>
 
           <div className="mt-6">
-            <p className="px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2">
+            <p className={`px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>
               Database Makam
             </p>
             <Link
               href={ROUTES["daftar-blok"]}
               onClick={closeMobileMenu}
+              title="Blok Makam"
               className={`nav-item ${isActive("daftar-blok") ? "active" : ""}`}
             >
-              <Grid3x3 size={18} />
-              <span>Blok Makam</span>
+              <Grid3x3 size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Blok Makam</span>
             </Link>
             <Link
               href={ROUTES["daftar-makam"]}
               onClick={closeMobileMenu}
+              title="Daftar Makam"
               className={`nav-item ${isActive("daftar-makam") ? "active" : ""}`}
             >
-              <Database size={18} />
-              <span>Daftar Makam</span>
+              <Database size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Daftar Makam</span>
             </Link>
           </div>
 
-          <div className="mt-6">
-            <p className="px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2">
-              Sistem
-            </p>
-            {isMaster && (
+          {isMaster && (
+            <div className="mt-6">
+              <p className={`px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>
+                Sistem
+              </p>
               <Link
                 href={ROUTES["user-management"]}
                 onClick={closeMobileMenu}
+                title="User Management"
                 className={`nav-item ${isActive("user-management") ? "active" : ""}`}
               >
-                <Users size={18} />
-                <span>User Management</span>
+                <Users size={18} className="flex-shrink-0" />
+                <span className={collapsed ? "lg:hidden" : ""}>User Management</span>
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </nav>
 
         {/* Bottom Profile */}
@@ -159,12 +181,13 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 hover:bg-green-light p-2 rounded-lg transition-colors">
             <Link
               href={ROUTES["profile"]}
+              title="Profil"
               className="flex items-center gap-3 flex-1 min-w-0 "
             >
-              <div className="w-9 h-9 bg-green-light rounded-full flex items-center justify-center">
+              <div className="w-9 h-9 bg-green-light rounded-full flex items-center justify-center flex-shrink-0">
                 <User size={18} className="text-green-primary" />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className={`flex-1 min-w-0 ${collapsed ? "lg:hidden" : ""}`}>
                 <p className="text-sm font-medium text-neutral-black truncate">
                   {user?.username}
                 </p>
@@ -176,7 +199,7 @@ export default function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="p-1.5 text-neutral-gray hover:text-white hover:bg-green-primary rounded-lg transition-colors"
+              className={`p-1.5 text-neutral-gray hover:text-white hover:bg-green-primary rounded-lg transition-colors flex-shrink-0 ${collapsed ? "lg:hidden" : ""}`}
             >
               <LogOut size={16}/>
             </button>

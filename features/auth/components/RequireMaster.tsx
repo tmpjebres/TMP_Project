@@ -6,14 +6,14 @@ import { useAuth } from '@/lib/context/auth-context';
 import { ROUTES } from '@/lib/routes';
 import { LoadingSpinner } from '@/components/ui/LoadingAnimation';
 
-// Guard role: hanya master yang boleh masuk, operator dikembalikan ke dashboard.
+// Guard role: hanya master yang boleh masuk, operator dikembalikan ke input-tamu.
 export default function RequireMaster({ children }: { children: React.ReactNode }) {
   const { isMaster, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && !isMaster) {
-      router.replace(ROUTES['dashboard']);
+      router.replace(ROUTES['input-tamu']);
     }
   }, [isMaster, loading, router]);
 
