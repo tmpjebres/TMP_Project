@@ -59,8 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let settled = false;
 
-    // 🛡️ Safety net: kalau getSession() macet/deadlock (bug lock di supabase-js),
-    // paksa loading berhenti setelah 8 detik supaya UI tidak stuck selamanya.
     const timeoutId = setTimeout(() => {
       if (!settled) {
         console.warn('[Auth] initAuth timeout — kemungkinan lock deadlock di supabase-js. Memaksa loading=false.');

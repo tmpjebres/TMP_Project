@@ -11,6 +11,7 @@ export const ROUTES: Record<Page, string> = {
   'input-makam': '/input-makam',
   'user-management': '/user-management',
   'profile': '/profile',
+  'help': '/help',
 };
 
 export const LOGIN_ROUTE = '/login';

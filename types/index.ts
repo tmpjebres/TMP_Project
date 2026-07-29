@@ -10,7 +10,8 @@ export type Page =
   | 'daftar-makam'
   | 'input-makam'
   | 'user-management'
-  | 'profile';
+  | 'profile'
+  | 'help';
 
 export interface AuthUser {
   id: string;
