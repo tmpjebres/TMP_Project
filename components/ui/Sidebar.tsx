@@ -10,13 +10,12 @@ import {
   LogOut,
   Plus,
   List,
-  Flag,
   User,
   Menu,
   X,
-  BookUser,
   Grid3x3,
   ChevronLeft,
+  CalendarDays,
 } from "lucide-react";
 import { Page } from "@/types";
 import { ROUTES } from "@/lib/routes";
@@ -128,6 +127,15 @@ export default function Sidebar() {
             >
               <List size={18} className="flex-shrink-0" />
               <span className={collapsed ? "lg:hidden" : ""}>Daftar Tamu</span>
+            </Link>
+            <Link
+              href={ROUTES["jadwal-tamu"]}
+              onClick={closeMobileMenu}
+              title="Jadwal Tamu"
+              className={`nav-item ${isActive("jadwal-tamu") ? "active" : ""}`}
+            >
+              <CalendarDays size={18} className="flex-shrink-0" />
+              <span className={collapsed ? "lg:hidden" : ""}>Jadwal Tamu</span>
             </Link>
           </div>
 

@@ -11,7 +11,8 @@ export type Page =
   | 'input-makam'
   | 'user-management'
   | 'profile'
-  | 'help';
+  | 'help'
+  | 'jadwal-tamu';
 
 export interface AuthUser {
   id: string;

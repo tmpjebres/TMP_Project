@@ -6,6 +6,7 @@ export const ROUTES: Record<Page, string> = {
   'tamu-umum': '/input-tamu/tamu-umum',
   'tamu-rombongan': '/input-tamu/tamu-rombongan',
   'daftar-tamu': '/daftar-tamu',
+  'jadwal-tamu': '/jadwal-tamu',
   'daftar-blok': '/daftar-blok',
   'daftar-makam': '/daftar-makam',
   'input-makam': '/input-makam',
