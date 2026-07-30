@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabaseClient } from '@/lib/supabase/client';
+import { isSupabasePausedError } from '@/lib/supabase/is-project-paused';
+import { redirectToPausedPage } from '@/lib/supabase/paused-redirect';
 import type { AuthUser, Role } from '@/types';
 
 // ─── Tipe Context ─────────────────────────────────────────────────────────────
@@ -77,6 +79,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         console.error('[Auth] Gagal inisialisasi sesi:', err);
+        // Defense-in-depth: pausedAwareFetch di client.ts seharusnya sudah
+        // redirect duluan begitu fetch gagal, tapi kalau untuk suatu alasan
+        // itu belum sempat jalan (race condition), cek lagi di sini.
+        if (isSupabasePausedError(err)) {
+          redirectToPausedPage();
+          return;
+        }
       } finally {
         if (!settled) {
           settled = true;
@@ -115,6 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (error) {
+          // Defense-in-depth: kalau ternyata error ini lolos dari
+          // pausedAwareFetch (mis. race condition), tangkap lagi di sini
+          // sebelum ditampilkan sebagai pesan generik ke user.
+          if (isSupabasePausedError(error)) {
+            redirectToPausedPage();
+            return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
+          }
           if (error.message.includes('Invalid login credentials')) {
             return { success: false, error: 'Username atau password salah.' };
           }
@@ -123,7 +139,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!data.user) return { success: false, error: 'Login gagal. Coba lagi.' };
         return { success: true };
-      } catch {
+      } catch (err) {
+        if (isSupabasePausedError(err)) {
+          redirectToPausedPage();
+          return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
+        }
         return { success: false, error: 'Terjadi kesalahan. Coba lagi.' };
       }
     },
