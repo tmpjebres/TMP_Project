@@ -4,21 +4,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { LOGIN_ROUTE } from '@/lib/routes';
 
-// ─── Tampilan "Database sedang beristirahat" ───────────────────────────────
-// Dipakai di dua tempat:
-//   1. app/service-paused/page.tsx — route langsung, kalau kamu mau redirect
-//      manual ke sini begitu tahu Supabase-nya paused.
-//   2. app/error.tsx — error boundary, otomatis muncul kalau error yang
-//      ditangkap Next.js cocok dengan pola "project paused".
-//
-// Style senada dengan app/not-found.tsx (gradient navy + glow teal) supaya
-// terasa satu keluarga halaman error di aplikasi ini.
 export default function ServicePausedView({ onRetry }: { onRetry?: () => void }) {
   const [isRetrying, setIsRetrying] = useState(false);
 
-  // Auto-check tiap 15 detik — begitu Supabase project resume (biasanya
-  // otomatis begitu ada request masuk, hanya butuh beberapa detik), halaman
-  // reload/retry sendiri tanpa user perlu klik apa-apa.
   useEffect(() => {
     const interval = setInterval(() => {
       fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
@@ -29,7 +17,6 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
           }
         })
         .catch(() => {
-          /* masih down, diam-diam coba lagi nanti */
         });
     }, 15000);
     return () => clearInterval(interval);
@@ -39,8 +26,6 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
     setIsRetrying(true);
     if (onRetry) {
       onRetry();
-      // beri sedikit jeda visual sebelum tombol kembali normal, kalau
-      // ternyata masih gagal dan komponen ini tetap ter-render lagi
       setTimeout(() => setIsRetrying(false), 1500);
     } else {
       window.location.reload();

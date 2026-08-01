@@ -62,6 +62,67 @@ export interface Makam {
   kesatuan: string;
 }
 
+export type AttachmentType = 'pdf' | 'image' | 'link';
+
+export interface JadwalTamuTipeKegiatan {
+  id: string;
+  nama: string;
+  isDefault: boolean;
+}
+
+export interface JadwalTamu {
+  id: string;
+  namaKegiatan: string;
+  tipeKegiatan: string;
+  instansi: string;
+  namaKetua: string;
+  jumlahRombongan: number;
+
+  tanggalMulai: string; // 'yyyy-MM-dd'
+  jamMulai: string; // 'HH:mm'
+  punyaWaktuSelesai: boolean;
+  tanggalSelesai?: string;
+  jamSelesai?: string;
+
+  attachmentType?: AttachmentType;
+  attachmentUrl?: string;
+  attachmentFilename?: string;
+
+  createdBy?: string | null;
+  createdByUsername?: string | null;
+  updatedBy?: string | null;
+  updatedByUsername?: string | null;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JadwalTamuAuditLog {
+  id: string;
+  jadwalTamuId: string;
+  action: 'create' | 'update' | 'delete';
+  actorId: string | null;
+  actorUsername: string;
+  createdAt: string;
+}
+
+export interface JadwalTamuFormInput {
+  namaKegiatan: string;
+  tipeKegiatan: string;
+  instansi: string;
+  namaKetua: string;
+  jumlahRombongan: number;
+  tanggalMulai: string;
+  jamMulai: string;
+  punyaWaktuSelesai: boolean;
+  tanggalSelesai?: string;
+  jamSelesai?: string;
+  attachmentType?: AttachmentType;
+  attachmentFile?: File | null;
+  attachmentLink?: string;
+  attachmentFilename?: string;
+}
+
 export interface AppUser {
   id: string;
   username: string;

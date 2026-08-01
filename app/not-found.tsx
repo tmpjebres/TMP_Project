@@ -7,10 +7,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { LOGIN_ROUTE } from '@/lib/routes';
 
-// ─── Halaman 404 — scene 3D minimalis (meja kerja) ─────────────────────────
-// Objek dibangun dari primitif Three.js (bukan model 3D pihak ketiga).
-// Scene berputar otomatis pelan-pelan, dan bisa diputar manual dengan
-// klik-tahan-geser (drag), lengkap dengan inertia saat dilepas.
 export default function NotFound() {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -18,7 +14,6 @@ export default function NotFound() {
     const mount = mountRef.current;
     if (!mount) return;
 
-    // ── Setup dasar ──────────────────────────────────────────────────────
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x0a0f1a, 0.045);
 
@@ -37,7 +32,6 @@ export default function NotFound() {
     renderer.shadowMap.enabled = true;
     mount.appendChild(renderer.domElement);
 
-    // ── Pencahayaan ───────────────────────────────────────────────────────
     const ambient = new THREE.AmbientLight(0x2b3a55, 0.9);
     scene.add(ambient);
 
@@ -45,17 +39,14 @@ export default function NotFound() {
     rim.position.set(-4, 5, -4);
     scene.add(rim);
 
-    // Lampu meja jadi sumber cahaya utama (warm point light)
     const lampLight = new THREE.PointLight(0xffd98a, 2.2, 8, 2);
     lampLight.position.set(1.6, 2.4, 0.4);
     lampLight.castShadow = true;
     scene.add(lampLight);
 
-    // ── Grup utama: semua objek di dalam sini yang berputar ─────────────
     const rig = new THREE.Group();
     scene.add(rig);
 
-    // Lantai (bayangan lembut) — tetap primitif, cukup bidang polos
     const floor = new THREE.Mesh(
       new THREE.CircleGeometry(6, 48),
       new THREE.ShadowMaterial({ opacity: 0.35 })
@@ -64,12 +55,6 @@ export default function NotFound() {
     floor.receiveShadow = true;
     rig.add(floor);
 
-    // ── Loader model .glb asli, dengan AUTO-FIT ─────────────────────────
-    // File-file .glb biasanya dibuat dengan skala unit yang beda-beda antar
-    // sumber (satu file "1 unit" bisa berarti 1cm, yang lain 1m). Daripada
-    // menebak angka scale secara manual, begitu model selesai dimuat kita
-    // ukur bounding box aslinya lalu hitung scale otomatis supaya ukuran
-    // akhirnya masuk akal relatif terhadap objek lain di scene (dalam meter).
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     const gltfLoader = new GLTFLoader();
@@ -77,9 +62,9 @@ export default function NotFound() {
 
     type ModelSpec = {
       path: string;
-      position: [number, number, number]; // x,z = posisi lantai; y = tinggi alas (0 = lantai, sesuaikan utk taruh di atas meja)
-      fitAxis: 'y' | 'x'; // 'y' = cocokkan berdasarkan tinggi, 'x' = cocokkan berdasarkan lebar (utk objek pipih)
-      targetSize: number; // ukuran target dalam meter untuk axis di atas
+      position: [number, number, number]; 
+      fitAxis: 'y' | 'x'; 
+      targetSize: number;
       rotationY?: number;
       placeholderSize: [number, number, number];
     };
@@ -115,21 +100,17 @@ export default function NotFound() {
           rig.remove(placeholder);
           const model = gltf.scene;
 
-          // 1) Ukur bounding box asli (posisi model masih di origin saat ini)
           const rawBox = new THREE.Box3().setFromObject(model);
           const rawSize = new THREE.Vector3();
           rawBox.getSize(rawSize);
           const rawCenter = new THREE.Vector3();
           rawBox.getCenter(rawCenter);
 
-          // 2) Hitung scale berdasarkan axis acuan yang dipilih
           const reference = spec.fitAxis === 'x' ? rawSize.x : rawSize.y;
           const scale = reference > 0 ? spec.targetSize / reference : 1;
           model.scale.setScalar(scale);
           if (spec.rotationY) model.rotation.y = spec.rotationY;
 
-          // 3) Reposisi: pusatkan di x/z target, dan taruh alasnya (bagian
-          // paling bawah) tepat di ketinggian y target (lantai atau meja).
           model.position.set(
             spec.position[0] - rawCenter.x * scale,
             spec.position[1] - rawBox.min.y * scale,
@@ -144,7 +125,6 @@ export default function NotFound() {
           });
           rig.add(model);
 
-          // Lampu point-light mengikuti posisi puncak model lamp begitu berhasil dimuat
           if (spec.path.includes('/lamp.glb')) {
             const finalBox = new THREE.Box3().setFromObject(model);
             lampLight.position.set(spec.position[0], finalBox.max.y * 0.92, spec.position[2]);
@@ -152,18 +132,15 @@ export default function NotFound() {
         },
         undefined,
         () => {
-          // Gagal load (file belum ada / rusak) — placeholder tetap terlihat,
-          // tidak perlu di-console.error supaya tidak spam saat aset belum lengkap.
         }
       );
     });
 
     rig.position.y = 0;
 
-    // ── Interaksi: drag untuk memutar, auto-rotate saat idle ─────────────
     let targetRotY = 0.15;
     let currentRotY = 0.15;
-    let velocity = 0.0012; // kecepatan auto-rotate default
+    let velocity = 0.0012; 
     let isDragging = false;
     let lastX = 0;
     let dragVelocity = 0;
@@ -198,7 +175,6 @@ export default function NotFound() {
       const dt = clock.getDelta();
 
       if (!isDragging) {
-        // momentum drag mengecil pelan, lalu kembali ke auto-rotate konstan
         dragVelocity *= 0.94;
         targetRotY += dragVelocity + velocity;
       }
@@ -206,7 +182,6 @@ export default function NotFound() {
       currentRotY += (targetRotY - currentRotY) * Math.min(1, dt * 6);
       rig.rotation.y = currentRotY;
 
-      // lampu "bernafas" pelan
       lampLight.intensity = 2.0 + Math.sin(performance.now() * 0.0015) * 0.3;
 
       renderer.render(scene, camera);

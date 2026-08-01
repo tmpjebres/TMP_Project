@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { today } from '@/features/tamu/utils';
 
-/**
- * Mengelola tanggal "hari ini" secara realtime dan mengunci field `tanggal`
- * pada form agar selalu mengikuti hari berjalan (berubah otomatis saat lewat
- * tengah malam).
- */
 export function useAutoTodayDate<T extends { tanggal: string }>(
   setForm: React.Dispatch<React.SetStateAction<T>>
 ) {

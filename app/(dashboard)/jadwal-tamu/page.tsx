@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import InputTamuRombongan from '@/features/tamu/components/InputTamuRombongan';
+import JadwalTamuPage from '@/features/jadwal-tamu/components/JadwalTamuPage';
 
-export const metadata: Metadata = { title: 'Tamu Rombongan · TMP Admin' };
+export const metadata: Metadata = { title: 'Jadwal Tamu · TMP Admin' };
 
-export default function TamuRombonganPage() {
-  return <InputTamuRombongan />;
+export default function Page() {
+  return <JadwalTamuPage />;
 }

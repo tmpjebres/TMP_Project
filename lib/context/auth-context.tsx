@@ -79,9 +79,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         console.error('[Auth] Gagal inisialisasi sesi:', err);
-        // Defense-in-depth: pausedAwareFetch di client.ts seharusnya sudah
-        // redirect duluan begitu fetch gagal, tapi kalau untuk suatu alasan
-        // itu belum sempat jalan (race condition), cek lagi di sini.
         if (isSupabasePausedError(err)) {
           redirectToPausedPage();
           return;
@@ -124,9 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (error) {
-          // Defense-in-depth: kalau ternyata error ini lolos dari
-          // pausedAwareFetch (mis. race condition), tangkap lagi di sini
-          // sebelum ditampilkan sebagai pesan generik ke user.
           if (isSupabasePausedError(error)) {
             redirectToPausedPage();
             return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
