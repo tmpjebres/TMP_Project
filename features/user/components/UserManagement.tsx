@@ -32,6 +32,8 @@ export default function UserManagement() {
     handleCreate,
     handleUpdate,
     handleDelete,
+    handleToggleStatus,
+    togglingId,
     toasts,
     dismissToast,
   } = useUserManagement();
@@ -139,6 +141,8 @@ export default function UserManagement() {
           currentUserId={currentUser?.id ?? ""}
           onSave={handleUpdate}
           onClose={() => setEditTarget(null)}
+          onToggleStatus={handleToggleStatus}
+          togglingId={togglingId}
         />
       )}
 

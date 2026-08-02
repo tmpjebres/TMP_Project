@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppUser, Role } from "@/types";
 import { useAuth } from "@/lib/context/auth-context";
-import { getAllUsers, updateUserProfile } from "@/features/user/api";
+import { getAllUsers, updateUserProfile, toggleUserStatus } from "@/features/user/api";
 import { useToast } from "./useToast";
 
 export function useUserManagement() {
@@ -16,6 +16,7 @@ export function useUserManagement() {
   const [editTarget, setEditTarget] = useState<AppUser | null>(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | Role>("all");
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const { toasts, push: pushToast, dismiss } = useToast();
 
   const isMaster = user?.role === "master";
@@ -30,7 +31,6 @@ export function useUserManagement() {
       setLoadingUsers(false);
     };
     loadUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ─── Filter & Sort ─────────────────────────────────────────────────────────
@@ -108,6 +108,33 @@ export function useUserManagement() {
     setEditTarget(null);
   };
 
+  // ─── Toggle Status (aktif/nonaktif) ───────────────────────────────────────
+  const handleToggleStatus = async (targetUser: AppUser) => {
+    if (targetUser.id === user?.id) {
+      pushToast("Tidak dapat menonaktifkan akun sendiri.", "error");
+      return;
+    }
+
+    setTogglingId(targetUser.id);
+    const nextStatus = !targetUser.isActive;
+    const { data: updated, error } = await toggleUserStatus(targetUser.id, nextStatus);
+    setTogglingId(null);
+
+    if (error) {
+      pushToast(error, "error");
+      return;
+    }
+
+    if (updated) {
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setEditTarget((prev) => (prev && prev.id === updated.id ? updated : prev));
+      pushToast(
+        `User "${updated.username}" berhasil di${nextStatus ? "aktifkan" : "nonaktifkan"}.`,
+        "success",
+      );
+    }
+  };
+
   // ─── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget || !session?.access_token) return;
@@ -159,6 +186,8 @@ export function useUserManagement() {
     handleCreate,
     handleUpdate,
     handleDelete,
+    handleToggleStatus,
+    togglingId,
     toasts,
     dismissToast: dismiss,
   };

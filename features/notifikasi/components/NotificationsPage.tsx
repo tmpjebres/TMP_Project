@@ -41,7 +41,7 @@ export default function NotificationsPage() {
             Notifikasi
           </h1>
           <p className="text-sm text-neutral-gray">
-            Pengingat H-1 &amp; hari-H jadwal tamu{isMaster ? ', dan alert keamanan login' : ''}
+            Pengingat jadwal tamu{isMaster ? ' dan alert keamanan login' : ''}
           </p>
         </div>
 

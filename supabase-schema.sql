@@ -1,9 +1,6 @@
 -- ============================================================
 -- SUPABASE SCHEMA — Sistem Taman Makam Pahlawan
 -- ============================================================
--- Isi Datamu — Jalankan script SQL ini di:
--- Supabase Dashboard → SQL Editor → New Query → Run
--- ============================================================
 
 -- ─── EXTENSION ───────────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -110,6 +107,21 @@ CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Master can update profiles"
+  ON public.profiles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'master'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'master'
+    )
+  );
 
 CREATE POLICY "Master can delete profiles"
   ON public.profiles FOR DELETE

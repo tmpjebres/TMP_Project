@@ -142,6 +142,34 @@ export async function updateUserProfile(
   return { data: rowToAppUser(data) };
 }
 
+export async function toggleUserStatus(
+  userId: string,
+  isActive: boolean,
+): Promise<{ data?: AppUser; error?: string }> {
+  if (!userId) return { error: "ID user tidak valid." };
+
+  const { userId: currentUserId, role: currentRole, error: authErr } =
+    await getCurrentUserRole();
+
+  if (authErr) return { error: authErr };
+  if (currentRole !== "master") {
+    return { error: "Hanya master yang dapat mengubah status user." };
+  }
+  if (currentUserId === userId) {
+    return { error: "Tidak dapat menonaktifkan akun sendiri." };
+  }
+
+  const { data, error } = await (supabaseClient
+    .from("profiles") as any)
+    .update({ is_active: isActive })
+    .eq("id", userId)
+    .select("id, username, full_name, role, is_active, last_login_at, created_at")
+    .single();
+
+  if (error) return { error: "Gagal mengubah status user. Coba lagi." };
+  return { data: rowToAppUser(data) };
+}
+
 export async function deleteUserProfile(
   userId: string,
 ): Promise<{ error?: string }> {

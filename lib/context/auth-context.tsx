@@ -18,7 +18,10 @@ interface AuthContextType {
   user: AuthUser | null;
   session: Session | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; code?: 'invalid_credentials' | 'account_disabled' | 'unknown' }>;
   logout: () => Promise<void>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   isMaster: boolean;
@@ -41,12 +44,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (supabaseUser: User) => {
     const { data, error } = await supabaseClient
       .from('profiles')
-      .select('id, username, role')
+      .select('id, username, role, is_active')
       .eq('id', supabaseUser.id)
-      .single<{ id: string; username: string; role: Role }>();
+      .single<{ id: string; username: string; role: Role; is_active: boolean | null }>();
 
     if (error || !data) {
       console.error('[Auth] Gagal memuat profil:', error?.message);
+      return null;
+    }
+
+    // Akun dinonaktifkan (mis. di-toggle master saat sesi masih berjalan) → paksa logout
+    if (data.is_active === false) {
+      await supabaseClient.auth.signOut();
       return null;
     }
 
@@ -113,7 +122,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(
-    async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    async (
+      username: string,
+      password: string,
+    ): Promise<{ success: boolean; error?: string; code?: 'invalid_credentials' | 'account_disabled' | 'unknown' }> => {
       const normalizedUsername = username.toLowerCase().trim();
 
       try {
@@ -128,19 +140,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
           }
 
-          // Catat percobaan gagal (dipakai untuk deteksi login gagal berturut-turut di database)
+          // Catat percobaan gagal
           supabaseClient
             .from('login_attempts')
             .insert({ username: normalizedUsername, success: false })
             .then(undefined, () => {});
 
           if (error.message.includes('Invalid login credentials')) {
-            return { success: false, error: 'Username atau password salah.' };
+            return { success: false, error: 'Username atau password salah.', code: 'invalid_credentials' };
           }
-          return { success: false, error: error.message };
+          return { success: false, error: error.message, code: 'unknown' };
         }
 
-        if (!data.user) return { success: false, error: 'Login gagal. Coba lagi.' };
+        if (!data.user) return { success: false, error: 'Login gagal. Coba lagi.', code: 'unknown' };
+
+        const checkActive = async () =>
+          supabaseClient
+            .from('profiles')
+            .select('is_active')
+            .eq('id', data.user.id)
+            .maybeSingle<{ is_active: boolean | null }>();
+
+        let { data: profile, error: profileError } = await checkActive();
+        if (profileError || !profile) {
+          await new Promise((r) => setTimeout(r, 400));
+          ({ data: profile, error: profileError } = await checkActive());
+        }
+
+        if (profileError || !profile) {
+          await supabaseClient.auth.signOut();
+          return {
+            success: false,
+            error: 'Gagal memverifikasi status akun. Silakan coba masuk kembali atau hubungi admin.',
+            code: 'unknown',
+          };
+        }
+
+        if (profile.is_active === false) {
+          await supabaseClient.auth.signOut();
+          supabaseClient
+            .from('login_attempts')
+            .insert({ username: normalizedUsername, success: false })
+            .then(undefined, () => {});
+          return {
+            success: false,
+            error: 'Akun ini telah dinonaktifkan oleh master. Hubungi master untuk mengaktifkan kembali akun Anda.',
+            code: 'account_disabled',
+          };
+        }
 
         supabaseClient
           .from('login_attempts')

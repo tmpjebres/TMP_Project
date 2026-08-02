@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserX } from "lucide-react";
 import { useAuth } from "@/lib/context/auth-context";
 import LoadingButton from "@/components/ui/LoadingButton";
 import Link from "next/link";
@@ -76,6 +76,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [errorCode, setErrorCode] = useState<"invalid_credentials" | "account_disabled" | "unknown" | null>(null);
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<"username" | "password" | null>(null);
   const [shake, setShake] = useState(false);
@@ -89,6 +90,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setErrorCode(null);
 
     if (!username.trim()) {
       setError("Nama pengguna wajib diisi.");
@@ -107,10 +109,10 @@ export default function LoginPage() {
     if (!result.success) {
       setLoading(false);
       setError(result.error ?? "Gagal masuk. Silakan coba lagi.");
+      setErrorCode(result.code ?? "unknown");
       triggerShake();
       return;
     }
-    // Sukses: biarkan loading tetap aktif sampai guard /login mengalihkan ke /dashboard.
   };
 
   return (
@@ -161,6 +163,7 @@ export default function LoginPage() {
                 onChange={(v) => {
                   setUsername(v);
                   setError("");
+                  setErrorCode(null);
                 }}
                 focused={focusedField === "username"}
                 onFocus={() => setFocusedField("username")}
@@ -179,6 +182,7 @@ export default function LoginPage() {
                 onChange={(v) => {
                   setPassword(v);
                   setError("");
+                  setErrorCode(null);
                 }}
                 focused={focusedField === "password"}
                 onFocus={() => setFocusedField("password")}
@@ -212,10 +216,25 @@ export default function LoginPage() {
             </div>
 
             <div className="min-h-[1.25rem]" aria-live="polite">
-              {error && (
-                <p className="font-body text-sm text-status-danger opacity-0 animate-fade-in">
-                  {error}
-                </p>
+              {error && errorCode === "account_disabled" ? (
+                <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-left opacity-0 animate-fade-in">
+                  <UserX size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-body text-sm font-semibold text-amber-800">
+                      Akun dinonaktifkan
+                    </p>
+                    <p className="font-body text-xs text-amber-700 mt-0.5">
+                      Akun Anda telah dinonaktifkan oleh master. Hubungi master untuk
+                      mengaktifkan kembali akun Anda.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                error && (
+                  <p className="font-body text-sm text-status-danger opacity-0 animate-fade-in">
+                    {error}
+                  </p>
+                )
               )}
             </div>
 
