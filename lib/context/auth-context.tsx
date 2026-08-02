@@ -114,6 +114,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(
     async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+      const normalizedUsername = username.toLowerCase().trim();
+
       try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email: usernameToEmail(username),
@@ -125,6 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             redirectToPausedPage();
             return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
           }
+
+          // Catat percobaan gagal (dipakai untuk deteksi login gagal berturut-turut di database)
+          supabaseClient
+            .from('login_attempts')
+            .insert({ username: normalizedUsername, success: false })
+            .then(undefined, () => {});
+
           if (error.message.includes('Invalid login credentials')) {
             return { success: false, error: 'Username atau password salah.' };
           }
@@ -132,6 +141,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!data.user) return { success: false, error: 'Login gagal. Coba lagi.' };
+
+        supabaseClient
+          .from('login_attempts')
+          .insert({ username: normalizedUsername, success: true })
+          .then(undefined, () => {});
+
         return { success: true };
       } catch (err) {
         if (isSupabasePausedError(err)) {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
 import type { JadwalTamu, JadwalTamuFormInput } from '@/types';
 import { useAuth } from '@/lib/context/auth-context';
 import { useToast } from '@/features/user/hooks/useToast';
@@ -38,6 +39,28 @@ export default function JadwalTamuPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<JadwalTamu | null>(null);
   const [attachmentTarget, setAttachmentTarget] = useState<JadwalTamu | null>(null);
+
+  // Deep-link dari halaman notifikasi: ?event=ID&date=YYYY-MM-DD
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const eventId = searchParams.get('event');
+    const dateParam = searchParams.get('date');
+    if (loading) return;
+
+    if (eventId) {
+      const found = events.find((e) => e.id === eventId);
+      if (found) {
+        setSelectedEvent(found);
+        setAnchorDate(parseISO(found.tanggalMulai));
+        setViewMode('month');
+        return;
+      }
+    }
+    if (dateParam) {
+      setAnchorDate(parseISO(dateParam));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, searchParams]);
 
   const actor = user ? { id: user.id, username: user.username } : null;
 

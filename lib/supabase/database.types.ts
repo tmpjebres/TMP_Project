@@ -174,6 +174,7 @@ export type Database = {
         Row: {
           id: string;
           nama_kegiatan: string;
+          tipe_kegiatan: string;
           instansi: string;
           nama_ketua: string;
           jumlah_rombongan: number;
@@ -198,6 +199,7 @@ export type Database = {
         Insert: {
           id?: string;
           nama_kegiatan: string;
+          tipe_kegiatan?: string;
           instansi: string;
           nama_ketua: string;
           jumlah_rombongan: number;
@@ -221,6 +223,7 @@ export type Database = {
         };
         Update: {
           nama_kegiatan?: string;
+          tipe_kegiatan?: string;
           instansi?: string;
           nama_ketua?: string;
           jumlah_rombongan?: number;
@@ -237,6 +240,98 @@ export type Database = {
           deleted_at?: string | null;
           deleted_by?: string | null;
           deleted_by_username?: string | null;
+        };
+        Relationships: [];
+      };
+      login_attempts: {
+        Row: {
+          id: string;
+          username: string;
+          success: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          username: string;
+          success: boolean;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      login_alert: {
+        Row: {
+          id: string;
+          username: string;
+          attempt_count: number;
+          window_start: string;
+          window_end: string;
+          is_read: boolean;
+          read_by: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          username: string;
+          attempt_count: number;
+          window_start: string;
+          window_end: string;
+          is_read?: boolean;
+          read_by?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          is_read?: boolean;
+          read_by?: string | null;
+          read_at?: string | null;
+        };
+        Relationships: [];
+      };
+      jadwal_tamu_notification_status: {
+        Row: {
+          id: string;
+          jadwal_tamu_id: string;
+          user_id: string;
+          notif_type: 'h_minus_1' | 'h';
+          is_read: boolean;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          jadwal_tamu_id: string;
+          user_id: string;
+          notif_type: 'h_minus_1' | 'h';
+          is_read?: boolean;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          is_read?: boolean;
+          read_at?: string | null;
+        };
+        Relationships: [];
+      };
+      jadwal_tamu_tipe_kegiatan: {
+        Row: {
+          id: string;
+          nama: string;
+          is_default: boolean;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          nama: string;
+          is_default?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          nama?: string;
+          is_default?: boolean;
         };
         Relationships: [];
       };

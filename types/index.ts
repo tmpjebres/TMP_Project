@@ -12,7 +12,8 @@ export type Page =
   | 'user-management'
   | 'profile'
   | 'help'
-  | 'jadwal-tamu';
+  | 'jadwal-tamu'
+  | 'notifikasi';
 
 export interface AuthUser {
   id: string;
@@ -121,6 +122,26 @@ export interface JadwalTamuFormInput {
   attachmentFile?: File | null;
   attachmentLink?: string;
   attachmentFilename?: string;
+}
+
+export interface SecurityAlert {
+  id: string;
+  username: string;
+  attemptCount: number;
+  windowStart: string;
+  windowEnd: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export type NotifType = 'h_minus_1' | 'h';
+
+export interface NotificationItem {
+  id: string; // `${jadwalTamuId}:${notifType}`
+  jadwalTamuId: string;
+  notifType: NotifType;
+  isRead: boolean;
+  event: JadwalTamu;
 }
 
 export interface AppUser {

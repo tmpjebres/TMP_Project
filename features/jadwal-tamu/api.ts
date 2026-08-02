@@ -4,7 +4,7 @@ import type { AttachmentType, JadwalTamu, JadwalTamuAuditLog, JadwalTamuFormInpu
 const BUCKET = 'jadwal-tamu-attachment';
 const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1 MB
 
-type JadwalTamuRow = {
+export type JadwalTamuRow = {
   id: string;
   nama_kegiatan: string;
   tipe_kegiatan: string;
@@ -27,7 +27,7 @@ type JadwalTamuRow = {
   updated_at: string;
 };
 
-function rowToJadwalTamu(row: JadwalTamuRow): JadwalTamu {
+export function rowToJadwalTamu(row: JadwalTamuRow): JadwalTamu {
   return {
     id: row.id,
     namaKegiatan: row.nama_kegiatan,

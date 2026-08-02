@@ -16,16 +16,19 @@ import {
   Grid3x3,
   ChevronLeft,
   CalendarDays,
+  Bell,
 } from "lucide-react";
 import { Page } from "@/types";
 import { ROUTES } from "@/lib/routes";
 import { useAuth } from "@/lib/context/auth-context";
 import { useSidebar } from "@/lib/context/sidebar-context";
+import { useNotifications } from "@/lib/context/notification-context";
 
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout, isMaster } = useAuth();
   const { collapsed, toggleCollapsed } = useSidebar();
+  const { unreadCount } = useNotifications();
   const pathname = usePathname();
 
   // Halaman aktif dibaca dari URL. `also` menandai sub-halaman yang ikut
@@ -105,6 +108,25 @@ export default function Sidebar() {
               <span className={collapsed ? "lg:hidden" : ""}>Dashboard</span>
             </Link>
           )}
+
+          <Link
+            href={ROUTES["notifikasi"]}
+            onClick={closeMobileMenu}
+            title="Notifikasi"
+            className={`nav-item relative ${isActive("notifikasi") ? "active" : ""}`}
+          >
+            <span className="relative flex-shrink-0">
+              <Bell size={18} />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-status-danger text-white text-[9px] font-bold leading-none"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </span>
+            <span className={collapsed ? "lg:hidden" : ""}>Notifikasi</span>
+          </Link>
 
           <div className="mt-6">
             <p className={`px-4 text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-2 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>

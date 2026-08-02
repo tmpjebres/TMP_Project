@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/auth-context';
 import { SidebarProvider, useSidebar } from '@/lib/context/sidebar-context';
+import { NotificationProvider } from '@/lib/context/notification-context';
 import { LOGIN_ROUTE } from '@/lib/routes';
 import Sidebar from '@/components/ui/Sidebar';
 import { FullScreenLoader } from '@/components/ui/LoadingAnimation';
@@ -24,7 +25,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <DashboardShell>{children}</DashboardShell>
+      <NotificationProvider>
+        <DashboardShell>{children}</DashboardShell>
+      </NotificationProvider>
     </SidebarProvider>
   );
 }
