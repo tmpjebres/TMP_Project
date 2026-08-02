@@ -31,8 +31,6 @@ export default function Sidebar() {
   const { unreadCount } = useNotifications();
   const pathname = usePathname();
 
-  // Halaman aktif dibaca dari URL. `also` menandai sub-halaman yang ikut
-  // menyalakan satu item nav (mis. form tamu umum/rombongan di bawah Input Tamu).
   const isActive = (page: Page, also: Page[] = []) =>
     [page, ...also].some((p) => pathname === ROUTES[p]);
 
@@ -72,7 +70,7 @@ export default function Sidebar() {
 
         {/* Logo */}
         <div
-          className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden"
+          className="h-16 flex items-center px-5 flex-shrink-0 overflow-hidden"
           style={{ borderBottom: "1px solid rgba(221,221,221,0.5)" }}
         >
           <div className="flex items-center gap-1">
