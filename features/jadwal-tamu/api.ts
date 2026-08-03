@@ -1,4 +1,5 @@
 import { supabaseClient } from '@/lib/supabase/client';
+import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { AttachmentType, JadwalTamu, JadwalTamuAuditLog, JadwalTamuFormInput, JadwalTamuTipeKegiatan } from '@/types';
 
 const BUCKET = 'jadwal-tamu-attachment';
@@ -249,6 +250,12 @@ export async function createJadwalTamu(
 
   const row = data as JadwalTamuRow;
   await writeAuditLog(row.id, 'create', actor.id, actor.username, payload);
+  logActivity('create', 'jadwal_tamu', input.namaKegiatan, snapshotChanges({
+    namaKegiatan: input.namaKegiatan,
+    instansi: input.instansi,
+    namaKetua: input.namaKetua,
+    tanggalMulai: input.tanggalMulai,
+  }, 'create'));
 
   return { data: rowToJadwalTamu(row) };
 }
@@ -273,6 +280,12 @@ export async function updateJadwalTamu(
     attachmentUrl = uploaded.path;
     attachmentFilename = input.attachmentFile.name;
   }
+
+  const { data: old } = await supabaseClient
+    .from('jadwal_tamu')
+    .select('nama_kegiatan, instansi, nama_ketua, tanggal_mulai')
+    .eq('id', id)
+    .single<{ nama_kegiatan: string; instansi: string; nama_ketua: string; tanggal_mulai: string }>();
 
   const payload: {
     nama_kegiatan?: string;
@@ -324,6 +337,15 @@ export async function updateJadwalTamu(
   const row = data as JadwalTamuRow;
   await writeAuditLog(row.id, 'update', actor.id, actor.username, payload);
 
+  const changes: ActivityChanges = {};
+  if (old) {
+    if (old.nama_kegiatan !== input.namaKegiatan) changes.namaKegiatan = { from: old.nama_kegiatan, to: input.namaKegiatan };
+    if (old.instansi !== input.instansi) changes.instansi = { from: old.instansi, to: input.instansi };
+    if (old.nama_ketua !== input.namaKetua) changes.namaKetua = { from: old.nama_ketua, to: input.namaKetua };
+    if (old.tanggal_mulai !== input.tanggalMulai) changes.tanggalMulai = { from: old.tanggal_mulai, to: input.tanggalMulai };
+  }
+  logActivity('update', 'jadwal_tamu', input.namaKegiatan, changes);
+
   return { data: rowToJadwalTamu(row) };
 }
 
@@ -332,6 +354,12 @@ export async function deleteJadwalTamu(
   id: string,
   actor: { id: string; username: string }
 ): Promise<{ success: boolean; error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('jadwal_tamu')
+    .select('nama_kegiatan, instansi, nama_ketua, tanggal_mulai')
+    .eq('id', id)
+    .single<{ nama_kegiatan: string; instansi: string; nama_ketua: string; tanggal_mulai: string }>();
+
   const { error } = await supabaseClient
     .from('jadwal_tamu')
     .update({
@@ -344,6 +372,12 @@ export async function deleteJadwalTamu(
   if (error) return { success: false, error: error.message };
 
   await writeAuditLog(id, 'delete', actor.id, actor.username, null);
+  logActivity('delete', 'jadwal_tamu', old?.nama_kegiatan, old ? snapshotChanges({
+    namaKegiatan: old.nama_kegiatan,
+    instansi: old.instansi,
+    namaKetua: old.nama_ketua,
+    tanggalMulai: old.tanggal_mulai,
+  }, 'delete') : undefined);
 
   return { success: true };
 }

@@ -109,6 +109,19 @@ export async function POST(req: NextRequest) {
         created_at: string;
       }>();
 
+    // Catat aktivitas
+    await (serverClient.from('activity_log') as any).insert({
+      actor_id: caller.id,
+      action: 'create',
+      entity_type: 'user',
+      entity_label: body.username.trim(),
+      changes: {
+        username: { from: '-', to: body.username.trim() },
+        fullName: { from: '-', to: body.fullName.trim() },
+        role: { from: '-', to: body.role },
+      },
+    });
+
     return NextResponse.json({
       data: {
         id: newUser.user.id,
@@ -164,11 +177,30 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Hanya master yang dapat menghapus user.' }, { status: 403 });
     }
 
+    const { data: targetProfile } = await serverClient
+      .from('profiles')
+      .select('username, full_name, role')
+      .eq('id', userId)
+      .single<{ username: string; full_name: string | null; role: string }>();
+
     // Hapus dari auth.users (profiles terhapus via CASCADE)
     const { error: deleteError } = await serverClient.auth.admin.deleteUser(userId);
     if (deleteError) {
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
+
+    // Catat aktivitas
+    await (serverClient.from('activity_log') as any).insert({
+      actor_id: caller.id,
+      action: 'delete',
+      entity_type: 'user',
+      entity_label: targetProfile?.username ?? userId,
+      changes: targetProfile ? {
+        username: { from: targetProfile.username, to: '-' },
+        fullName: { from: targetProfile.full_name ?? '-', to: '-' },
+        role: { from: targetProfile.role, to: '-' },
+      } : null,
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {

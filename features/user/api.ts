@@ -1,5 +1,8 @@
 import { supabaseClient } from "@/lib/supabase/client";
+import { logActivity, type ActivityChanges } from "@/lib/activity-log";
 import type { AppUser, Role } from "@/types";
+
+const ROLE_LABEL: Record<Role, string> = { master: "Master", operator: "Operator" };
 
 function rowToAppUser(row: {
   id: string;
@@ -119,6 +122,12 @@ export async function updateUserProfile(
     if (existing) return { error: "Username sudah digunakan oleh user lain." };
   }
 
+  const { data: oldProfile } = await supabaseClient
+    .from("profiles")
+    .select("username, full_name, role")
+    .eq("id", userId)
+    .single<{ username: string; full_name: string | null; role: Role }>();
+
   const payload: Partial<{ username: string; full_name: string; role: Role }> = {};
   if (updates.username !== undefined) payload.username = updates.username;
   if (updates.fullName !== undefined) payload.full_name = updates.fullName;
@@ -139,6 +148,20 @@ export async function updateUserProfile(
     return { error: "Gagal menyimpan perubahan. Coba lagi." };
   }
 
+  const changes: ActivityChanges = {};
+  if (oldProfile) {
+    if (updates.username !== undefined && updates.username !== oldProfile.username) {
+      changes.username = { from: oldProfile.username, to: updates.username };
+    }
+    if (updates.fullName !== undefined && updates.fullName !== (oldProfile.full_name ?? "")) {
+      changes.fullName = { from: oldProfile.full_name ?? "-", to: updates.fullName };
+    }
+    if (updates.role !== undefined && updates.role !== oldProfile.role) {
+      changes.role = { from: ROLE_LABEL[oldProfile.role], to: ROLE_LABEL[updates.role] };
+    }
+  }
+
+  logActivity("update", "user", data.username, changes);
   return { data: rowToAppUser(data) };
 }
 
@@ -167,6 +190,79 @@ export async function toggleUserStatus(
     .single();
 
   if (error) return { error: "Gagal mengubah status user. Coba lagi." };
+  logActivity(isActive ? "activate" : "deactivate", "user", data.username, {
+    status: { from: isActive ? "Nonaktif" : "Aktif", to: isActive ? "Aktif" : "Nonaktif" },
+  });
+  return { data: rowToAppUser(data) };
+}
+
+export interface UserActivityEntry {
+  id: string;
+  action: string;
+  entityType: string;
+  entityLabel: string | null;
+  changes: Record<string, { from: string; to: string }> | null;
+  createdAt: string;
+}
+
+/** Gabungan activity_log + login_attempts untuk satu user, diurutkan terbaru dulu */
+export async function getUserActivityLog(
+  userId: string,
+  username: string,
+): Promise<{ data: UserActivityEntry[]; error?: string }> {
+  const [logRes, loginRes] = await Promise.all([
+    supabaseClient
+      .from("activity_log")
+      .select("*")
+      .eq("actor_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    supabaseClient
+      .from("login_attempts")
+      .select("*")
+      .eq("username", username)
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
+
+  if (logRes.error) return { data: [], error: logRes.error.message };
+
+  const activityEntries: UserActivityEntry[] = (logRes.data ?? []).map((row: any) => ({
+    id: `act-${row.id}`,
+    action: row.action,
+    entityType: row.entity_type,
+    entityLabel: row.entity_label,
+    changes: row.changes ?? null,
+    createdAt: row.created_at,
+  }));
+
+  const loginEntries: UserActivityEntry[] = (loginRes.data ?? []).map((row: any) => ({
+    id: `login-${row.id}`,
+    action: row.success ? "login_success" : "login_failed",
+    entityType: "auth",
+    entityLabel: null,
+    changes: null,
+    createdAt: row.created_at,
+  }));
+
+  const merged = [...activityEntries, ...loginEntries].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+
+  return { data: merged };
+}
+
+export async function getUserById(userId: string): Promise<{ data: AppUser | null; error?: string }> {
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!userId || !uuidRe.test(userId)) return { data: null, error: "User tidak ditemukan." };
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, username, full_name, role, is_active, last_login_at, created_at")
+    .eq("id", userId)
+    .single();
+
+  if (error || !data) return { data: null, error: error?.message ?? "User tidak ditemukan." };
   return { data: rowToAppUser(data) };
 }
 

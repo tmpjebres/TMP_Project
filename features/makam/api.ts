@@ -1,4 +1,5 @@
 import { supabaseClient } from '@/lib/supabase/client';
+import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { Makam } from '@/types';
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -142,6 +143,13 @@ export async function createMakam(
     .single();
 
   if (error || !data) return { data: null, error: error?.message ?? 'Gagal menyimpan makam.' };
+  logActivity('create', 'makam', payload.nama.trim(), snapshotChanges({
+    nama: payload.nama.trim(),
+    nomor: payload.nomor.trim(),
+    nrp: payload.nrp?.trim() || '',
+    pangkat: payload.pangkat?.trim() || '',
+    kesatuan: payload.kesatuan?.trim() || '',
+  }, 'create'));
   return { data: rowToMakam(data as MakamRow) };
 }
 
@@ -150,6 +158,12 @@ export async function updateMakam(
   id: string,
   payload: Omit<Makam, 'id' | 'blokNama'>
 ): Promise<{ data: Makam | null; error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('makam')
+    .select('nama, nomor, nrp, pangkat, tanggal_lahir, tanggal_gugur, kesatuan')
+    .eq('id', id)
+    .single<{ nama: string; nomor: string; nrp: string | null; pangkat: string | null; tanggal_lahir: string | null; tanggal_gugur: string | null; kesatuan: string | null }>();
+
   const { error } = await (supabaseClient
     .from('makam') as any)
     .update({
@@ -168,13 +182,36 @@ export async function updateMakam(
 
   if (error) return { data: null, error: error?.message ?? 'Gagal mengupdate makam.' };
 
+  const changes: ActivityChanges = {};
+  if (old) {
+    const newNama = payload.nama.trim();
+    const newNomor = payload.nomor.trim();
+    const newKesatuan = payload.kesatuan?.trim() || '-';
+    if (old.nama !== newNama) changes.nama = { from: old.nama, to: newNama };
+    if (old.nomor !== newNomor) changes.nomor = { from: old.nomor, to: newNomor };
+    if ((old.kesatuan ?? '-') !== newKesatuan) changes.kesatuan = { from: old.kesatuan ?? '-', to: newKesatuan };
+  }
+  logActivity('update', 'makam', payload.nama.trim(), changes);
   // Fetch ulang supaya data & join `blok` konsisten
   return await getMakamById(id);
 }
 
 // ─── DELETE: Makam ────────────────────────────────────────────────────────────
 export async function deleteMakam(id: string): Promise<{ error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('makam')
+    .select('nama, nomor, nrp, pangkat, kesatuan')
+    .eq('id', id)
+    .single<{ nama: string; nomor: string; nrp: string | null; pangkat: string | null; kesatuan: string | null }>();
+
   const { error } = await supabaseClient.from('makam').delete().eq('id', id);
   if (error) return { error: error.message };
+  logActivity('delete', 'makam', old?.nama, old ? snapshotChanges({
+    nama: old.nama,
+    nomor: old.nomor,
+    nrp: old.nrp || '',
+    pangkat: old.pangkat || '',
+    kesatuan: old.kesatuan || '',
+  }, 'delete') : undefined);
   return {};
 }

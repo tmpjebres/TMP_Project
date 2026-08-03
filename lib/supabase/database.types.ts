@@ -359,6 +359,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      activity_log: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          actor_username: string | null;
+          action: string;
+          entity_type: string;
+          entity_label: string | null;
+          changes: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          actor_username?: string | null;
+          action: string;
+          entity_type: string;
+          entity_label?: string | null;
+          changes?: Json | null;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

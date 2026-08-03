@@ -1,4 +1,5 @@
-import { Pencil, Trash2, User } from "lucide-react";
+import { Pencil, Trash2, User, History } from "lucide-react";
+import Link from "next/link";
 import type { AppUser } from "@/types";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 import { formatLastLogin } from "@/lib/utils/date";
@@ -100,6 +101,15 @@ export function UserTable({
               {isMaster && (
                 <td className="px-5 py-3.5">
                   <div className="flex items-center justify-center gap-1">
+                    {/* Detail log aktivitas */}
+                    <Link
+                      href={`/user-management/${u.id}`}
+                      title="Lihat log aktivitas"
+                      className="p-1.5 rounded-lg hover:bg-sky-50 text-neutral-400 hover:text-sky-600 transition-colors"
+                    >
+                      <History size={15} />
+                    </Link>
+
                     {/* Edit */}
                     <button
                       onClick={() => onEdit(u)}

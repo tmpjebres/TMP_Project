@@ -1,4 +1,5 @@
 import { supabaseClient } from '@/lib/supabase/client';
+import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { TamuUmum, TamuRombongan, Tamu } from '@/types';
 
 // ─── Helper: upload foto base64 ke Supabase Storage ─────────────────────────
@@ -157,6 +158,9 @@ export async function createTamuUmum(
     .single();
 
   if (error || !data) return { data: null, error: error?.message ?? 'Gagal menyimpan tamu umum.' };
+  logActivity('create', 'tamu_umum', payload.nama.trim(), snapshotChanges({
+    tanggal: payload.tanggal, nama: payload.nama.trim(), tujuan: payload.tujuan.trim(),
+  }, 'create'));
   return { data: rowToTamuUmum(data) };
 }
 
@@ -186,21 +190,49 @@ export async function createTamuRombongan(
     .single();
 
   if (error || !data) return { data: null, error: error?.message ?? 'Gagal menyimpan tamu rombongan.' };
+  logActivity('create', 'tamu_rombongan', payload.namaPimpinan.trim(), snapshotChanges({
+    tanggal: payload.tanggal,
+    namaPimpinan: payload.namaPimpinan.trim(),
+    instansi: payload.instansi.trim(),
+    jumlahPeserta: String(payload.jumlahPeserta),
+    tujuan: payload.tujuan.trim(),
+  }, 'create'));
   return { data: rowToTamuRombongan(data) };
 }
 
 // ─── UPDATE: Tamu Umum ────────────────────────────────────────────────────────
 export async function updateTamuUmum(tamu: TamuUmum): Promise<{ error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('tamu_umum')
+    .select('tanggal, nama, tujuan')
+    .eq('id', tamu.id)
+    .single<{ tanggal: string; nama: string; tujuan: string }>();
+
   const { error } = await (supabaseClient
     .from('tamu_umum') as any)
     .update({ tanggal: tamu.tanggal, nama: tamu.nama, tujuan: tamu.tujuan })
     .eq('id', tamu.id);
 
+  if (!error) {
+    const changes: ActivityChanges = {};
+    if (old) {
+      if (old.nama !== tamu.nama) changes.nama = { from: old.nama, to: tamu.nama };
+      if (old.tujuan !== tamu.tujuan) changes.tujuan = { from: old.tujuan, to: tamu.tujuan };
+      if (old.tanggal !== tamu.tanggal) changes.tanggal = { from: old.tanggal, to: tamu.tanggal };
+    }
+    logActivity('update', 'tamu_umum', tamu.nama, changes);
+  }
   return { error: error?.message };
 }
 
 // ─── UPDATE: Tamu Rombongan ───────────────────────────────────────────────────
 export async function updateTamuRombongan(tamu: TamuRombongan): Promise<{ error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('tamu_rombongan')
+    .select('tanggal, nama_pimpinan, instansi, jumlah_peserta, tujuan')
+    .eq('id', tamu.id)
+    .single<{ tanggal: string; nama_pimpinan: string; instansi: string; jumlah_peserta: number; tujuan: string }>();
+
   const { error } = await (supabaseClient
     .from('tamu_rombongan') as any)
     .update({
@@ -212,6 +244,18 @@ export async function updateTamuRombongan(tamu: TamuRombongan): Promise<{ error?
     })
     .eq('id', tamu.id);
 
+  if (!error) {
+    const changes: ActivityChanges = {};
+    if (old) {
+      if (old.nama_pimpinan !== tamu.namaPimpinan) changes.namaPimpinan = { from: old.nama_pimpinan, to: tamu.namaPimpinan };
+      if (old.instansi !== tamu.instansi) changes.instansi = { from: old.instansi, to: tamu.instansi };
+      if (old.tujuan !== tamu.tujuan) changes.tujuan = { from: old.tujuan, to: tamu.tujuan };
+      if (String(old.jumlah_peserta) !== String(tamu.jumlahPeserta)) {
+        changes.jumlahPeserta = { from: String(old.jumlah_peserta), to: String(tamu.jumlahPeserta) };
+      }
+    }
+    logActivity('update', 'tamu_rombongan', tamu.namaPimpinan, changes);
+  }
   return { error: error?.message };
 }
 
@@ -223,15 +267,37 @@ export async function updateTamu(tamu: Tamu): Promise<{ error?: string }> {
 
 // ─── DELETE: Tamu Umum ────────────────────────────────────────────────────────
 export async function deleteTamuUmum(id: string): Promise<{ error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('tamu_umum')
+    .select('tanggal, nama, tujuan')
+    .eq('id', id)
+    .single<{ tanggal: string; nama: string; tujuan: string }>();
+
   const { error } = await supabaseClient.from('tamu_umum').delete().eq('id', id);
   if (error) return { error: error.message };
+  logActivity('delete', 'tamu_umum', old?.nama, old ? snapshotChanges({
+    tanggal: old.tanggal, nama: old.nama, tujuan: old.tujuan,
+  }, 'delete') : undefined);
   return {};
 }
 
 // ─── DELETE: Tamu Rombongan ───────────────────────────────────────────────────
 export async function deleteTamuRombongan(id: string): Promise<{ error?: string }> {
+  const { data: old } = await supabaseClient
+    .from('tamu_rombongan')
+    .select('tanggal, nama_pimpinan, instansi, jumlah_peserta, tujuan')
+    .eq('id', id)
+    .single<{ tanggal: string; nama_pimpinan: string; instansi: string; jumlah_peserta: number; tujuan: string }>();
+
   const { error } = await supabaseClient.from('tamu_rombongan').delete().eq('id', id);
   if (error) return { error: error.message };
+  logActivity('delete', 'tamu_rombongan', old?.nama_pimpinan, old ? snapshotChanges({
+    tanggal: old.tanggal,
+    namaPimpinan: old.nama_pimpinan,
+    instansi: old.instansi,
+    jumlahPeserta: String(old.jumlah_peserta),
+    tujuan: old.tujuan,
+  }, 'delete') : undefined);
   return {};
 }
 
