@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/lib/context/auth-context";
 import { Database, Users, Grid3x3, UserSquare2 } from "lucide-react";
 import {
@@ -12,6 +12,7 @@ import { getTotalMakam } from "@/features/makam/api";
 import { getTamuStatsByPeriod, type TamuPeriodStats } from "@/features/tamu/api";
 import { fetchJadwalTamu } from "@/features/jadwal-tamu/api";
 import type { Blok, JadwalTamu } from "@/types";
+import { SectionLoading, SectionEmpty, SectionError } from "@/components/ui/SectionState";
 import PeriodSelector from "./PeriodSelector";
 import JadwalRingkasan from "./JadwalRingkasan";
 import { resolvePeriodRange, computeTrend, type PeriodSelection } from "../period-utils";
@@ -36,83 +37,106 @@ export default function Dashboard() {
 
   const [period, setPeriod] = useState<PeriodSelection>(() => {
     const now = new Date();
-    return { view: "bulan", month: now.getMonth(), year: now.getFullYear(), week: 1 };
+    return { view: "tahun", month: now.getMonth(), year: now.getFullYear(), week: 1 };
   });
 
   const [bloks, setBloks] = useState<Blok[]>([]);
   const [totalMakam, setTotalMakam] = useState(0);
   const [makamKosong, setMakamKosong] = useState(0);
+  const [blokLoading, setBlokLoading] = useState(true);
   const [blokError, setBlokError] = useState<string>();
+  const [blokRetrying, setBlokRetrying] = useState(false);
 
   const [currentStats, setCurrentStats] = useState<TamuPeriodStats>(emptyStats);
   const [prevStats, setPrevStats] = useState<TamuPeriodStats>(emptyStats);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string>();
+  const [statsRetrying, setStatsRetrying] = useState(false);
 
   const [jadwal, setJadwal] = useState<JadwalTamu[]>([]);
   const [jadwalLoading, setJadwalLoading] = useState(true);
   const [jadwalError, setJadwalError] = useState<string>();
+  const [jadwalRetrying, setJadwalRetrying] = useState(false);
 
   const range = useMemo(() => resolvePeriodRange(period), [period]);
 
   // ─── Data yang tidak tergantung periode (blok & total makam) ───────────────
-  useEffect(() => {
-    (async () => {
-      const [blokResult, makamResult] = await Promise.all([getAllBlok(), getTotalMakam()]);
+  const loadBlokData = useCallback(async (isRetry = false) => {
+    if (isRetry) setBlokRetrying(true);
+    else setBlokLoading(true);
+    setBlokError(undefined);
 
-      if (!blokResult.error) {
-        setBloks(blokResult.data);
-        setMakamKosong(blokResult.data.reduce((acc, b) => acc + Math.max(b.kapasitas - b.terisi, 0), 0));
-      } else {
-        setBlokError(blokResult.error);
-      }
+    const [blokResult, makamResult] = await Promise.all([getAllBlok(), getTotalMakam()]);
 
-      if (!makamResult.error) setTotalMakam(makamResult.count || 0);
-    })();
+    if (!blokResult.error) {
+      setBloks(blokResult.data);
+      setMakamKosong(blokResult.data.reduce((acc, b) => acc + Math.max(b.kapasitas - b.terisi, 0), 0));
+    } else {
+      setBlokError(blokResult.error);
+    }
+
+    if (!makamResult.error) setTotalMakam(makamResult.count || 0);
+
+    setBlokLoading(false);
+    setBlokRetrying(false);
   }, []);
 
-  // ─── Statistik kunjungan (periode berjalan + periode pembanding) ──────────
   useEffect(() => {
-    let cancelled = false;
-    setStatsLoading(true);
+    loadBlokData();
+  }, [loadBlokData]);
+
+  // ─── Statistik kunjungan (periode berjalan + periode pembanding) ──────────
+  const loadStats = useCallback(async (isRetry = false) => {
+    if (isRetry) setStatsRetrying(true);
+    else setStatsLoading(true);
     setStatsError(undefined);
 
-    (async () => {
-      const [curRes, prevRes] = await Promise.all([
-        getTamuStatsByPeriod(range.from, range.to, range.granularity),
-        getTamuStatsByPeriod(range.prevFrom, range.prevTo, range.granularity),
-      ]);
-      if (cancelled) return;
+    const [curRes, prevRes] = await Promise.all([
+      getTamuStatsByPeriod(range.from, range.to, range.granularity),
+      getTamuStatsByPeriod(range.prevFrom, range.prevTo, range.granularity),
+    ]);
 
-      if (curRes.error) {
-        setStatsError(curRes.error);
-        setCurrentStats(emptyStats);
-      } else {
-        setCurrentStats(curRes.data);
-      }
-      setPrevStats(prevRes.error ? emptyStats : prevRes.data);
-      setStatsLoading(false);
-    })();
-
-    return () => { cancelled = true; };
+    if (curRes.error) {
+      setStatsError(curRes.error);
+      setCurrentStats(emptyStats);
+    } else {
+      setCurrentStats(curRes.data);
+    }
+    setPrevStats(prevRes.error ? emptyStats : prevRes.data);
+    setStatsLoading(false);
+    setStatsRetrying(false);
   }, [range.from, range.to, range.prevFrom, range.prevTo, range.granularity]);
 
-  // ─── Ringkasan jadwal untuk periode terpilih ───────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    setJadwalLoading(true);
+    (async () => {
+      if (cancelled) return;
+      await loadStats();
+    })();
+    return () => { cancelled = true; };
+  }, [loadStats]);
+
+  // ─── Ringkasan jadwal untuk periode terpilih ───────────────────────────────
+  const loadJadwal = useCallback(async (isRetry = false) => {
+    if (isRetry) setJadwalRetrying(true);
+    else setJadwalLoading(true);
     setJadwalError(undefined);
 
-    (async () => {
-      const res = await fetchJadwalTamu(range.from, range.to);
-      if (cancelled) return;
-      if (res.error) setJadwalError(res.error);
-      setJadwal(res.data);
-      setJadwalLoading(false);
-    })();
-
-    return () => { cancelled = true; };
+    const res = await fetchJadwalTamu(range.from, range.to);
+    if (res.error) setJadwalError(res.error);
+    setJadwal(res.data);
+    setJadwalLoading(false);
+    setJadwalRetrying(false);
   }, [range.from, range.to]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (cancelled) return;
+      await loadJadwal();
+    })();
+    return () => { cancelled = true; };
+  }, [loadJadwal]);
 
   const blokData = bloks.map((b, i) => ({
     name: `Blok ${b.nama}`,
@@ -139,6 +163,9 @@ export default function Dashboard() {
     },
   ];
 
+  const cardsBusy = blokLoading || statsLoading;
+  const cardsFailed = blokError && statsError;
+
   return (
     <div className="animate-fade-in flex flex-col gap-6 h-full">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -153,35 +180,46 @@ export default function Dashboard() {
         {isMaster && <PeriodSelector value={period} onChange={setPeriod} />}
       </div>
 
-      {blokError && (
-        <p className="text-sm text-red-600">Gagal memuat data blok: {blokError}</p>
-      )}
-
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="stat-card">
-            <div className="flex items-start justify-between xl:h-20">
-              <div>
-                <p className="text-base text-neutral-gray font-medium">{s.label}</p>
-                <p className="text-3xl font-extrabold text-neutral-black mt-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
-                  {statsLoading && "trend" in s ? "…" : s.value}
-                </p>
-                {"sub" in s && s.sub && (
-                  <p className="text-xs text-neutral-gray mt-0.5">{s.sub}</p>
-                )}
+      <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
+        {cardsBusy ? (
+          <SectionLoading variant="cards" label="Memuat ringkasan..." />
+        ) : cardsFailed ? (
+          <SectionError
+            title="Gagal memuat ringkasan"
+            description={blokError || statsError}
+            onRetry={() => { loadBlokData(true); loadStats(true); }}
+            retrying={blokRetrying || statsRetrying}
+          />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((s) => (
+              <div key={s.label} className="stat-card">
+                <div className="flex items-start justify-between xl:h-20">
+                  <div>
+                    <p className="text-base text-neutral-gray font-medium">{s.label}</p>
+                    <p className="text-3xl font-extrabold text-neutral-black mt-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+                      {s.value}
+                    </p>
+                    {"sub" in s && s.sub && (
+                      <p className="text-xs text-neutral-gray mt-0.5">{s.sub}</p>
+                    )}
+                  </div>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.bg }}>
+                    <s.icon size={24} style={{ color: s.color }} />
+                  </div>
+                </div>
               </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.bg }}>
-                <s.icon size={24} style={{ color: s.color }} />
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        )}
+        {/* Kalau salah satu (bukan keduanya) gagal, tetap tampilkan kartu lain + pesan kecil */}
+        {!cardsBusy && !cardsFailed && (blokError || statsError) && (
+          <p className="text-xs text-red-600 mt-3">
+            Sebagian data gagal dimuat: {blokError || statsError}
+          </p>
+        )}
       </div>
-
-      {statsError && (
-        <p className="text-sm text-red-600">Gagal memuat statistik kunjungan: {statsError}</p>
-      )}
 
       {/* Charts */}
       {isMaster ? (
@@ -193,11 +231,22 @@ export default function Dashboard() {
                 <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Statistik Kunjungan</h3>
                 <p className="text-sm text-neutral-gray mt-0.5">{range.label}</p>
               </div>
-              
             </div>
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col items-center justify-center">
               {statsLoading ? (
-                <div className="h-full flex items-center justify-center text-sm text-neutral-gray">Memuat grafik...</div>
+                <SectionLoading variant="chart" label="Memuat grafik..." />
+              ) : statsError ? (
+                <SectionError
+                  title="Gagal memuat statistik kunjungan"
+                  description={statsError}
+                  onRetry={() => loadStats(true)}
+                  retrying={statsRetrying}
+                />
+              ) : currentStats.chartData.length === 0 ? (
+                <SectionEmpty
+                  title="Belum ada data kunjungan"
+                  description={`Belum ada tamu tercatat untuk ${range.label.toLowerCase()}.`}
+                />
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <AreaChart data={currentStats.chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
@@ -229,35 +278,60 @@ export default function Dashboard() {
               <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Distribusi per Blok</h3>
               <p className="text-sm text-neutral-gray mt-0.5">Makam terisi tiap blok</p>
             </div>
-            <div className="flex-1">
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={blokData} layout="vertical" margin={{ top: 4, right: 64, left: 8, bottom: 4 }} barSize={30}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" horizontal={false} />
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} domain={[0, Math.max(...blokData.map(d => d.kapasitas), 10) + 15]} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#222", fontSize: 15, fontWeight: 600 }} width={60} />
-                  <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14 }} formatter={(v: number) => [v, "Terisi"]} />
-                  <Bar dataKey="terisi" name="Terisi" radius={[0, 6, 6, 0]}>
-                    {blokData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                    <LabelList dataKey="terisi" position="right" style={{ fontSize: 14, fontWeight: 700, fill: "#333" }} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {blokData.map((b, i) => (
-                <div key={b.name} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: b.color }} />
-                  <span className="text-sm font-medium text-neutral-gray">
-                    {b.name}: <strong className="text-neutral-black">{b.terisi}</strong>/{b.kapasitas}
-                  </span>
-                </div>
-              ))}
+            <div className="flex-1 flex flex-col items-center justify-center">
+              {blokLoading ? (
+                <SectionLoading variant="chart" label="Memuat blok..." />
+              ) : blokError ? (
+                <SectionError
+                  title="Gagal memuat data blok"
+                  description={blokError}
+                  onRetry={() => loadBlokData(true)}
+                  retrying={blokRetrying}
+                />
+              ) : blokData.length === 0 ? (
+                <SectionEmpty
+                  title="Belum ada blok terdaftar"
+                  description="Tambahkan data blok makam untuk melihat distribusinya di sini."
+                />
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={blokData} layout="vertical" margin={{ top: 4, right: 64, left: 8, bottom: 4 }} barSize={30}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" horizontal={false} />
+                      <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} domain={[0, Math.max(...blokData.map(d => d.kapasitas), 10) + 15]} />
+                      <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#222", fontSize: 15, fontWeight: 600 }} width={60} />
+                      <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14 }} formatter={(v: number) => [v, "Terisi"]} />
+                      <Bar dataKey="terisi" name="Terisi" radius={[0, 6, 6, 0]}>
+                        {blokData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                        <LabelList dataKey="terisi" position="right" style={{ fontSize: 14, fontWeight: 700, fill: "#333" }} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 grid grid-cols-2 gap-2 w-full">
+                    {blokData.map((b, i) => (
+                      <div key={b.name} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: b.color }} />
+                        <span className="text-sm font-medium text-neutral-gray">
+                          {b.name}: <strong className="text-neutral-black">{b.terisi}</strong>/{b.kapasitas}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           {/* Ringkasan Jadwal */}
           <div className="lg:col-span-5">
-            <JadwalRingkasan items={jadwal} loading={jadwalLoading} error={jadwalError} periodLabel={range.label} />
+            <JadwalRingkasan
+              items={jadwal}
+              loading={jadwalLoading}
+              error={jadwalError}
+              periodLabel={range.label}
+              onRetry={() => loadJadwal(true)}
+              retrying={jadwalRetrying}
+            />
           </div>
         </div>
       ) : (
