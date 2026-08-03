@@ -307,46 +307,111 @@ export async function deleteTamu(tamu: Tamu): Promise<{ error?: string }> {
   return deleteTamuRombongan(tamu.id);
 }
 
-// ─── GET: Statistik kunjungan per bulan (untuk chart dashboard) ──────────────
-export async function getVisitStats(): Promise<{
-  data: { name: string; kunjungan: number }[];
-  error?: string;
-}> {
-  const yearAgo = new Date();
-  yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-  const fromDate = yearAgo.toISOString().split('T')[0];
+// ─── GET: Statistik kunjungan untuk periode & granularitas tertentu ──────────
+// Dipakai oleh dashboard laporan: granularity 'day' untuk view Minggu/Bulan,
+// 'month' untuk view Tahun. Bucket kosong tetap dimunculkan (nilai 0) supaya
+// hari/bulan tanpa kunjungan tetap tampil di chart, bukan hilang.
+export interface TamuChartPoint {
+  key: string; // yyyy-MM-dd atau yyyy-MM, dipakai untuk sorting/lookup
+  name: string; // label yang ditampilkan di chart
+  umum: number;
+  rombongan: number;
+  kunjungan: number; // umum + rombongan (jumlah_peserta)
+}
 
+export interface TamuPeriodStats {
+  chartData: TamuChartPoint[];
+  totalUmum: number; // jumlah kunjungan tamu umum (per baris)
+  totalRombonganKunjungan: number; // jumlah kunjungan rombongan (per baris/grup)
+  totalRombonganPeserta: number; // jumlah total peserta rombongan
+  total: number; // totalUmum + totalRombonganPeserta (total orang)
+}
+
+function buildEmptyBuckets(from: string, to: string, granularity: 'day' | 'month'): Map<string, TamuChartPoint> {
+  const buckets = new Map<string, TamuChartPoint>();
+  const start = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+
+  if (granularity === 'day') {
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().split('T')[0];
+      const name = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+      buckets.set(key, { key, name, umum: 0, rombongan: 0, kunjungan: 0 });
+    }
+  } else {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+    const endCursor = new Date(end.getFullYear(), end.getMonth(), 1);
+    while (cursor <= endCursor) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+      buckets.set(key, { key, name: monthNames[cursor.getMonth()], umum: 0, rombongan: 0, kunjungan: 0 });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  }
+
+  return buckets;
+}
+
+function bucketKey(tanggal: string, granularity: 'day' | 'month'): string {
+  return granularity === 'day' ? tanggal : tanggal.slice(0, 7);
+}
+
+export async function getTamuStatsByPeriod(
+  from: string,
+  to: string,
+  granularity: 'day' | 'month'
+): Promise<{ data: TamuPeriodStats; error?: string }> {
   const [umum, rombongan] = await Promise.all([
-    supabaseClient
-      .from('tamu_umum')
-      .select('tanggal')
-      .gte('tanggal', fromDate),
-    supabaseClient
-      .from('tamu_rombongan')
-      .select('tanggal, jumlah_peserta')
-      .gte('tanggal', fromDate),
+    supabaseClient.from('tamu_umum').select('tanggal').gte('tanggal', from).lte('tanggal', to),
+    supabaseClient.from('tamu_rombongan').select('tanggal, jumlah_peserta').gte('tanggal', from).lte('tanggal', to),
   ]);
 
   if (umum.error || rombongan.error) {
-    return { data: [], error: umum.error?.message ?? rombongan.error?.message };
+    return {
+      data: { chartData: [], totalUmum: 0, totalRombonganKunjungan: 0, totalRombonganPeserta: 0, total: 0 },
+      error: umum.error?.message ?? rombongan.error?.message,
+    };
   }
-
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-  const counts: Record<string, number> = {};
 
   const umumRows = (umum.data ?? []) as { tanggal: string }[];
   const rombRows = (rombongan.data ?? []) as { tanggal: string; jumlah_peserta?: number | null }[];
 
-  umumRows.forEach(r => {
-    const month = monthNames[new Date(r.tanggal).getMonth()];
-    counts[month] = (counts[month] ?? 0) + 1;
+  const buckets = buildEmptyBuckets(from, to, granularity);
+  let totalUmum = 0;
+  let totalRombonganKunjungan = 0;
+  let totalRombonganPeserta = 0;
+
+  umumRows.forEach((r) => {
+    const key = bucketKey(r.tanggal, granularity);
+    const bucket = buckets.get(key);
+    if (bucket) {
+      bucket.umum += 1;
+      bucket.kunjungan += 1;
+    }
+    totalUmum += 1;
   });
 
-  rombRows.forEach(r => {
-    const month = monthNames[new Date(r.tanggal).getMonth()];
-    counts[month] = (counts[month] ?? 0) + (r.jumlah_peserta ?? 1);
+  rombRows.forEach((r) => {
+    const peserta = r.jumlah_peserta ?? 0;
+    const key = bucketKey(r.tanggal, granularity);
+    const bucket = buckets.get(key);
+    if (bucket) {
+      bucket.rombongan += peserta;
+      bucket.kunjungan += peserta;
+    }
+    totalRombonganKunjungan += 1;
+    totalRombonganPeserta += peserta;
   });
 
-  const data = monthNames.map(name => ({ name, kunjungan: counts[name] ?? 0 }));
-  return { data };
+  const chartData = Array.from(buckets.values()).sort((a, b) => a.key.localeCompare(b.key));
+
+  return {
+    data: {
+      chartData,
+      totalUmum,
+      totalRombonganKunjungan,
+      totalRombonganPeserta,
+      total: totalUmum + totalRombonganPeserta,
+    },
+  };
 }

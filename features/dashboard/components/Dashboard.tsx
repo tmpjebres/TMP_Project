@@ -1,72 +1,118 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/lib/context/auth-context";
-import { TrendingDown, TrendingUp } from "lucide-react";
-import { Database, Users, Grid3x3, CalendarCheck } from "lucide-react";
+import { Database, Users, Grid3x3, UserSquare2 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Cell, LabelList,
 } from "recharts";
 import { getAllBlok } from "@/features/blok/api";
 import { getTotalMakam } from "@/features/makam/api";
-import { getVisitStats, getAllTamu } from "@/features/tamu/api";
-import type { Blok } from "@/types";
+import { getTamuStatsByPeriod, type TamuPeriodStats } from "@/features/tamu/api";
+import { fetchJadwalTamu } from "@/features/jadwal-tamu/api";
+import type { Blok, JadwalTamu } from "@/types";
+import PeriodSelector from "./PeriodSelector";
+import JadwalRingkasan from "./JadwalRingkasan";
+import { resolvePeriodRange, computeTrend, type PeriodSelection } from "../period-utils";
 
-const today = new Date().toISOString().split("T")[0];
-const BLOK_COLORS = 
-[
-  "#1B4332", 
-  "#2D6A4F",
-  "#40916C",
-  "#52B788",
-  "#74C69D",
-  "#95D5B2",
-  "#B7E4C7",
-  "#D8F3DC"  
+const BLOK_COLORS = [
+  "#1B4332", "#2D6A4F", "#40916C", "#52B788",
+  "#74C69D", "#95D5B2", "#B7E4C7", "#D8F3DC",
 ];
+
+const PREV_LABEL: Record<PeriodSelection["view"], string> = {
+  minggu: "minggu lalu",
+  bulan: "bulan lalu",
+  tahun: "tahun lalu",
+};
+
+const emptyStats: TamuPeriodStats = {
+  chartData: [], totalUmum: 0, totalRombonganKunjungan: 0, totalRombonganPeserta: 0, total: 0,
+};
 
 export default function Dashboard() {
   const { isMaster } = useAuth();
+
+  const [period, setPeriod] = useState<PeriodSelection>(() => {
+    const now = new Date();
+    return { view: "bulan", month: now.getMonth(), year: now.getFullYear(), week: 1 };
+  });
+
   const [bloks, setBloks] = useState<Blok[]>([]);
   const [totalMakam, setTotalMakam] = useState(0);
   const [makamKosong, setMakamKosong] = useState(0);
-  const [tamuHariIni, setTamuHariIni] = useState(0);
-  const [tamuBulanIni, setTamuBulanIni] = useState(0);
-  const [visitChartData, setVisitChartData] = useState<{ name: string; kunjungan: number }[]>([]);
+  const [blokError, setBlokError] = useState<string>();
 
-  // ─── Load statistik dari Supabase ──────────────────────────────────────────
+  const [currentStats, setCurrentStats] = useState<TamuPeriodStats>(emptyStats);
+  const [prevStats, setPrevStats] = useState<TamuPeriodStats>(emptyStats);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState<string>();
+
+  const [jadwal, setJadwal] = useState<JadwalTamu[]>([]);
+  const [jadwalLoading, setJadwalLoading] = useState(true);
+  const [jadwalError, setJadwalError] = useState<string>();
+
+  const range = useMemo(() => resolvePeriodRange(period), [period]);
+
+  // ─── Data yang tidak tergantung periode (blok & total makam) ───────────────
   useEffect(() => {
-    const loadStats = async () => {
-      const [blokResult, makamResult, tamuResult, statsResult] = await Promise.all([
-        getAllBlok(),
-        getTotalMakam(),
-        getAllTamu(),
-        getVisitStats(),
-      ]);
+    (async () => {
+      const [blokResult, makamResult] = await Promise.all([getAllBlok(), getTotalMakam()]);
 
       if (!blokResult.error) {
         setBloks(blokResult.data);
         setMakamKosong(blokResult.data.reduce((acc, b) => acc + Math.max(b.kapasitas - b.terisi, 0), 0));
+      } else {
+        setBlokError(blokResult.error);
       }
 
-      if (!makamResult.error) {
-        setTotalMakam(makamResult.count || 0);
-      }
-
-      if (!tamuResult.error) {
-        const tamus = tamuResult.data;
-        setTamuHariIni(tamus.filter(t => t.tanggal === today).length);
-        setTamuBulanIni(tamus.filter(t => t.tanggal.startsWith(today.slice(0, 7))).length);
-      }
-
-      if (!statsResult.error) {
-        setVisitChartData(statsResult.data);
-      }
-    };
-
-    loadStats();
+      if (!makamResult.error) setTotalMakam(makamResult.count || 0);
+    })();
   }, []);
+
+  // ─── Statistik kunjungan (periode berjalan + periode pembanding) ──────────
+  useEffect(() => {
+    let cancelled = false;
+    setStatsLoading(true);
+    setStatsError(undefined);
+
+    (async () => {
+      const [curRes, prevRes] = await Promise.all([
+        getTamuStatsByPeriod(range.from, range.to, range.granularity),
+        getTamuStatsByPeriod(range.prevFrom, range.prevTo, range.granularity),
+      ]);
+      if (cancelled) return;
+
+      if (curRes.error) {
+        setStatsError(curRes.error);
+        setCurrentStats(emptyStats);
+      } else {
+        setCurrentStats(curRes.data);
+      }
+      setPrevStats(prevRes.error ? emptyStats : prevRes.data);
+      setStatsLoading(false);
+    })();
+
+    return () => { cancelled = true; };
+  }, [range.from, range.to, range.prevFrom, range.prevTo, range.granularity]);
+
+  // ─── Ringkasan jadwal untuk periode terpilih ───────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    setJadwalLoading(true);
+    setJadwalError(undefined);
+
+    (async () => {
+      const res = await fetchJadwalTamu(range.from, range.to);
+      if (cancelled) return;
+      if (res.error) setJadwalError(res.error);
+      setJadwal(res.data);
+      setJadwalLoading(false);
+    })();
+
+    return () => { cancelled = true; };
+  }, [range.from, range.to]);
 
   const blokData = bloks.map((b, i) => ({
     name: `Blok ${b.nama}`,
@@ -75,23 +121,41 @@ export default function Dashboard() {
     color: BLOK_COLORS[i % BLOK_COLORS.length],
   }));
 
+  const totalTrend = computeTrend(currentStats.total, prevStats.total);
+  const umumTrend = computeTrend(currentStats.totalUmum, prevStats.totalUmum);
+  const rombonganTrend = computeTrend(currentStats.totalRombonganPeserta, prevStats.totalRombonganPeserta);
+  const prevLabel = PREV_LABEL[period.view];
+
   const stats = [
     { label: "Total Data Makam", value: totalMakam, icon: Database, color: "#1C3F3A", bg: "#E8F0EF" },
     { label: "Makam Kosong", value: makamKosong, icon: Grid3x3, color: "#B45309", bg: "#FEF3C7" },
-    { label: "Tamu Bulan Ini", value: tamuBulanIni, icon: Users, color: "#1D4ED8", bg: "#DBEAFE" },
-    { label: "Tamu Hari Ini", value: tamuHariIni, icon: CalendarCheck, color: "#7C3AED", bg: "#EDE9FE" },
+    {
+      label: "Tamu Umum", value: currentStats.totalUmum, icon: Users, color: "#1D4ED8", bg: "#DBEAFE",
+      trend: umumTrend,
+    },
+    {
+      label: "Tamu Rombongan", value: currentStats.totalRombonganPeserta, icon: UserSquare2, color: "#7C3AED", bg: "#EDE9FE",
+      trend: rombonganTrend, sub: `${currentStats.totalRombonganKunjungan} kunjungan rombongan`,
+    },
   ];
 
   return (
     <div className="animate-fade-in flex flex-col gap-6 h-full">
-      <div>
-        <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 800 }} className="text-neutral-black text-2xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-3xl">
-          Dashboard
-        </h1>
-        <p className="text-xs sm:text-xs md:text-xs lg:text-base xl:text-base text-neutral-gray mt-1">
-          Ringkasan data Taman Makam Pahlawan
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 800 }} className="text-neutral-black text-2xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-3xl">
+            Dashboard
+          </h1>
+          <p className="text-xs sm:text-xs md:text-xs lg:text-base xl:text-base text-neutral-gray mt-1">
+            Ringkasan data Taman Makam Pahlawan &middot; {range.label}
+          </p>
+        </div>
+        {isMaster && <PeriodSelector value={period} onChange={setPeriod} />}
       </div>
+
+      {blokError && (
+        <p className="text-sm text-red-600">Gagal memuat data blok: {blokError}</p>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -101,8 +165,11 @@ export default function Dashboard() {
               <div>
                 <p className="text-base text-neutral-gray font-medium">{s.label}</p>
                 <p className="text-3xl font-extrabold text-neutral-black mt-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
-                  {s.value}
+                  {statsLoading && "trend" in s ? "…" : s.value}
                 </p>
+                {"sub" in s && s.sub && (
+                  <p className="text-xs text-neutral-gray mt-0.5">{s.sub}</p>
+                )}
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.bg }}>
                 <s.icon size={24} style={{ color: s.color }} />
@@ -112,31 +179,47 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {statsError && (
+        <p className="text-sm text-red-600">Gagal memuat statistik kunjungan: {statsError}</p>
+      )}
+
       {/* Charts */}
       {isMaster ? (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Statistik Kunjungan */}
           <div className="lg:col-span-3 bg-white rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
-            <div className="mb-4">
-              <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Statistik Kunjungan</h3>
-              <p className="text-sm text-neutral-gray mt-0.5">12 bulan terakhir</p>
+            <div className="mb-2 flex items-center justify-between">
+              <div>
+                <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Statistik Kunjungan</h3>
+                <p className="text-sm text-neutral-gray mt-0.5">{range.label}</p>
+              </div>
+              
             </div>
             <div className="flex-1">
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={visitChartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#1C3F3A" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="#1C3F3A" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 14, fontWeight: 500 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} />
-                  <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 }} formatter={(v: number) => [`${v} orang`, "Kunjungan"]} />
-                  <Area type="monotone" dataKey="kunjungan" stroke="#1C3F3A" strokeWidth={2.5} fill="url(#grad1)" name="Kunjungan" />
-                </AreaChart>
-              </ResponsiveContainer>
+              {statsLoading ? (
+                <div className="h-full flex items-center justify-center text-sm text-neutral-gray">Memuat grafik...</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart data={currentStats.chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradUmum" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#1B4332" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradRombongan" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#1B4332" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 12, fontWeight: 500 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} />
+                    <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 }} />
+                    <Area type="monotone" dataKey="umum" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradUmum)" name="Tamu Umum" />
+                    <Area type="monotone" dataKey="rombongan" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradRombongan)" name="Tamu Rombongan" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
@@ -170,6 +253,11 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Ringkasan Jadwal */}
+          <div className="lg:col-span-5">
+            <JadwalRingkasan items={jadwal} loading={jadwalLoading} error={jadwalError} periodLabel={range.label} />
           </div>
         </div>
       ) : (

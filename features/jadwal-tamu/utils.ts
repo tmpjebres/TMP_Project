@@ -37,7 +37,41 @@ export function pastelForId(id: string) {
 }
 
 // Warna dikelompokkan per tipe kegiatan supaya event dengan tipe yang sama mudah dikenali
-export const pastelForType = pastelForId;
+const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
+  'Peminjaman Tempat': {
+    bg: '#E7F0FD',
+    text: '#3B6EA8',
+    dot: '#8AB4E8',
+  }, // biru
+
+  'Ziarah Makam': {
+    bg: '#E9F9EE',
+    text: '#2F8F5B',
+    dot: '#8FDBAC',
+  }, // hijau
+
+  'Audiensi': {
+    bg: '#FDE7EC',
+    text: '#B4436C',
+    dot: '#E88AA6',
+  }, // pink
+
+  'Rapat': {
+    bg: '#FFF4E0',
+    text: '#B4791E',
+    dot: '#F0C070',
+  }, // kuning
+
+  'Lainnya': {
+    bg: '#F1E9FB',
+    text: '#7A4FB5',
+    dot: '#C6A8ED',
+  }, // ungu
+};
+
+export function pastelForType(type: string) {
+  return TYPE_COLORS[type] ?? pastelForId(type);
+}
 
 // ─── Navigasi tanggal berdasarkan mode view ────────────────────────────────────
 export function shiftDate(date: Date, mode: CalendarViewMode, direction: 1 | -1): Date {

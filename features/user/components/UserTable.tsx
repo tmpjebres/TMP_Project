@@ -36,7 +36,7 @@ export function UserTable({
           {hasActiveFilter ? "Tidak ada hasil yang cocok." : "Belum ada user."}
         </p>
         {hasActiveFilter && (
-          <button onClick={onResetFilter} className="text-xs text-violet-500 hover:underline">
+          <button onClick={onResetFilter} className="text-xs text-green-primary font-medium hover:underline">
             Reset filter
           </button>
         )}
@@ -70,9 +70,15 @@ export function UserTable({
         </thead>
         <tbody className="divide-y divide-neutral-50">
           {users.map((u) => (
-            <tr key={u.id} className="hover:bg-neutral-50/80 transition-colors group">
+            <tr key={u.id} className="relative hover:bg-neutral-50/80 transition-colors group">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
+                  {/* Aksen role di kiri baris, seperti label plakat */}
+                  <span
+                    className={`w-1 self-stretch rounded-full flex-shrink-0 ${
+                      u.role === "master" ? "bg-brass" : "bg-green-accent"
+                    }`}
+                  />
                   <Avatar username={u.username} role={u.role} />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -80,7 +86,7 @@ export function UserTable({
                         {u.fullName}
                       </span>
                       {u.id === currentUserId && (
-                        <span className="text-xs text-violet-500 font-medium bg-violet-50 px-1.5 py-0.5 rounded-md flex-shrink-0">
+                        <span className="text-xs text-brass-dark font-medium bg-brass-light px-1.5 py-0.5 rounded-md flex-shrink-0">
                           Anda
                         </span>
                       )}
@@ -105,7 +111,7 @@ export function UserTable({
                     <Link
                       href={`/user-management/${u.id}`}
                       title="Lihat log aktivitas"
-                      className="p-1.5 rounded-lg hover:bg-sky-50 text-neutral-400 hover:text-sky-600 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-green-light text-neutral-400 hover:text-green-primary transition-colors"
                     >
                       <History size={15} />
                     </Link>
@@ -114,7 +120,7 @@ export function UserTable({
                     <button
                       onClick={() => onEdit(u)}
                       title="Edit user"
-                      className="p-1.5 rounded-lg hover:bg-violet-50 text-neutral-400 hover:text-violet-600 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-brass-light text-neutral-400 hover:text-brass-dark transition-colors"
                     >
                       <Pencil size={15} />
                     </button>

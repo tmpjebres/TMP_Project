@@ -17,6 +17,11 @@ module.exports = {
           accent: '#3D7A73',
           light: '#E8F0EF',
         },
+        brass: {
+          DEFAULT: '#B08D57',
+          dark: '#8C6D3F',
+          light: '#F3ECDD',
+        },
         neutral: {
           white: '#FFFFFF',
           black: '#111111',

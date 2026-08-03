@@ -62,14 +62,31 @@ const FIELD_LABEL: Record<string, string> = {
   pangkat: "Pangkat",
 };
 
+// Warna & ikon tiap jenis aktivitas — selaras dengan identitas hijau/brass TMP
+function iconStyle(action: string): { icon: typeof Plus; bg: string; fg: string } {
+  switch (action) {
+    case "login_success":
+      return { icon: LogIn, bg: "bg-green-light", fg: "text-green-primary" };
+    case "login_failed":
+      return { icon: LogOut, bg: "bg-red-50", fg: "text-red-600" };
+    case "create":
+      return { icon: Plus, bg: "bg-green-light", fg: "text-green-primary" };
+    case "update":
+      return { icon: Pencil, bg: "bg-brass-light", fg: "text-brass-dark" };
+    case "delete":
+      return { icon: Trash2, bg: "bg-red-50", fg: "text-red-600" };
+    default:
+      return { icon: Power, bg: "bg-neutral-100", fg: "text-neutral-500" };
+  }
+}
+
 function EntryIcon({ action }: { action: string }) {
-  const cls = "w-4 h-4";
-  if (action === "login_success") return <LogIn className={`${cls} text-emerald-600`} />;
-  if (action === "login_failed") return <LogOut className={`${cls} text-red-600`} />;
-  if (action === "create") return <Plus className={`${cls} text-sky-600`} />;
-  if (action === "update") return <Pencil className={`${cls} text-amber-600`} />;
-  if (action === "delete") return <Trash2 className={`${cls} text-red-600`} />;
-  return <Power className={`${cls} text-violet-600`} />;
+  const { icon: Icon, bg, fg } = iconStyle(action);
+  return (
+    <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ring-4 ring-white ${bg}`}>
+      <Icon size={15} className={fg} />
+    </div>
+  );
 }
 
 function describeEntry(e: UserActivityEntry): string {
@@ -95,16 +112,19 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
   const fields = entry.changes ? Object.entries(entry.changes) : [];
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden"
+        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-100">
-          <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center">
-            <EntryIcon action={entry.action} />
-          </div>
-          <h3 className="text-sm font-semibold text-neutral-800 flex-1">{describeEntry(entry)}</h3>
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-100">
+          <EntryIcon action={entry.action} />
+          <h3
+            className="text-sm font-semibold text-neutral-800 flex-1"
+            style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
+          >
+            {describeEntry(entry)}
+          </h3>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600">
             <X size={16} />
           </button>
@@ -144,7 +164,7 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
                   <div className="flex items-center gap-2 text-sm">
                     <span className="px-2 py-1 rounded-md bg-red-50 text-red-600 line-through">{diff.from}</span>
                     <span className="text-neutral-300">→</span>
-                    <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 font-medium">{diff.to}</span>
+                    <span className="px-2 py-1 rounded-md bg-green-light text-green-primary font-medium">{diff.to}</span>
                   </div>
                 </div>
               ))}
@@ -194,7 +214,7 @@ export function UserActivityLog({ userId }: { userId: string }) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400">
         <p className="text-sm font-medium">{error ?? "User tidak ditemukan."}</p>
-        <Link href={ROUTES["user-management"]} className="text-xs text-violet-500 hover:underline">
+        <Link href={ROUTES["user-management"]} className="text-xs text-green-primary font-medium hover:underline">
           Kembali ke User Management
         </Link>
       </div>
@@ -205,34 +225,39 @@ export function UserActivityLog({ userId }: { userId: string }) {
     <div className="animate-fade-in flex flex-col min-h-[calc(100vh-8rem)]">
       <Link
         href={ROUTES["user-management"]}
-        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-neutral-700 mb-4 w-fit"
+        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-neutral-700 mb-5 w-fit transition-colors"
       >
         <ArrowLeft size={15} />
         Kembali
       </Link>
 
-      <div className="flex items-center gap-4 mb-6">
-        <Avatar username={user.username} role={user.role} />
-        <div>
-          <div className="flex items-center gap-2">
+      {/* ── Hero identitas pengguna ── */}
+      <div className="bg-white rounded-2xl p-6 mb-6 flex items-center gap-5" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="scale-[1.8] ml-2">
+          <Avatar username={user.username} role={user.role} />
+        </div>
+        <div className="ml-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1
               className="text-neutral-900"
-              style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 22, fontWeight: 800 }}
+              style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 24, fontWeight: 800, letterSpacing: "-0.3px" }}
             >
               {user.fullName}
             </h1>
             <RoleBadge role={user.role} />
             <StatusBadge isActive={user.isActive} />
           </div>
-          <p className="text-sm text-neutral-400">@{user.username}</p>
+          <p className="text-sm text-neutral-400 mt-0.5">@{user.username}</p>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl flex-1" style={{ border: "1px solid #e5e7eb" }}>
-        <div className="px-5 py-4 border-b border-neutral-100 flex items-center gap-2">
-          <History size={16} className="text-neutral-400" />
-          <h2 className="text-sm font-semibold text-neutral-700">Log Aktivitas</h2>
-          <span className="text-xs text-neutral-400 ml-auto">{entries.length} aktivitas</span>
+        <div className="px-6 py-4 border-b border-neutral-100 flex items-center gap-2">
+          <History size={16} className="text-brass-dark" />
+          <h2 className="text-sm font-semibold text-neutral-700" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+            Riwayat Aktivitas
+          </h2>
+          <span className="text-xs text-neutral-400 ml-auto">{entries.length} aktivitas tercatat</span>
         </div>
 
         {entries.length === 0 ? (
@@ -241,17 +266,19 @@ export function UserActivityLog({ userId }: { userId: string }) {
             <p className="text-sm font-medium">Belum ada aktivitas tercatat.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-neutral-50">
+          <ul className="relative px-6 py-2">
+            {/* Garis waktu vertikal menghubungkan setiap catatan */}
+            <span className="absolute left-[38px] top-2 bottom-2 w-px bg-neutral-100" aria-hidden="true" />
             {entries.map((e) => (
               <li
                 key={e.id}
                 onClick={() => setSelected(e)}
-                className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-neutral-50/80"
+                className="relative flex items-center gap-4 py-3 cursor-pointer group"
               >
-                <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center flex-shrink-0">
-                  <EntryIcon action={e.action} />
+                <EntryIcon action={e.action} />
+                <div className="flex-1 min-w-0 rounded-xl px-3 py-2 -my-2 transition-colors group-hover:bg-neutral-50/80">
+                  <p className="text-sm text-neutral-700 truncate">{describeEntry(e)}</p>
                 </div>
-                <p className="text-sm text-neutral-700 flex-1">{describeEntry(e)}</p>
                 <span className="text-xs text-neutral-400 flex-shrink-0">{formatDateTime(e.createdAt)}</span>
               </li>
             ))}
