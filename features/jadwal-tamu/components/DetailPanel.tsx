@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { Building2, Clock, FileText, Pencil, Trash2, User, Users } from 'lucide-react';
 import type { JadwalTamu } from '@/types';
-import { formatRentangWaktu, pastelForType } from '../utils';
+import { formatRentangWaktu, pastelFor, type TipeColorMap } from '../utils';
 
 interface DetailPanelProps {
   event: JadwalTamu | null;
@@ -11,9 +11,10 @@ interface DetailPanelProps {
   onEdit: (event: JadwalTamu) => void;
   onDelete: (event: JadwalTamu) => void;
   onViewAttachment: (event: JadwalTamu) => void;
+  tipeColorMap?: TipeColorMap;
 }
 
-export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAttachment }: DetailPanelProps) {
+export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAttachment, tipeColorMap }: DetailPanelProps) {
   if (!event) {
     return (
       <div
@@ -29,7 +30,7 @@ export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAt
     );
   }
 
-  const pastel = pastelForType(event.tipeKegiatan);
+  const pastel = pastelFor(event.tipeKegiatan, tipeColorMap);
 
   return (
     <div className="flex-1 rounded-xl bg-white p-4 flex flex-col gap-3 overflow-y-auto" style={{ border: '1px solid #EEEEEE' }}>

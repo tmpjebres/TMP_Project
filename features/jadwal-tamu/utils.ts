@@ -20,6 +20,7 @@ import type { JadwalTamu } from '@/types';
 export type CalendarViewMode = 'week' | 'month' | 'year';
 
 // ─── Palet pastel untuk badge event (base kalender tetap putih) ───────────────
+// Urutan di sini menentukan urutan pembagian warna (lihat buildTipeColorMap di bawah).
 export const PASTEL_PALETTE = [
   { bg: '#FDE7EC', text: '#B4436C', dot: '#E88AA6' }, // pink
   { bg: '#E7F0FD', text: '#3B6EA8', dot: '#8AB4E8' }, // blue
@@ -28,49 +29,47 @@ export const PASTEL_PALETTE = [
   { bg: '#F1E9FB', text: '#7A4FB5', dot: '#C6A8ED' }, // purple
   { bg: '#E4F7F6', text: '#2A8E88', dot: '#8FD9D4' }, // teal
   { bg: '#FDECEA', text: '#C15646', dot: '#EFA396' }, // coral
+  { bg: '#EAF2E3', text: '#5B7A3A', dot: '#A9C98A' }, // olive
+  { bg: '#FCE9F7', text: '#A34C93', dot: '#E5A6D8' }, // magenta
+  { bg: '#E6EEFB', text: '#4A5FA5', dot: '#9DAEDE' }, // indigo
 ];
 
+/**
+ * Hash fallback (dipakai kalau sebuah tipe kegiatan belum terdaftar di
+ * tipeColorMap). Ini yang dulu jadi satu-satunya sumber warna dan bisa
+ * collision antar tipe (contoh: "Peminjaman tempat" vs "Ziarah makam").
+ */
 export function pastelForId(id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   return PASTEL_PALETTE[hash % PASTEL_PALETTE.length];
 }
 
-// Warna dikelompokkan per tipe kegiatan supaya event dengan tipe yang sama mudah dikenali
-const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  'Peminjaman Tempat': {
-    bg: '#E7F0FD',
-    text: '#3B6EA8',
-    dot: '#8AB4E8',
-  }, // biru
+// Dipertahankan untuk kompatibilitas kalau ada pemanggil lama.
+export const pastelForType = pastelForId;
 
-  'Ziarah Makam': {
-    bg: '#E9F9EE',
-    text: '#2F8F5B',
-    dot: '#8FDBAC',
-  }, // hijau
+export type TipeColorMap = Record<string, (typeof PASTEL_PALETTE)[number]>;
 
-  'Audiensi': {
-    bg: '#FDE7EC',
-    text: '#B4436C',
-    dot: '#E88AA6',
-  }, // pink
+/**
+ * Bikin peta warna: setiap `nama` tipe kegiatan mendapat slot warna berdasarkan
+ * urutannya di `tipeList` (bukan hash string), jadi dijamin unik selama jumlah
+ * tipe kegiatan <= panjang PASTEL_PALETTE. Tipe baru yang ditambahkan otomatis
+ * kebagian warna berikutnya yang belum terpakai, tanpa perlu ubah kode.
+ *
+ * tipeList sebaiknya diurutkan konsisten (dari API: is_default desc, nama asc)
+ * supaya assignment warna stabil antar reload.
+ */
+export function buildTipeColorMap(tipeList: { nama: string }[]): TipeColorMap {
+  const map: TipeColorMap = {};
+  tipeList.forEach((tipe, index) => {
+    map[tipe.nama] = PASTEL_PALETTE[index % PASTEL_PALETTE.length];
+  });
+  return map;
+}
 
-  'Rapat': {
-    bg: '#FFF4E0',
-    text: '#B4791E',
-    dot: '#F0C070',
-  }, // kuning
-
-  'Lainnya': {
-    bg: '#F1E9FB',
-    text: '#7A4FB5',
-    dot: '#C6A8ED',
-  }, // ungu
-};
-
-export function pastelForType(type: string) {
-  return TYPE_COLORS[type] ?? pastelForId(type);
+/** Ambil warna untuk sebuah tipe kegiatan; fallback ke hash kalau belum ada di map. */
+export function pastelFor(nama: string, colorMap?: TipeColorMap) {
+  return colorMap?.[nama] ?? pastelForId(nama);
 }
 
 // ─── Navigasi tanggal berdasarkan mode view ────────────────────────────────────

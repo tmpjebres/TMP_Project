@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import type { JadwalTamu } from '@/types';
-import { buildMonthGrid, eventCoversDate, isSameDay, isSameMonth, pastelForType } from '../utils';
+import { buildMonthGrid, eventCoversDate, isSameDay, isSameMonth, pastelFor, type TipeColorMap } from '../utils';
 
 interface MonthViewProps {
   anchorDate: Date;
@@ -10,11 +10,19 @@ interface MonthViewProps {
   selectedEventId?: string;
   onSelectEvent: (event: JadwalTamu) => void;
   onSelectEmptyDay?: (date: Date) => void;
+  tipeColorMap?: TipeColorMap;
 }
 
 const HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-export default function MonthView({ anchorDate, events, selectedEventId, onSelectEvent, onSelectEmptyDay }: MonthViewProps) {
+export default function MonthView({
+  anchorDate,
+  events,
+  selectedEventId,
+  onSelectEvent,
+  onSelectEmptyDay,
+  tipeColorMap,
+}: MonthViewProps) {
   const days = buildMonthGrid(anchorDate);
   const today = new Date();
 
@@ -64,7 +72,7 @@ export default function MonthView({ anchorDate, events, selectedEventId, onSelec
 
               <div className="flex flex-col gap-1">
                 {visibleEvents.map((ev) => {
-                  const pastel = pastelForType(ev.tipeKegiatan);
+                  const pastel = pastelFor(ev.tipeKegiatan, tipeColorMap);
                   const active = ev.id === selectedEventId;
                   return (
                     <button

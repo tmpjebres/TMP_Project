@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import type { JadwalTamu } from '@/types';
-import { HOUR_ROWS, buildWeekDays, eventCoversDate, isSameDay, pastelForType, timeToMinutes } from '../utils';
+import { HOUR_ROWS, buildWeekDays, eventCoversDate, isSameDay, pastelFor, timeToMinutes, type TipeColorMap } from '../utils';
 
 interface WeekViewProps {
   anchorDate: Date;
@@ -11,11 +11,19 @@ interface WeekViewProps {
   selectedEventId?: string;
   onSelectEvent: (event: JadwalTamu) => void;
   onSelectEmptyDay?: (date: Date) => void;
+  tipeColorMap?: TipeColorMap;
 }
 
 const ROW_HEIGHT = 48; // px per jam
 
-export default function WeekView({ anchorDate, events, selectedEventId, onSelectEvent, onSelectEmptyDay }: WeekViewProps) {
+export default function WeekView({
+  anchorDate,
+  events,
+  selectedEventId,
+  onSelectEvent,
+  onSelectEmptyDay,
+  tipeColorMap,
+}: WeekViewProps) {
   const days = buildWeekDays(anchorDate);
   const today = new Date();
 
@@ -80,7 +88,7 @@ export default function WeekView({ anchorDate, events, selectedEventId, onSelect
                 ))}
 
                 {dayEvents.map((ev) => {
-                  const pastel = pastelForType(ev.tipeKegiatan);
+                  const pastel = pastelFor(ev.tipeKegiatan, tipeColorMap);
                   const active = ev.id === selectedEventId;
 
                   const isStartDay = dateStr === ev.tanggalMulai;

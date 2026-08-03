@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import type { JadwalTamu, JadwalTamuFormInput } from '@/types';
@@ -18,13 +18,17 @@ import EventFormModal from './EventFormModal';
 import ConflictConfirmDialog from './ConflictConfirmDialog';
 import AttachmentModal from './AttachmentModal';
 import { useJadwalTamuData } from '../hooks/useJadwalTamuData';
-import { shiftDate } from '../utils';
+import { useTipeKegiatan } from '../hooks/useTipeKegiatan';
+import { buildTipeColorMap, shiftDate } from '../utils';
 import type { CalendarViewMode } from '../utils';
 
 export default function JadwalTamuPage() {
   const { user, isMaster } = useAuth();
   const { events, loading, add, edit, remove, checkConflicts } = useJadwalTamuData();
   const { toasts, push, dismiss } = useToast();
+
+  const { tipeList } = useTipeKegiatan();
+  const tipeColorMap = useMemo(() => buildTipeColorMap(tipeList), [tipeList]);
 
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<CalendarViewMode>('month');
@@ -171,6 +175,7 @@ export default function JadwalTamuPage() {
                   selectedEventId={selectedEvent?.id}
                   onSelectEvent={handleSelectEvent}
                   onSelectEmptyDay={handleSelectEmptyDay}
+                  tipeColorMap={tipeColorMap}
                 />
               )}
               {viewMode === 'week' && (
@@ -180,6 +185,7 @@ export default function JadwalTamuPage() {
                   selectedEventId={selectedEvent?.id}
                   onSelectEvent={handleSelectEvent}
                   onSelectEmptyDay={handleSelectEmptyDay}
+                  tipeColorMap={tipeColorMap}
                 />
               )}
               {viewMode === 'year' && (
@@ -215,6 +221,7 @@ export default function JadwalTamuPage() {
           onEdit={openEditForm}
           onDelete={setDeleteTarget}
           onViewAttachment={setAttachmentTarget}
+          tipeColorMap={tipeColorMap}
         />
       </div>
 
