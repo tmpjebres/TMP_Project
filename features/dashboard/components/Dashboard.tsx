@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/context/auth-context";
-import { Database, Users, Grid3x3, UserSquare2 } from "lucide-react";
+import { Database, Users, Grid3x3, UserSquare2, FileDown } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Cell, LabelList,
@@ -13,6 +14,7 @@ import { getTamuStatsByPeriod, type TamuPeriodStats } from "@/features/tamu/api"
 import { fetchJadwalTamu } from "@/features/jadwal-tamu/api";
 import type { Blok, JadwalTamu } from "@/types";
 import { SectionLoading, SectionEmpty, SectionError } from "@/components/ui/SectionState";
+import Toast from "@/components/ui/Toast";
 import PeriodSelector from "./PeriodSelector";
 import JadwalRingkasan from "./JadwalRingkasan";
 import { resolvePeriodRange, computeTrend, type PeriodSelection } from "../period-utils";
@@ -33,12 +35,15 @@ const emptyStats: TamuPeriodStats = {
 };
 
 export default function Dashboard() {
-  const { isMaster } = useAuth();
+  const { isMaster, session } = useAuth();
 
   const [period, setPeriod] = useState<PeriodSelection>(() => {
     const now = new Date();
     return { view: "tahun", month: now.getMonth(), year: now.getFullYear(), week: 1 };
   });
+
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportToast, setExportToast] = useState<string>();
 
   const [bloks, setBloks] = useState<Blok[]>([]);
   const [totalMakam, setTotalMakam] = useState(0);
@@ -166,6 +171,43 @@ export default function Dashboard() {
   const cardsBusy = blokLoading || statsLoading;
   const cardsFailed = blokError && statsError;
 
+  // ─── Export laporan Dashboard (semua section) ke PDF, khusus Master ────────
+  async function handleExportDashboardPdf() {
+    if (!session?.access_token || exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("view", period.view);
+      params.set("month", String(period.month));
+      params.set("year", String(period.year));
+      params.set("week", String(period.week));
+
+      const res = await fetch(`/api/reports/dashboard?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Gagal membuat laporan PDF.");
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `laporan-dashboard-${range.from}_sd_${range.to}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setExportToast("Laporan PDF berhasil diunduh.");
+    } catch (err) {
+      setExportToast(err instanceof Error ? err.message : "Gagal membuat laporan PDF.");
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
   return (
     <div className="animate-fade-in flex flex-col gap-6 h-full">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -177,8 +219,27 @@ export default function Dashboard() {
             Ringkasan data Taman Makam Pahlawan &middot; {range.label}
           </p>
         </div>
-        {isMaster && <PeriodSelector value={period} onChange={setPeriod} />}
+        {isMaster && (
+          <div className="flex items-center gap-3 flex-wrap">
+            <PeriodSelector value={period} onChange={setPeriod} />
+            <button
+              onClick={handleExportDashboardPdf}
+              disabled={exportingPdf || cardsBusy}
+              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black border rounded-lg px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              style={{ borderColor: "rgba(221,221,221,0.8)" }}
+              title="Export seluruh ringkasan dashboard ke PDF"
+            >
+              <FileDown size={14} className={exportingPdf ? "animate-pulse" : ""} />
+              {exportingPdf ? "Membuat PDF..." : "Export PDF"}
+            </button>
+          </div>
+        )}
       </div>
+
+      {exportToast && typeof document !== "undefined" && createPortal(
+        <Toast message={exportToast} onDone={() => setExportToast(undefined)} />,
+        document.body
+      )}
 
       {/* Summary Cards */}
       <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
@@ -331,6 +392,8 @@ export default function Dashboard() {
               periodLabel={range.label}
               onRetry={() => loadJadwal(true)}
               retrying={jadwalRetrying}
+              rangeFrom={range.from}
+              rangeTo={range.to}
             />
           </div>
         </div>

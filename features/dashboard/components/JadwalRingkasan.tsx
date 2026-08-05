@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { CalendarDays, X, ArrowRight } from 'lucide-react';
+import { CalendarDays, X, ArrowRight, FileDown } from 'lucide-react';
 import type { JadwalTamu } from '@/types';
 import { ROUTES } from '@/lib/routes';
+import { useAuth } from '@/lib/context/auth-context';
 import { SectionLoading, SectionEmpty, SectionError } from '@/components/ui/SectionState';
+import Toast from '@/components/ui/Toast';
 
 const DASHBOARD_ITEM_COUNT = 5;
 
@@ -45,6 +47,8 @@ export default function JadwalRingkasan({
   periodLabel,
   onRetry,
   retrying,
+  rangeFrom,
+  rangeTo,
 }: {
   items: JadwalTamu[];
   loading: boolean;
@@ -52,29 +56,84 @@ export default function JadwalRingkasan({
   periodLabel: string;
   onRetry?: () => void;
   retrying?: boolean;
+  rangeFrom?: string;
+  rangeTo?: string;
 }) {
   const router = useRouter();
+  const { session, isMaster } = useAuth();
   const [showAll, setShowAll] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string>();
+
   const visible = items.slice(0, DASHBOARD_ITEM_COUNT);
   const remaining = items.length - visible.length;
 
   const goToJadwalTamu = () => router.push(ROUTES['jadwal-tamu']);
 
+  async function handleExportPdf() {
+    if (!session?.access_token || exporting) return;
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (rangeFrom) params.set('from', rangeFrom);
+      if (rangeTo) params.set('to', rangeTo);
+      params.set('periodLabel', periodLabel);
+
+      const res = await fetch(`/api/reports/jadwal-tamu?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || 'Gagal membuat laporan PDF.');
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `laporan-jadwal-tamu-${rangeFrom || 'semua'}_sd_${rangeTo || 'semua'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setToastMsg('Laporan PDF berhasil diunduh.');
+    } catch (err) {
+      setToastMsg(err instanceof Error ? err.message : 'Gagal membuat laporan PDF.');
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl p-6 flex flex-col" style={{ border: '1px solid rgba(221,221,221,0.5)', minHeight: 280 }}>
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700 }} className="text-neutral-black">
             Ringkasan Jadwal
           </h3>
           <p className="text-sm text-neutral-gray mt-0.5">{periodLabel}</p>
         </div>
-        <button
-          onClick={goToJadwalTamu}
-          className="flex items-center gap-1 text-sm font-medium text-green-primary hover:underline flex-shrink-0"
-        >
-          Buka Jadwal Tamu <ArrowRight size={14} />
-        </button>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {isMaster && (
+            <button
+              onClick={handleExportPdf}
+              disabled={exporting || loading || !!error}
+              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black border rounded-lg px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              style={{ borderColor: 'rgba(221,221,221,0.8)' }}
+              title="Export laporan jadwal tamu ke PDF (semua data, tanpa batas)"
+            >
+              <FileDown size={14} className={exporting ? 'animate-pulse' : ''} />
+              {exporting ? 'Membuat PDF...' : 'Export PDF'}
+            </button>
+          )}
+          <button
+            onClick={goToJadwalTamu}
+            className="flex items-center gap-1 text-sm font-medium text-green-primary hover:underline"
+          >
+            Buka Jadwal Tamu <ArrowRight size={14} />
+          </button>
+        </div>
       </div>
 
       {loading && <SectionLoading variant="list" label="Memuat jadwal..." />}
@@ -135,6 +194,11 @@ export default function JadwalRingkasan({
             </div>
           </div>
         </div>,
+        document.body
+      )}
+
+      {toastMsg && typeof document !== 'undefined' && createPortal(
+        <Toast message={toastMsg} onDone={() => setToastMsg(undefined)} />,
         document.body
       )}
     </div>
