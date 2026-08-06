@@ -186,6 +186,18 @@ function drawKpiRow(doc: PDFKit.PDFDocument, data: DashboardReportData) {
 }
 
 // ─── Grafik kunjungan: batang bertumpuk umum (ink) vs rombongan (brass) ─────
+function niceNumber(range: number): number {
+  if (range <= 0) return 1;
+  const exponent = Math.floor(Math.log10(range));
+  const fraction = range / Math.pow(10, exponent);
+  let niceFraction: number;
+  if (fraction < 1.5) niceFraction = 1;
+  else if (fraction < 3) niceFraction = 2;
+  else if (fraction < 7) niceFraction = 5;
+  else niceFraction = 10;
+  return niceFraction * Math.pow(10, exponent);
+}
+
 function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) {
   const label = data.granularity === 'day' ? 'Per hari' : 'Per bulan';
   drawSectionTitle(doc, 'Statistik Kunjungan', label);
@@ -194,44 +206,65 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
   const topPadding = 14; // ruang untuk label angka di atas batang tertinggi
   ensureSpace(doc, chartHeight + topPadding + 40);
 
-  const left = PAGE_MARGIN.left;
+  const points = data.chartData;
+  const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 0);
+
+  // ─ Sumbu Y: tick "rapi" (kelipatan 1/2/5/10) supaya angka selalu bulat ────
+  const niceStep = Math.max(1, Math.round(niceNumber(Math.max(maxVal, 1) / 4)));
+  const niceMaxAxis = Math.max(niceStep, Math.ceil(Math.max(maxVal, 1) / niceStep) * niceStep);
+  const tickCount = niceMaxAxis / niceStep;
+
+  const axisWidth = 28;
+  const left = PAGE_MARGIN.left + axisWidth;
+  const barsWidth = CONTENT_WIDTH - axisWidth;
   const top = doc.y + 4 + topPadding;
   const baseline = top + chartHeight;
-  const points = data.chartData;
-  const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 1);
 
-  const slot = CONTENT_WIDTH / Math.max(points.length, 1);
+  // Gridlines + label angka sumbu Y
+  for (let i = 0; i <= tickCount; i++) {
+    const tickValue = i * niceStep;
+    const y = baseline - (tickValue / niceMaxAxis) * chartHeight;
+    doc.moveTo(left, y).lineTo(left + barsWidth, y).lineWidth(0.5).strokeColor(HAIRLINE).stroke();
+    doc.font('Helvetica').fontSize(7).fillColor(GRAY)
+      .text(String(tickValue), PAGE_MARGIN.left, y - 3, { width: axisWidth - 6, align: 'right' });
+  }
+
+  const slot = barsWidth / Math.max(points.length, 1);
   const barWidth = Math.min(Math.max(slot * 0.55, 2), 26);
 
-  doc.moveTo(left, baseline).lineTo(left + CONTENT_WIDTH, baseline).lineWidth(0.75).strokeColor(HAIRLINE).stroke();
-
   points.forEach((p, i) => {
-    const x = left + i * slot + (slot - barWidth) / 2;
-    const umumH = maxVal > 0 ? (p.umum / maxVal) * chartHeight : 0;
-    const rombH = maxVal > 0 ? (p.rombongan / maxVal) * chartHeight : 0;
+    const slotCenterX = left + i * slot + slot / 2;
+    const x = slotCenterX - barWidth / 2;
+    const umumH = niceMaxAxis > 0 ? (p.umum / niceMaxAxis) * chartHeight : 0;
+    const rombH = niceMaxAxis > 0 ? (p.rombongan / niceMaxAxis) * chartHeight : 0;
 
     if (rombH > 0) doc.rect(x, baseline - umumH - rombH, barWidth, rombH).fill(BRASS);
     if (umumH > 0) doc.rect(x, baseline - umumH, barWidth, umumH).fill(INK);
 
-    const total = p.umum + p.rombongan;
-    if (total > 0) {
-      const labelY = baseline - umumH - rombH - 11;
-      doc.font('Helvetica-Bold').fontSize(7).fillColor(INK)
-        .text(String(total), x - slot / 2, labelY, { width: slot * 2, align: 'center' });
+    // Angka per segmen: rombongan (atas) dan umum (bawah), masing-masing kalau > 0
+    if (p.rombongan > 0 && rombH >= 7) {
+      doc.font('Helvetica-Bold').fontSize(6).fillColor(BLACK)
+        .text(String(p.rombongan), slotCenterX - slot, baseline - umumH - rombH + rombH / 2 - 3, { width: slot * 2, align: 'center' });
+    }
+    if (p.umum > 0 && umumH >= 7) {
+      doc.font('Helvetica-Bold').fontSize(6).fillColor('#FFFFFF')
+        .text(String(p.umum), slotCenterX - slot, baseline - umumH + umumH / 2 - 3, { width: slot * 2, align: 'center' });
     }
 
     if (points.length <= 20 || i % Math.ceil(points.length / 16) === 0) {
       doc.font('Helvetica').fontSize(6.5).fillColor(GRAY)
-        .text(p.name, x - slot / 2, baseline + 5, { width: slot * 2, align: 'center' });
+        .text(p.name, slotCenterX - slot, baseline + 5, { width: slot * 2, align: 'center' });
     }
   });
 
-  doc.y = baseline + 20;
+  doc.moveTo(left, baseline).lineTo(left + barsWidth, baseline).lineWidth(0.75).strokeColor(INK_SOFT).stroke();
+
+  doc.y = baseline + 24;
   drawLegend(doc, [
     { color: INK, label: 'Tamu Umum' },
     { color: BRASS, label: 'Tamu Rombongan' },
   ]);
-  doc.y += 22;
+  doc.y += 24;
   drawHairline(doc);
   doc.y += 22;
 }
@@ -264,7 +297,6 @@ function drawBlokDistribution(doc: PDFKit.PDFDocument, data: DashboardReportData
   const labelWidth = 90;
   const valueWidth = 90;
   const trackWidth = CONTENT_WIDTH - labelWidth - valueWidth;
-  const maxKapasitas = Math.max(...data.bloks.map((b) => b.kapasitas), 1);
 
   data.bloks.forEach((b) => {
     ensureSpace(doc, rowHeight + 4);
@@ -274,7 +306,8 @@ function drawBlokDistribution(doc: PDFKit.PDFDocument, data: DashboardReportData
 
     const trackX = left + labelWidth;
     doc.rect(trackX, y + 5, trackWidth, 8).fill(HAIRLINE);
-    const filled = Math.min((b.terisi / maxKapasitas) * trackWidth, trackWidth);
+    const ratio = b.kapasitas > 0 ? Math.min(b.terisi / b.kapasitas, 1) : 0;
+    const filled = ratio * trackWidth;
     if (filled > 0) doc.rect(trackX, y + 5, filled, 8).fill(INK);
 
     doc.font('Helvetica').fontSize(9).fillColor(INK_SOFT)
@@ -303,10 +336,33 @@ function drawJadwalRingkasan(doc: PDFKit.PDFDocument, data: DashboardReportData)
   const left = PAGE_MARGIN.left;
   const right = PAGE_MARGIN.left + CONTENT_WIDTH;
   const dateColWidth = 90;
+  const colGap = 16;
+  const textX = left + dateColWidth + colGap;
+  const textWidth = right - textX;
+
+  // ─ Header kolom, biar terasa seperti tabel sungguhan ───────────────────────
+  ensureSpace(doc, 40);
+  const headerY = doc.y;
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(GRAY)
+    .text('TANGGAL', left, headerY, { width: dateColWidth, characterSpacing: 0.4 });
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(GRAY)
+    .text('KEGIATAN', textX, headerY, { width: textWidth, characterSpacing: 0.4 });
+  doc.y = headerY + 12;
+  doc.moveTo(left, doc.y).lineTo(right, doc.y).lineWidth(1).strokeColor(INK_SOFT).stroke();
+  doc.y += 12;
 
   items.forEach((item) => {
-    const rowHeight = 30;
-    ensureSpace(doc, rowHeight);
+    doc.font('Helvetica-Bold').fontSize(9.5);
+    const titleHeight = doc.heightOfString(item.namaKegiatan, { width: textWidth });
+    const subtitleText = `${item.tipeKegiatan} \u00b7 ${item.instansi}`;
+    doc.font('Helvetica').fontSize(8.5);
+    const subtitleHeight = doc.heightOfString(subtitleText, { width: textWidth });
+
+    const contentHeight = titleHeight + 4 + subtitleHeight;
+    const dateBlockHeight = 12 + 4 + 10;
+    const rowHeight = Math.max(contentHeight, dateBlockHeight) + 14;
+
+    ensureSpace(doc, rowHeight + 10);
     const y = doc.y;
 
     doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
@@ -314,16 +370,14 @@ function drawJadwalRingkasan(doc: PDFKit.PDFDocument, data: DashboardReportData)
     doc.font('Helvetica').fontSize(8.5).fillColor(GRAY)
       .text(item.jamMulai, left, y + 13, { width: dateColWidth });
 
-    const textX = left + dateColWidth;
-    const textWidth = right - textX;
     doc.font('Helvetica-Bold').fontSize(9.5).fillColor(BLACK)
       .text(item.namaKegiatan, textX, y, { width: textWidth });
     doc.font('Helvetica').fontSize(8.5).fillColor(GRAY)
-      .text(`${item.tipeKegiatan} \u00b7 ${item.instansi}`, textX, y + 13, { width: textWidth });
+      .text(subtitleText, textX, y + titleHeight + 4, { width: textWidth });
 
     doc.y = y + rowHeight;
     drawHairline(doc);
-    doc.y += 2;
+    doc.y += 10;
   });
 
   if (overflow > 0) {
