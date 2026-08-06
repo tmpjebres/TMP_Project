@@ -115,18 +115,6 @@ export default function JadwalRingkasan({
           <p className="text-sm text-neutral-gray mt-0.5">{periodLabel}</p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          {isMaster && (
-            <button
-              onClick={handleExportPdf}
-              disabled={exporting || loading || !!error}
-              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black border rounded-lg px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              style={{ borderColor: 'rgba(221,221,221,0.8)' }}
-              title="Export laporan jadwal tamu ke PDF (semua data, tanpa batas)"
-            >
-              <FileDown size={14} className={exporting ? 'animate-pulse' : ''} />
-              {exporting ? 'Membuat PDF...' : 'Export PDF'}
-            </button>
-          )}
           <button
             onClick={goToJadwalTamu}
             className="flex items-center gap-1 text-sm font-medium text-green-primary hover:underline"
@@ -183,14 +171,6 @@ export default function JadwalRingkasan({
             </div>
             <div className="overflow-y-auto p-5">
               {items.map((item) => <JadwalRow key={item.id} item={item} onClick={goToJadwalTamu} />)}
-            </div>
-            <div className="p-4 border-t flex justify-end" style={{ borderColor: 'rgba(221,221,221,0.5)' }}>
-              <button
-                onClick={goToJadwalTamu}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-green-primary rounded-lg px-4 py-2 hover:opacity-90"
-              >
-                Buka Jadwal Tamu <ArrowRight size={14} />
-              </button>
             </div>
           </div>
         </div>,

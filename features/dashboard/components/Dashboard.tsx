@@ -152,7 +152,7 @@ export default function Dashboard() {
 
   const totalTrend = computeTrend(currentStats.total, prevStats.total);
   const umumTrend = computeTrend(currentStats.totalUmum, prevStats.totalUmum);
-  const rombonganTrend = computeTrend(currentStats.totalRombonganPeserta, prevStats.totalRombonganPeserta);
+  const rombonganTrend = computeTrend(currentStats.totalRombonganKunjungan, prevStats.totalRombonganKunjungan);
   const prevLabel = PREV_LABEL[period.view];
 
   const stats = [
@@ -163,8 +163,8 @@ export default function Dashboard() {
       trend: umumTrend,
     },
     {
-      label: "Tamu Rombongan", value: currentStats.totalRombonganPeserta, icon: UserSquare2, color: "#7C3AED", bg: "#EDE9FE",
-      trend: rombonganTrend, sub: `${currentStats.totalRombonganKunjungan} kunjungan rombongan`,
+      label: "Tamu Rombongan", value: currentStats.totalRombonganKunjungan, icon: UserSquare2, color: "#7C3AED", bg: "#EDE9FE",
+      trend: rombonganTrend, sub: `${currentStats.totalRombonganPeserta} peserta`,
     },
   ];
 
@@ -310,23 +310,39 @@ export default function Dashboard() {
                 />
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart data={currentStats.chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+                  <AreaChart data={currentStats.chartData} margin={{ top: 24, right: 8, left: -10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradUmum" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#1B4332" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#2D6A4F" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#2D6A4F" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradRombongan" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.2} />
+                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.35} />
                         <stop offset="95%" stopColor="#1B4332" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 12, fontWeight: 500 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} />
-                    <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 }} />
-                    <Area type="monotone" dataKey="umum" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradUmum)" name="Tamu Umum" />
-                    <Area type="monotone" dataKey="rombongan" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradRombongan)" name="Tamu Rombongan" />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 }}
+                      formatter={(value: number, name: string, entry: any) => {
+                        if (entry?.dataKey === "rombongan") {
+                          const peserta = entry?.payload?.pesertaRombongan ?? 0;
+                          return [`${value} kunjungan (${peserta} orang)`, name];
+                        }
+                        return [`${value} kunjungan`, name];
+                      }}
+                    />
+                    <Area type="monotone" dataKey="umum" stackId="1" stroke="#2D6A4F" strokeWidth={2} fill="url(#gradUmum)" name="Tamu Umum" />
+                    <Area type="monotone" dataKey="rombongan" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradRombongan)" name="Tamu Rombongan">
+                      <LabelList
+                        dataKey="kunjungan"
+                        position="top"
+                        formatter={(value: number) => (value === 0 ? "" : String(value))}
+                        style={{ fontSize: 11, fontWeight: 700, fill: "#2D6A4F" }}
+                      />
+                    </Area>
                   </AreaChart>
                 </ResponsiveContainer>
               )}

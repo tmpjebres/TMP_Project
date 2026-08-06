@@ -315,8 +315,9 @@ export interface TamuChartPoint {
   key: string; // yyyy-MM-dd atau yyyy-MM, dipakai untuk sorting/lookup
   name: string; // label yang ditampilkan di chart
   umum: number;
-  rombongan: number;
-  kunjungan: number; // umum + rombongan (jumlah_peserta)
+  rombongan: number; // jumlah kunjungan rombongan (per baris/grup), bukan jumlah peserta
+  pesertaRombongan: number; // jumlah peserta rombongan pada bucket ini, dipakai untuk tooltip
+  kunjungan: number; // umum + rombongan (jumlah baris/grup)
 }
 
 export interface TamuPeriodStats {
@@ -336,7 +337,7 @@ function buildEmptyBuckets(from: string, to: string, granularity: 'day' | 'month
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       const key = d.toISOString().split('T')[0];
       const name = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-      buckets.set(key, { key, name, umum: 0, rombongan: 0, kunjungan: 0 });
+      buckets.set(key, { key, name, umum: 0, rombongan: 0, pesertaRombongan: 0, kunjungan: 0 });
     }
   } else {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -344,7 +345,7 @@ function buildEmptyBuckets(from: string, to: string, granularity: 'day' | 'month
     const endCursor = new Date(end.getFullYear(), end.getMonth(), 1);
     while (cursor <= endCursor) {
       const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
-      buckets.set(key, { key, name: monthNames[cursor.getMonth()], umum: 0, rombongan: 0, kunjungan: 0 });
+      buckets.set(key, { key, name: monthNames[cursor.getMonth()], umum: 0, rombongan: 0, pesertaRombongan: 0, kunjungan: 0 });
       cursor.setMonth(cursor.getMonth() + 1);
     }
   }
@@ -396,8 +397,9 @@ export async function getTamuStatsByPeriod(
     const key = bucketKey(r.tanggal, granularity);
     const bucket = buckets.get(key);
     if (bucket) {
-      bucket.rombongan += peserta;
-      bucket.kunjungan += peserta;
+      bucket.rombongan += 1;
+      bucket.pesertaRombongan += peserta;
+      bucket.kunjungan += 1;
     }
     totalRombonganKunjungan += 1;
     totalRombonganPeserta += peserta;

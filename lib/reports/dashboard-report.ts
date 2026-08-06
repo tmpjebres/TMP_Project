@@ -15,7 +15,7 @@ interface ChartPoint {
   key: string;
   name: string;
   umum: number;
-  rombongan: number;
+  rombongan: number; // jumlah kunjungan rombongan (per baris/grup), bukan jumlah peserta
 }
 
 interface DashboardReportData {
@@ -67,7 +67,7 @@ export async function fetchDashboardReportData(
   rombRows.forEach((r) => {
     const peserta = r.jumlah_peserta ?? 0;
     const bucket = buckets.get(bucketKey(r.tanggal, range.granularity));
-    if (bucket) bucket.rombongan += peserta;
+    if (bucket) bucket.rombongan += 1;
     totalRombonganKunjungan += 1;
     totalRombonganPeserta += peserta;
   });
@@ -160,8 +160,8 @@ function drawKpiRow(doc: PDFKit.PDFDocument, data: DashboardReportData) {
     { label: 'MAKAM KOSONG', value: String(data.makamKosong) },
     { label: 'TAMU UMUM', value: String(data.totalUmum) },
     {
-      label: 'TAMU ROMBONGAN', value: String(data.totalRombonganPeserta),
-      sub: `${data.totalRombonganKunjungan} kunjungan rombongan`,
+      label: 'TAMU ROMBONGAN', value: String(data.totalRombonganKunjungan),
+      sub: `${data.totalRombonganPeserta} peserta`,
     },
   ];
 
@@ -191,10 +191,11 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
   drawSectionTitle(doc, 'Statistik Kunjungan', label);
 
   const chartHeight = 150;
-  ensureSpace(doc, chartHeight + 40);
+  const topPadding = 14; // ruang untuk label angka di atas batang tertinggi
+  ensureSpace(doc, chartHeight + topPadding + 40);
 
   const left = PAGE_MARGIN.left;
-  const top = doc.y + 4;
+  const top = doc.y + 4 + topPadding;
   const baseline = top + chartHeight;
   const points = data.chartData;
   const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 1);
@@ -211,6 +212,13 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
 
     if (rombH > 0) doc.rect(x, baseline - umumH - rombH, barWidth, rombH).fill(BRASS);
     if (umumH > 0) doc.rect(x, baseline - umumH, barWidth, umumH).fill(INK);
+
+    const total = p.umum + p.rombongan;
+    if (total > 0) {
+      const labelY = baseline - umumH - rombH - 11;
+      doc.font('Helvetica-Bold').fontSize(7).fillColor(INK)
+        .text(String(total), x - slot / 2, labelY, { width: slot * 2, align: 'center' });
+    }
 
     if (points.length <= 20 || i % Math.ceil(points.length / 16) === 0) {
       doc.font('Helvetica').fontSize(6.5).fillColor(GRAY)
