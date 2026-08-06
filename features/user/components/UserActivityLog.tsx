@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -108,16 +109,22 @@ function formatDateTime(iso: string): string {
 }
 
 // Modal detail: rincian field yang berubah pada satu entri log
+// Dirender lewat portal ke document.body supaya position:fixed-nya benar-benar
+// relatif ke viewport, bukan ke ancestor manapun (mis. elemen ber-animasi
+// yang meninggalkan `transform` residual dan membuat containing block baru).
 function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const fields = entry.changes ? Object.entries(entry.changes) : [];
 
-  return (
+  const modal = (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-100">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-100 flex-shrink-0">
           <EntryIcon action={entry.action} />
           <h3
             className="text-sm font-semibold text-neutral-800 flex-1"
@@ -130,7 +137,7 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
           </button>
         </div>
 
-        <div className="px-5 py-4">
+        <div className="px-5 py-4 overflow-y-auto">
           <p className="text-xs text-neutral-400 mb-3">{formatDateTime(entry.createdAt)}</p>
 
           {fields.length === 0 ? (
@@ -174,6 +181,9 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
       </div>
     </div>
   );
+
+  if (!mounted) return null;
+  return createPortal(modal, document.body);
 }
 
 export function UserActivityLog({ userId }: { userId: string }) {
