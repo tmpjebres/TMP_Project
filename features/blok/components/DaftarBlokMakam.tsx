@@ -19,7 +19,6 @@ export default function DaftarBlokMakam() {
   const [actionError, setActionError] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  // ─── Load blok dari Supabase ─────────────────────────────────────────────
   useEffect(() => {
     const load = async () => {
       setLoading(true);

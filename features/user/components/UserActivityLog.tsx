@@ -63,7 +63,6 @@ const FIELD_LABEL: Record<string, string> = {
   pangkat: "Pangkat",
 };
 
-// Warna & ikon tiap jenis aktivitas — selaras dengan identitas hijau/brass TMP
 function iconStyle(action: string): { icon: typeof Plus; bg: string; fg: string } {
   switch (action) {
     case "login_success":
@@ -108,10 +107,6 @@ function formatDateTime(iso: string): string {
   });
 }
 
-// Modal detail: rincian field yang berubah pada satu entri log
-// Dirender lewat portal ke document.body supaya position:fixed-nya benar-benar
-// relatif ke viewport, bukan ke ancestor manapun (mis. elemen ber-animasi
-// yang meninggalkan `transform` residual dan membuat containing block baru).
 function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onClose: () => void }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -241,7 +236,6 @@ export function UserActivityLog({ userId }: { userId: string }) {
         Kembali
       </Link>
 
-      {/* ── Hero identitas pengguna ── */}
       <div className="bg-white rounded-2xl p-6 mb-6 flex items-center gap-5" style={{ border: "1px solid #e5e7eb" }}>
         <div className="scale-[1.8] ml-2">
           <Avatar username={user.username} role={user.role} />
@@ -277,7 +271,6 @@ export function UserActivityLog({ userId }: { userId: string }) {
           </div>
         ) : (
           <ul className="relative px-6 py-2">
-            {/* Garis waktu vertikal menghubungkan setiap catatan */}
             <span className="absolute left-[38px] top-2 bottom-2 w-px bg-neutral-100" aria-hidden="true" />
             {entries.map((e) => (
               <li

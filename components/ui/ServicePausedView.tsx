@@ -46,7 +46,6 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
         }
       `}</style>
 
-      {/* Bintang-bintang kecil di background, senada nuansa "malam / tidur" */}
       <div className="absolute inset-0 z-0 opacity-70">
         {STAR_POSITIONS.map((s, i) => (
           <span
@@ -124,7 +123,6 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
   );
 }
 
-// ─── Ilustrasi: database "tidur" dengan Zzz, senada tema malam & teal glow ──
 function DatabaseSleepIllustration() {
   return (
     <svg width="180" height="160" viewBox="0 0 180 160" fill="none" xmlns="http://www.w3.org/2000/svg">

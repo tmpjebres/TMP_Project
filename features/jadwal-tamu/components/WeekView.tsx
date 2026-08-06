@@ -34,7 +34,6 @@ export default function WeekView({
 
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #EEEEEE' }}>
-      {/* Header hari */}
       <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)', borderBottom: '1px solid #EEEEEE' }}>
         <div className="bg-neutral-light-gray" />
         {days.map((day) => {
@@ -54,10 +53,8 @@ export default function WeekView({
         })}
       </div>
 
-      {/* Grid jam */}
       <div className="overflow-y-auto max-h-[560px]">
         <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)' }}>
-          {/* Kolom label jam */}
           <div>
             {HOUR_ROWS.map((h) => (
               <div
@@ -70,7 +67,6 @@ export default function WeekView({
             ))}
           </div>
 
-          {/* Kolom per hari */}
           {days.map((day) => {
             const dayEvents = eventsForDay(day);
             const dateStr = format(day, 'yyyy-MM-dd');

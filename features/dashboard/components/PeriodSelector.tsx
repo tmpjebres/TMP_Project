@@ -25,7 +25,6 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Bulan (hanya relevan untuk view Minggu & Bulan) */}
       {value.view !== 'tahun' && (
         <select
           className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
@@ -43,7 +42,6 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
         </select>
       )}
 
-      {/* Tahun */}
       <select
         className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
         style={{ border: '1px solid #DDDDDD' }}
@@ -59,7 +57,6 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
         ))}
       </select>
 
-      {/* Minggu ke berapa (hanya untuk view Minggu) */}
       {value.view === 'minggu' && (
         <select
           className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
@@ -73,7 +70,6 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
         </select>
       )}
 
-      {/* Toggle view: Minggu / Bulan / Tahun */}
       <div className="flex rounded-lg p-1 bg-neutral-light-gray">
         {VIEW_OPTIONS.map((opt) => (
           <button

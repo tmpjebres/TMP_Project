@@ -10,7 +10,6 @@ import {
   ValidationContext,
 } from "../validation";
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 interface FieldErrorProps {
   message?: string;
@@ -63,12 +62,8 @@ function FormField({
   );
 }
 
-// ─── Date input masking ───────────────────────────────────────────────────────
 
-/**
- * Converts raw digit input into dd/mm/yyyy as the user types.
- * Auto-inserts "/" separators at positions 2 and 4.
- */
+// Formats raw digits into dd/mm/yyyy as the user types
 function applyDateMask(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 8);
   let out = digits.slice(0, 2);
@@ -77,7 +72,6 @@ function applyDateMask(raw: string): string {
   return out;
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
 
 interface MakamModalProps {
   makam: Makam | null;
@@ -111,7 +105,6 @@ export function MakamModal({
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
 
-  // ─── Field change handler ──────────────────────────────────────────────────
 
   const handleChange = useCallback(
     (key: keyof MakamFormValues) =>
@@ -124,7 +117,6 @@ export function MakamModal({
     []
   );
 
-  // ─── Date mask handler ─────────────────────────────────────────────────────
 
   const handleDateChange = useCallback(
     (field: "tanggalLahir" | "tanggalGugur") =>
@@ -136,7 +128,6 @@ export function MakamModal({
     []
   );
 
-  // ─── Blur validation (real-time, non-aggressive) ───────────────────────────
 
   const handleBlur = useCallback(
     (key: keyof MakamFormValues) => () => {
@@ -151,7 +142,6 @@ export function MakamModal({
     [form, makams, makam?.id]
   );
 
-  // ─── Submit ────────────────────────────────────────────────────────────────
 
   const handleSave = async () => {
     if (saving) return;
@@ -183,7 +173,6 @@ export function MakamModal({
       aria-labelledby="modal-title"
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 my-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2
             id="modal-title"
@@ -205,7 +194,6 @@ export function MakamModal({
           </button>
         </div>
 
-        {/* Summary error banner — shown only when submit is attempted with errors */}
         {hasErrors && (
           <div
             role="alert"
@@ -216,9 +204,7 @@ export function MakamModal({
           </div>
         )}
 
-        {/* Form grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Nama — full width */}
           <FormField
             label="Nama Pahlawan"
             required
@@ -238,7 +224,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* NRP */}
           <FormField label="NRP" error={errors.nrp}>
             <input
               id="field-nrp"
@@ -253,7 +238,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* Pangkat */}
           <FormField label="Pangkat" error={errors.pangkat}>
             <input
               id="field-pangkat"
@@ -265,7 +249,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* Blok */}
           <FormField label="Blok" error={errors.blokId}>
             <select
               id="field-blokId"
@@ -282,7 +265,6 @@ export function MakamModal({
             </select>
           </FormField>
 
-          {/* Nomor Makam */}
           <FormField label="Nomor Makam" required error={errors.nomor}>
             <input
               id="field-nomor"
@@ -297,7 +279,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* Tanggal Lahir */}
           <FormField label="Tanggal Lahir" error={errors.tanggalLahir}>
             <input
               id="field-tanggalLahir"
@@ -313,7 +294,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* Tanggal Gugur */}
           <FormField label="Gugur / Wafat" error={errors.tanggalGugur}>
             <input
               id="field-tanggalGugur"
@@ -329,7 +309,6 @@ export function MakamModal({
             />
           </FormField>
 
-          {/* Kesatuan — full width */}
           <FormField
             label="Kesatuan"
             error={errors.kesatuan}
@@ -346,7 +325,6 @@ export function MakamModal({
           </FormField>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 mt-7">
           <LoadingButton
             onClick={handleSave}

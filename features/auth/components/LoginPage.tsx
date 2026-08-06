@@ -117,9 +117,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
-      {/* LEFT: FORM */}
       <div className="flex items-center justify-center px-6 md:px-16 relative">
-        {/* ambient color fields — the only ornament, gives the glass something to blur */}
         <div
           className="pointer-events-none absolute -z-10 w-[620px] h-[620px] rounded-full opacity-[0.18] blur-3xl animate-drift bg-[radial-gradient(circle_at_30%_30%,theme(colors.green.accent)_0%,theme(colors.green.primary)_55%,transparent_75%)]"
           aria-hidden="true"
@@ -259,7 +257,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT: IMAGE */}
       <div className="hidden md:block relative overflow-hidden">
         <img
           src="/login-image.jpg"

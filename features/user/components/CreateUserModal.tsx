@@ -63,7 +63,6 @@ export function CreateUserModal({
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-100">
           <h2 className="text-base font-bold text-neutral-900">Tambah User Baru</h2>
           <button
@@ -75,7 +74,6 @@ export function CreateUserModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5 space-y-4">
           {error && (
             <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
@@ -193,7 +191,6 @@ export function CreateUserModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 pb-6 flex gap-2.5">
           <button
             onClick={handleSave}

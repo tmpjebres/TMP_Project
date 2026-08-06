@@ -1,22 +1,4 @@
--- =============================================================================
--- Migration: Alert Login Gagal Berturut-turut
--- Jalankan SETELAH migration jadwal_tamu & notifikasi sebelumnya.
---
--- Desain:
--- - login_attempts mencatat SETIAP percobaan login (berhasil/gagal). Insert
---   dilakukan dari client (auth-context) baik saat login gagal maupun sukses,
---   makanya RLS insert dibuka untuk anon (belum ada sesi saat login gagal).
--- - Deteksi "5x gagal berturut-turut dalam < 30 menit" dilakukan via trigger
---   di database (bukan di client), supaya tidak bisa dimanipulasi/dilewati
---   dari sisi browser, dan supaya konsisten meski banyak percobaan hampir
---   bersamaan.
--- - "Berturut-turut" = 5 percobaan TERAKHIR untuk username tsb semuanya gagal
---   (kalau ada 1 yang sukses di antaranya, tidak dihitung).
--- - Trigger dedupe: tidak bikin alert baru kalau streak yang sama sudah
---   pernah dialertkan sebelumnya (window overlap).
--- =============================================================================
 
--- ─── Tabel log percobaan login ────────────────────────────────────────────────
 create table if not exists public.login_attempts (
   id uuid primary key default gen_random_uuid(),
   username text not null,
@@ -44,7 +26,6 @@ create policy "login_attempts_select_master"
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'master')
   );
 
--- ─── Tabel alert (dibuat otomatis oleh trigger, bukan diinsert manual dari app) ──
 create table if not exists public.login_alert (
   id uuid primary key default gen_random_uuid(),
   username text not null,
@@ -78,10 +59,7 @@ create policy "login_alert_update_master"
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'master')
   );
 
--- Tidak ada policy INSERT untuk client sama sekali — baris alert HANYA dibuat
--- oleh trigger function di bawah (SECURITY DEFINER, bypass RLS).
 
--- ─── Trigger function: deteksi 5x gagal berturut-turut dalam < 30 menit ────────
 create or replace function public.detect_failed_login_streak()
 returns trigger
 language plpgsql

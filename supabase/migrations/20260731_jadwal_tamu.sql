@@ -1,8 +1,4 @@
--- =============================================================================
--- Migration: Jadwal Tamu (kalender rencana kedatangan tamu)
--- =============================================================================
 
--- ─── Tabel utama ─────────────────────────────────────────────────────────────
 create table if not exists public.jadwal_tamu (
   id uuid primary key default gen_random_uuid(),
 
@@ -50,7 +46,6 @@ create table if not exists public.jadwal_tamu (
 create index if not exists idx_jadwal_tamu_tanggal_mulai on public.jadwal_tamu (tanggal_mulai) where deleted_at is null;
 create index if not exists idx_jadwal_tamu_not_deleted on public.jadwal_tamu (deleted_at);
 
--- ─── Tabel audit log (histori create/update/delete, termasuk yang sudah dihapus) ──
 create table if not exists public.jadwal_tamu_audit_log (
   id uuid primary key default gen_random_uuid(),
   jadwal_tamu_id uuid not null,
@@ -63,7 +58,6 @@ create table if not exists public.jadwal_tamu_audit_log (
 
 create index if not exists idx_jadwal_tamu_audit_log_jadwal_id on public.jadwal_tamu_audit_log (jadwal_tamu_id);
 
--- ─── Trigger: auto-update kolom updated_at ─────────────────────────────────────
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
@@ -77,7 +71,6 @@ create trigger trg_jadwal_tamu_updated_at
   before update on public.jadwal_tamu
   for each row execute function public.set_updated_at();
 
--- ─── RLS ────────────────────────────────────────────────────────────────────
 alter table public.jadwal_tamu enable row level security;
 alter table public.jadwal_tamu_audit_log enable row level security;
 
@@ -130,7 +123,6 @@ create policy "jadwal_tamu_audit_insert_master"
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'master')
   );
 
--- ─── Storage bucket untuk attachment surat (pdf/image, privat) ────────────────
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'jadwal-tamu-attachment',

@@ -2,19 +2,16 @@ import { supabaseClient } from '@/lib/supabase/client';
 import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { TamuUmum, TamuRombongan, Tamu } from '@/types';
 
-// ─── Helper: upload foto base64 ke Supabase Storage ─────────────────────────
 async function uploadFoto(
   base64DataUrl: string,
   bucket: 'tamu-umum' | 'tamu-rombongan',
   fileName: string
 ): Promise<string | null> {
-  // Pisahkan header "data:image/jpeg;base64," dari data aktual
   const [header, data] = base64DataUrl.split(',');
   if (!data) return null;
   const mimeMatch = header.match(/:(.*?);/);
   const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-  // Konversi base64 → Uint8Array
   const binary = atob(data);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -35,7 +32,6 @@ async function uploadFoto(
   return urlData?.publicUrl ?? null;
 }
 
-// ─── Helper: konversi row DB → TamuUmum ──────────────────────────────────────
 function rowToTamuUmum(row: {
   id: string;
   tanggal: string;
@@ -54,7 +50,6 @@ function rowToTamuUmum(row: {
   };
 }
 
-// ─── Helper: konversi row DB → TamuRombongan ─────────────────────────────────
 function rowToTamuRombongan(row: {
   id: string;
   tanggal: string;
@@ -79,7 +74,6 @@ function rowToTamuRombongan(row: {
 
 const PAGE_SIZE = 1000;
 
-// helper generic biar reusable
 async function fetchAllWithPagination<T>(
   queryBuilder: () => ReturnType<typeof supabaseClient.from>
 ): Promise<{ data: T[]; error?: string }> {
@@ -104,7 +98,6 @@ async function fetchAllWithPagination<T>(
   return { data: allData };
 }
 
-// ─── GET: Semua tamu (looping pagination) ───────────────────
 export async function getAllTamu(): Promise<{ data: Tamu[]; error?: string }> {
   const [umumRes, rombonganRes] = await Promise.all([
     fetchAllWithPagination<any>(() =>
@@ -134,13 +127,11 @@ export async function getAllTamu(): Promise<{ data: Tamu[]; error?: string }> {
   return { data: combined };
 }
 
-// ─── CREATE: Tamu Umum ────────────────────────────────────────────────────────
 export async function createTamuUmum(
   payload: Omit<TamuUmum, 'id' | 'jenis' | 'fotoUrl'> & { fotoBase64: string }
 ): Promise<{ data: TamuUmum | null; error?: string }> {
   const { data: { user } } = await supabaseClient.auth.getUser();
 
-  // Upload foto
   const fileName = `${Date.now()}-${user?.id ?? 'anon'}`;
   const fotoUrl = await uploadFoto(payload.fotoBase64, 'tamu-umum', fileName);
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto tamu.' };
@@ -164,13 +155,11 @@ export async function createTamuUmum(
   return { data: rowToTamuUmum(data) };
 }
 
-// ─── CREATE: Tamu Rombongan ───────────────────────────────────────────────────
 export async function createTamuRombongan(
   payload: Omit<TamuRombongan, 'id' | 'jenis' | 'fotoUrl'> & { fotoBase64: string }
 ): Promise<{ data: TamuRombongan | null; error?: string }> {
   const { data: { user } } = await supabaseClient.auth.getUser();
 
-  // Upload foto
   const fileName = `${Date.now()}-${user?.id ?? 'anon'}`;
   const fotoUrl = await uploadFoto(payload.fotoBase64, 'tamu-rombongan', fileName);
   if (!fotoUrl) return { data: null, error: 'Gagal mengupload foto pimpinan rombongan.' };
@@ -200,7 +189,6 @@ export async function createTamuRombongan(
   return { data: rowToTamuRombongan(data) };
 }
 
-// ─── UPDATE: Tamu Umum ────────────────────────────────────────────────────────
 export async function updateTamuUmum(tamu: TamuUmum): Promise<{ error?: string }> {
   const { data: old } = await supabaseClient
     .from('tamu_umum')
@@ -225,7 +213,6 @@ export async function updateTamuUmum(tamu: TamuUmum): Promise<{ error?: string }
   return { error: error?.message };
 }
 
-// ─── UPDATE: Tamu Rombongan ───────────────────────────────────────────────────
 export async function updateTamuRombongan(tamu: TamuRombongan): Promise<{ error?: string }> {
   const { data: old } = await supabaseClient
     .from('tamu_rombongan')
@@ -259,13 +246,11 @@ export async function updateTamuRombongan(tamu: TamuRombongan): Promise<{ error?
   return { error: error?.message };
 }
 
-// ─── UPDATE: Tamu (auto-detect jenis) ─────────────────────────────────────────
 export async function updateTamu(tamu: Tamu): Promise<{ error?: string }> {
   if (tamu.jenis === 'umum') return updateTamuUmum(tamu as TamuUmum);
   return updateTamuRombongan(tamu as TamuRombongan);
 }
 
-// ─── DELETE: Tamu Umum ────────────────────────────────────────────────────────
 export async function deleteTamuUmum(id: string): Promise<{ error?: string }> {
   const { data: old } = await supabaseClient
     .from('tamu_umum')
@@ -281,7 +266,6 @@ export async function deleteTamuUmum(id: string): Promise<{ error?: string }> {
   return {};
 }
 
-// ─── DELETE: Tamu Rombongan ───────────────────────────────────────────────────
 export async function deleteTamuRombongan(id: string): Promise<{ error?: string }> {
   const { data: old } = await supabaseClient
     .from('tamu_rombongan')
@@ -301,16 +285,11 @@ export async function deleteTamuRombongan(id: string): Promise<{ error?: string 
   return {};
 }
 
-// ─── DELETE: Tamu (auto-detect jenis) ────────────────────────────────────────
 export async function deleteTamu(tamu: Tamu): Promise<{ error?: string }> {
   if (tamu.jenis === 'umum') return deleteTamuUmum(tamu.id);
   return deleteTamuRombongan(tamu.id);
 }
 
-// ─── GET: Statistik kunjungan untuk periode & granularitas tertentu ──────────
-// Dipakai oleh dashboard laporan: granularity 'day' untuk view Minggu/Bulan,
-// 'month' untuk view Tahun. Bucket kosong tetap dimunculkan (nilai 0) supaya
-// hari/bulan tanpa kunjungan tetap tampil di chart, bukan hilang.
 export interface TamuChartPoint {
   key: string; // yyyy-MM-dd atau yyyy-MM, dipakai untuk sorting/lookup
   name: string; // label yang ditampilkan di chart

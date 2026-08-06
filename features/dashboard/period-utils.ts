@@ -30,7 +30,6 @@ export interface WeekOption {
 const fmt = (d: Date, f: string) => format(d, f, { locale: localeId });
 const toIso = (d: Date) => format(d, 'yyyy-MM-dd');
 
-// ─── Bagi satu bulan jadi potongan 7 harian (Minggu 1 = tgl 1-7, dst) ────────
 export function getWeeksInMonth(month: number, year: number): WeekOption[] {
   const monthStart = startOfMonth(new Date(year, month, 1));
   const monthEnd = endOfMonth(monthStart);
@@ -61,7 +60,6 @@ export interface PeriodRange {
   granularity: 'day' | 'month';
 }
 
-// ─── Hitung rentang tanggal (+ rentang pembanding) dari pilihan periode ──────
 export function resolvePeriodRange(selection: PeriodSelection): PeriodRange {
   const { view, month, year, week } = selection;
 
@@ -95,7 +93,6 @@ export function resolvePeriodRange(selection: PeriodSelection): PeriodRange {
     };
   }
 
-  // view === 'minggu'
   const weeks = getWeeksInMonth(month, year);
   const chosen = weeks.find((w) => w.week === week) ?? weeks[0];
   const lengthDays = differenceInCalendarDays(chosen.to, chosen.from) + 1;
@@ -112,7 +109,6 @@ export function resolvePeriodRange(selection: PeriodSelection): PeriodRange {
   };
 }
 
-// ─── Trend dibanding periode sebelumnya ──────────────────────────────────────
 export interface Trend {
   direction: 'up' | 'down' | 'flat' | 'new';
   percent: number | null; // null kalau tidak bisa dihitung (0 -> 0)

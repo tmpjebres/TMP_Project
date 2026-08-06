@@ -1,7 +1,6 @@
 import { supabaseClient } from '@/lib/supabase/client';
 import type { SecurityAlert } from '@/types';
 
-// ─── Ambil alert login gagal berturut-turut (khusus master, RLS memfilter otomatis) ──
 export async function fetchSecurityAlerts(): Promise<{ data: SecurityAlert[]; error?: string }> {
   const { data, error } = await supabaseClient
     .from('login_alert')

@@ -214,10 +214,8 @@ export default function NotFound() {
         background: 'radial-gradient(120% 90% at 50% 20%, #16233a 0%, #0c1424 55%, #070c16 100%)',
       }}
     >
-      {/* Canvas 3D — full background, menerima drag */}
       <div ref={mountRef} className="absolute inset-0 z-0" />
 
-      {/* Konten teks, di atas canvas */}
       <div className="relative z-10 pointer-events-none flex flex-col items-center">
         <p className="text-xs font-semibold tracking-[0.25em] uppercase text-teal-300/70 mb-4">
           Halaman tidak ditemukan

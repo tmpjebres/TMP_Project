@@ -6,7 +6,6 @@ export function useAutoTodayDate<T extends { tanggal: string }>(
 ) {
   const [todayStr, setTodayStr] = useState(today());
 
-  // Realtime: kalau ganti hari (midnight), tanggal otomatis ikut berubah
   useEffect(() => {
     const id = window.setInterval(() => setTodayStr(today()), 30_000);
     return () => window.clearInterval(id);
@@ -18,7 +17,6 @@ export function useAutoTodayDate<T extends { tanggal: string }>(
 
   const handleTanggalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
-    // konsep realtime: hanya boleh hari ini
     setForm((f) => ({ ...f, tanggal: v === todayStr ? v : todayStr }));
   };
 

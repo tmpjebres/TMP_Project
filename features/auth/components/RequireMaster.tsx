@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/context/auth-context';
 import { ROUTES } from '@/lib/routes';
 import { LoadingSpinner } from '@/components/ui/LoadingAnimation';
 
-// Guard role: hanya master yang boleh masuk, operator dikembalikan ke input-tamu.
+// Hanya master yang boleh masuk; operator diarahkan ke input-tamu
 export default function RequireMaster({ children }: { children: React.ReactNode }) {
   const { isMaster, loading } = useAuth();
   const router = useRouter();

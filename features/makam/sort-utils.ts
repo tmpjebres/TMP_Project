@@ -8,7 +8,6 @@ export interface SortConfig<T> {
 /** Column type tells sortData how to compare values */
 export type ColumnType = "string" | "number" | "date";
 
-// ─── Parsers ──────────────────────────────────────────────────────────────────
 
 function parseDateDMY(value: string): number {
   if (!value) return -Infinity;
@@ -23,7 +22,6 @@ function parseNumber(value: unknown): number {
   return isNaN(n) ? -Infinity : n;
 }
 
-// ─── Core comparator factory ──────────────────────────────────────────────────
 
 function createComparator<T>(
   key: keyof T,
@@ -57,15 +55,8 @@ function createComparator<T>(
   };
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Returns a sorted copy of `data`. Never mutates the original array.
- *
- * @param data        Source array
- * @param config      Current sort state
- * @param columnTypes Map of column key → data type (used for smart comparison)
- */
+// Returns a sorted copy; never mutates the original array
 export function sortData<T>(
   data: T[],
   config: SortConfig<T>,
@@ -83,10 +74,7 @@ export function sortData<T>(
   return [...data].sort(comparator);
 }
 
-/**
- * Toggles sort direction or sets a new column:
- *   null → asc → desc → null (tri-state, returns to original order)
- */
+// Tri-state toggle: null → asc → desc → null
 export function toggleSort<T>(
   current: SortConfig<T>,
   key: keyof T
@@ -104,7 +92,6 @@ export function toggleSort<T>(
   };
 }
 
-// ─── UI helper ────────────────────────────────────────────────────────────────
 
 /** Returns the sort indicator character for a column header */
 export function getSortIndicator<T>(

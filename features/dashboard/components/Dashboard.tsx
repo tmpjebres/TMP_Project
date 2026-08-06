@@ -65,7 +65,6 @@ export default function Dashboard() {
 
   const range = useMemo(() => resolvePeriodRange(period), [period]);
 
-  // ─── Data yang tidak tergantung periode (blok & total makam) ───────────────
   const loadBlokData = useCallback(async (isRetry = false) => {
     if (isRetry) setBlokRetrying(true);
     else setBlokLoading(true);
@@ -90,7 +89,6 @@ export default function Dashboard() {
     loadBlokData();
   }, [loadBlokData]);
 
-  // ─── Statistik kunjungan (periode berjalan + periode pembanding) ──────────
   const loadStats = useCallback(async (isRetry = false) => {
     if (isRetry) setStatsRetrying(true);
     else setStatsLoading(true);
@@ -121,7 +119,6 @@ export default function Dashboard() {
     return () => { cancelled = true; };
   }, [loadStats]);
 
-  // ─── Ringkasan jadwal untuk periode terpilih ───────────────────────────────
   const loadJadwal = useCallback(async (isRetry = false) => {
     if (isRetry) setJadwalRetrying(true);
     else setJadwalLoading(true);
@@ -171,7 +168,6 @@ export default function Dashboard() {
   const cardsBusy = blokLoading || statsLoading;
   const cardsFailed = blokError && statsError;
 
-  // ─── Export laporan Dashboard (semua section) ke PDF, khusus Master ────────
   async function handleExportDashboardPdf() {
     if (!session?.access_token || exportingPdf) return;
     setExportingPdf(true);
@@ -241,7 +237,6 @@ export default function Dashboard() {
         document.body
       )}
 
-      {/* Summary Cards */}
       <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         {cardsBusy ? (
           <SectionLoading variant="cards" label="Memuat ringkasan..." />
@@ -274,7 +269,6 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-        {/* Kalau salah satu (bukan keduanya) gagal, tetap tampilkan kartu lain + pesan kecil */}
         {!cardsBusy && !cardsFailed && (blokError || statsError) && (
           <p className="text-xs text-red-600 mt-3">
             Sebagian data gagal dimuat: {blokError || statsError}
@@ -282,10 +276,8 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Charts */}
       {isMaster ? (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Statistik Kunjungan */}
           <div className="lg:col-span-3 bg-white rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
             <div className="mb-2 flex items-center justify-between">
               <div>
@@ -349,7 +341,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Distribusi per Blok */}
           <div className="lg:col-span-2 bg-white rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
             <div className="mb-4">
               <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Distribusi per Blok</h3>
@@ -399,7 +390,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Ringkasan Jadwal */}
           <div className="lg:col-span-5">
             <JadwalRingkasan
               items={jadwal}

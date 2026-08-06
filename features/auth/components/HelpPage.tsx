@@ -86,15 +86,12 @@ export default function HelpPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API unavailable — the email is still visible to copy manually.
     }
   };
 
   return (
     <div className="h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
-      {/* LEFT: CONTENT */}
       <div className="h-screen overflow-y-auto flex items-start justify-center px-6 md:px-16 relative py-12">
-        {/* ambient color fields, consistent with the login page */}
         <div
           className="pointer-events-none absolute -z-10 w-[620px] h-[620px] rounded-full opacity-[0.18] blur-3xl animate-drift bg-[radial-gradient(circle_at_30%_30%,theme(colors.green.accent)_0%,theme(colors.green.primary)_55%,transparent_75%)]"
           aria-hidden="true"
@@ -126,7 +123,6 @@ export default function HelpPage() {
             kirim email ke admin — mulai dari lupa kata sandi sampai masalah lainnya.
           </p>
 
-          {/* Issue selector — the signature interaction: pick a problem, get a matching draft */}
           <div className="opacity-0 animate-fade-in [animation-delay:0.24s] grid grid-cols-2 gap-2 mb-5">
             {(Object.keys(ISSUES) as IssueKey[]).map((key) => {
               const item = ISSUES[key];
@@ -151,7 +147,6 @@ export default function HelpPage() {
             })}
           </div>
 
-          {/* Email card — the core interactive element */}
           <div className="opacity-0 animate-fade-in [animation-delay:0.32s] rounded-2xl border bg-green-light/40 backdrop-blur-md border-green-light/80 shadow-card p-5 mb-5">
             <div className="flex items-center gap-3">
               <div className="shrink-0 w-10 h-10 rounded-xl bg-green-primary/10 flex items-center justify-center text-green-primary">
@@ -185,7 +180,6 @@ export default function HelpPage() {
             sesuai jenis kendala yang dipilih.
           </p>
 
-          {/* What to include — sets expectations, avoids back-and-forth emails */}
           <div className="opacity-0 animate-fade-in [animation-delay:0.54s] mt-8 rounded-2xl border border-green-light bg-white p-5 text-left">
             <div className="flex items-center gap-2 mb-3">
               <ClipboardList size={16} className="text-green-accent" />
@@ -215,7 +209,6 @@ export default function HelpPage() {
         </div>
       </div>
 
-      {/* RIGHT: IMAGE, consistent with login page */}
       <div className="hidden md:block relative overflow-hidden">
         <img
           src="/login-image.jpg"

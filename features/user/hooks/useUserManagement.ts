@@ -21,7 +21,6 @@ export function useUserManagement() {
 
   const isMaster = user?.role === "master";
 
-  // ─── Load users ────────────────────────────────────────────────────────────
   useEffect(() => {
     const loadUsers = async () => {
       setLoadingUsers(true);
@@ -33,7 +32,6 @@ export function useUserManagement() {
     loadUsers();
   }, []);
 
-  // ─── Filter & Sort ─────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     return users
       .filter((u) => {
@@ -54,7 +52,6 @@ export function useUserManagement() {
     setRoleFilter("all");
   };
 
-  // ─── Create ────────────────────────────────────────────────────────────────
   const handleCreate = async (data: {
     username: string;
     fullName: string;
@@ -89,7 +86,6 @@ export function useUserManagement() {
     setModalOpen(false);
   };
 
-  // ─── Update ────────────────────────────────────────────────────────────────
   const handleUpdate = async (
     userId: string,
     data: { username: string; fullName: string; role: Role },
@@ -108,7 +104,6 @@ export function useUserManagement() {
     setEditTarget(null);
   };
 
-  // ─── Toggle Status (aktif/nonaktif) ───────────────────────────────────────
   const handleToggleStatus = async (targetUser: AppUser) => {
     if (targetUser.id === user?.id) {
       pushToast("Tidak dapat menonaktifkan akun sendiri.", "error");
@@ -135,7 +130,6 @@ export function useUserManagement() {
     }
   };
 
-  // ─── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget || !session?.access_token) return;
 

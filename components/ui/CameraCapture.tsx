@@ -105,10 +105,8 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
 
   return (
     <div>
-      {/* Canvas selalu hidden, dipakai untuk capture */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {/* Video SELALU ada di DOM — hanya visibility yang berubah */}
       <div
         style={{
           display: active && !capturedPhoto ? "block" : "none",
@@ -127,7 +125,6 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
           playsInline
         />
 
-        {/* Overlay loading saat stream belum ready */}
         {!ready && (
           <div
             style={{
@@ -144,7 +141,6 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
           </div>
         )}
 
-        {/* Tombol aksi */}
         <div
           style={{
             position: "absolute",
@@ -199,7 +195,6 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
         </div>
       </div>
 
-      {/* Tampilan foto yang sudah diambil */}
       {capturedPhoto && (
         <div
           style={{
@@ -261,7 +256,6 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
         </div>
       )}
 
-      {/* Tombol buka kamera (saat tidak aktif dan belum ada foto) */}
       {!active && !capturedPhoto && (
         <button
           type="button"
@@ -287,7 +281,6 @@ export default function CameraCapture({ onCapture, capturedPhoto, onClear }: Pro
         </button>
       )}
 
-      {/* Pesan error */}
       {error && (
         <p style={{ marginTop: 8, fontSize: 13, color: "#dc2626" }}>{error}</p>
       )}

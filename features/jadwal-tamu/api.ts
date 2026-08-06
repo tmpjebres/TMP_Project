@@ -53,7 +53,6 @@ export function rowToJadwalTamu(row: JadwalTamuRow): JadwalTamu {
   };
 }
 
-// ─── Tipe kegiatan (dropdown yang bisa ditambah) ───────────────────────────────
 export async function fetchTipeKegiatan(): Promise<{ data: JadwalTamuTipeKegiatan[]; error?: string }> {
   const { data, error } = await supabaseClient
     .from('jadwal_tamu_tipe_kegiatan')
@@ -77,7 +76,6 @@ export async function addTipeKegiatan(
     .select('*')
     .single();
 
-  // Kalau nama sudah ada (unique constraint), anggap sukses & pakai yang sudah ada
   if (error?.code === '23505') {
     const existing = await supabaseClient.from('jadwal_tamu_tipe_kegiatan').select('*').eq('nama', nama.trim()).single();
     if (existing.data) {
@@ -89,7 +87,6 @@ export async function addTipeKegiatan(
   return { data: { id: data.id, nama: data.nama, isDefault: data.is_default } };
 }
 
-// ─── Ambil semua jadwal (yang belum dihapus) dalam rentang tanggal ────────────
 export async function fetchJadwalTamu(
   rangeStart?: string,
   rangeEnd?: string
@@ -109,7 +106,6 @@ export async function fetchJadwalTamu(
   return { data: (data as JadwalTamuRow[]).map(rowToJadwalTamu) };
 }
 
-// ─── Cek bentrok: event lain yang mulai di tanggal yang sama ──────────────────
 export async function checkBentrok(
   tanggalMulai: string,
   excludeId?: string
@@ -127,7 +123,6 @@ export async function checkBentrok(
   return (data as JadwalTamuRow[]).map(rowToJadwalTamu);
 }
 
-// ─── Upload attachment (pdf/image) ke storage, kembalikan path ───────────────
 export async function uploadAttachment(
   file: File,
   type: 'pdf' | 'image'
@@ -157,14 +152,12 @@ export async function uploadAttachment(
   return { path };
 }
 
-// ─── Buat signed URL untuk lihat attachment (bucket privat) ───────────────────
 export async function getAttachmentSignedUrl(path: string): Promise<string | null> {
   const { data, error } = await supabaseClient.storage.from(BUCKET).createSignedUrl(path, 60 * 10);
   if (error || !data) return null;
   return data.signedUrl;
 }
 
-// ─── Tulis audit log ───────────────────────────────────────────────────────────
 async function writeAuditLog(
   jadwalTamuId: string,
   action: 'create' | 'update' | 'delete',
@@ -181,7 +174,6 @@ async function writeAuditLog(
   });
 }
 
-// ─── Ambil histori audit log untuk satu jadwal ─────────────────────────────────
 export async function fetchAuditLog(jadwalTamuId: string): Promise<JadwalTamuAuditLog[]> {
   const { data, error } = await supabaseClient
     .from('jadwal_tamu_audit_log')
@@ -200,7 +192,6 @@ export async function fetchAuditLog(jadwalTamuId: string): Promise<JadwalTamuAud
   }));
 }
 
-// ─── Buat jadwal baru ───────────────────────────────────────────────────────────
 export async function createJadwalTamu(
   input: JadwalTamuFormInput,
   actor: { id: string; username: string }
@@ -260,7 +251,6 @@ export async function createJadwalTamu(
   return { data: rowToJadwalTamu(row) };
 }
 
-// ─── Update jadwal ───────────────────────────────────────────────────────────
 export async function updateJadwalTamu(
   id: string,
   input: JadwalTamuFormInput,
@@ -318,7 +308,7 @@ export async function updateJadwalTamu(
     updated_by_username: actor.username,
   };
 
-  // Attachment hanya diganti kalau ada perubahan (file baru / link baru dipilih)
+  // Attachment diganti hanya kalau ada perubahan (file/link baru)
   if (attachmentUrl !== undefined) {
     payload.attachment_type = attachmentType ?? null;
     payload.attachment_url = attachmentUrl;
@@ -349,7 +339,6 @@ export async function updateJadwalTamu(
   return { data: rowToJadwalTamu(row) };
 }
 
-// ─── Soft delete jadwal ────────────────────────────────────────────────────────
 export async function deleteJadwalTamu(
   id: string,
   actor: { id: string; username: string }

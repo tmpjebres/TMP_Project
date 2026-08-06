@@ -2,10 +2,6 @@
 
 import { RefreshCw } from 'lucide-react';
 
-// ─── Shared building blocks: skeleton / empty / error untuk tiap section ────
-// Dipakai di kartu-kartu dashboard (statistik, grafik, ringkasan jadwal, dll)
-// supaya tiap section punya loading & error state sendiri, tidak nge-block
-// seluruh halaman kalau satu bagian gagal fetch.
 
 export function SectionLoading({
   variant = 'chart',
@@ -76,7 +72,6 @@ export function SectionError({
   );
 }
 
-// ─── Ilustrasi: skeleton animasi ringan, beda bentuk sesuai konteks section ──
 function SkeletonIllustration({ variant }: { variant: 'chart' | 'list' | 'cards' }) {
   if (variant === 'list') {
     return (
@@ -110,7 +105,6 @@ function SkeletonIllustration({ variant }: { variant: 'chart' | 'list' | 'cards'
     );
   }
 
-  // chart
   return (
     <svg width="180" height="90" viewBox="0 0 180 90" fill="none" xmlns="http://www.w3.org/2000/svg">
       <line x1="4" y1="86" x2="176" y2="86" stroke="#EEEEEE" strokeWidth="2" />
@@ -124,7 +118,6 @@ function SkeletonIllustration({ variant }: { variant: 'chart' | 'list' | 'cards'
   );
 }
 
-// ─── Ilustrasi: empty state — kotak kosong terbuka, kalem & netral ──────────
 function EmptyIllustration() {
   return (
     <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -148,7 +141,6 @@ function EmptyIllustration() {
   );
 }
 
-// ─── Ilustrasi: error state — ikon awan/koneksi terputus, beda dari empty ──
 function ErrorIllustration() {
   return (
     <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg">

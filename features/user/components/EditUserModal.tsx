@@ -30,7 +30,6 @@ export function EditUserModal({
   const [error, setError] = useState("");
   const isSelf = user.id === currentUserId;
 
-  // Detect changes
   const hasChanges =
     form.username.trim() !== user.username ||
     form.fullName.trim() !== user.fullName ||
@@ -63,7 +62,6 @@ export function EditUserModal({
     setLoading(false);
   };
 
-  // Close on backdrop click
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !loading) onClose();
   };
@@ -74,7 +72,6 @@ export function EditUserModal({
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-100">
           <div className="flex items-center gap-3">
             <Avatar username={user.username} role={user.role} />
@@ -92,9 +89,7 @@ export function EditUserModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5 space-y-4">
-          {/* Nama Lengkap */}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
               Nama Lengkap
@@ -112,7 +107,6 @@ export function EditUserModal({
             />
           </div>
 
-          {/* Username */}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
               Username
@@ -140,7 +134,6 @@ export function EditUserModal({
             )}
           </div>
 
-          {/* Role */}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
               Role
@@ -172,7 +165,6 @@ export function EditUserModal({
             )}
           </div>
 
-          {/* Status Akun */}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
               Status Akun
@@ -218,7 +210,6 @@ export function EditUserModal({
             </div>
           </div>
 
-          {/* Preview changes */}
           {hasChanges && (
             <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800 space-y-1">
               <p className="font-semibold flex items-center gap-1.5">
@@ -249,7 +240,6 @@ export function EditUserModal({
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-6 pb-6 flex gap-2.5">
           <button
             onClick={handleSave}

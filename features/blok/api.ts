@@ -2,7 +2,6 @@ import { supabaseClient } from '@/lib/supabase/client';
 import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { Blok } from '@/types';
 
-// ─── Helper: konversi row DB → Blok ──────────────────────────────────────────
 function rowToBlok(row: {
   id: string;
   nama: string;
@@ -17,7 +16,6 @@ function rowToBlok(row: {
   };
 }
 
-// ─── GET: Semua blok ──────────────────────────────────────────────────────────
 export async function getAllBlok(): Promise<{ data: Blok[]; error?: string }> {
   const { data, error } = await supabaseClient
     .from('blok')
@@ -28,7 +26,6 @@ export async function getAllBlok(): Promise<{ data: Blok[]; error?: string }> {
   return { data: (data ?? []).map(rowToBlok) };
 }
 
-// ─── GET: Satu blok berdasarkan ID ────────────────────────────────────────────
 export async function getBlokById(id: string): Promise<{ data: Blok | null; error?: string }> {
   const { data, error } = await supabaseClient
     .from('blok')
@@ -40,11 +37,9 @@ export async function getBlokById(id: string): Promise<{ data: Blok | null; erro
   return { data: data ? rowToBlok(data) : null };
 }
 
-// ─── CREATE: Blok baru ────────────────────────────────────────────────────────
 export async function createBlok(
   payload: Pick<Blok, 'nama' | 'kapasitas'>
 ): Promise<{ data: Blok | null; error?: string }> {
-  // Cek duplikat nama
   const { data: existing } = await supabaseClient
     .from('blok')
     .select('id')
@@ -70,12 +65,10 @@ export async function createBlok(
   return { data: rowToBlok(data) };
 }
 
-// ─── UPDATE: Blok ─────────────────────────────────────────────────────────────
 export async function updateBlok(
   id: string,
   payload: Pick<Blok, 'nama' | 'kapasitas'>
 ): Promise<{ data: Blok | null; error?: string }> {
-  // Cek duplikat nama (kecuali diri sendiri)
   const { data: existing } = await supabaseClient
     .from('blok')
     .select('id')
@@ -114,9 +107,8 @@ export async function updateBlok(
   return { data: rowToBlok(data) };
 }
 
-// ─── DELETE: Blok ─────────────────────────────────────────────────────────────
 export async function deleteBlok(id: string): Promise<{ error?: string }> {
-  // Cek apakah ada makam di blok ini
+  // Blok dengan makam terdaftar tidak boleh dihapus
   const { count, error: countError } = await supabaseClient
     .from('makam')
     .select('id', { count: 'exact', head: true })

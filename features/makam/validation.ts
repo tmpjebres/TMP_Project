@@ -1,12 +1,11 @@
 import { Makam } from "@/types";
 
-// ─── Primitives ──────────────────────────────────────────────────────────────
 
 /** dd/mm/yyyy — allows partial entry while typing */
 const DATE_MASK_REGEX = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 
 export function isValidDate(value: string): boolean {
-  if (!value) return true; // optional field — absent is valid
+  if (!value) return true;
 
   if (!DATE_MASK_REGEX.test(value)) return false;
 
@@ -24,8 +23,6 @@ export function isNumericString(value: string): boolean {
   return /^\d+$/.test(value);
 }
 
-// ─── Field validators ─────────────────────────────────────────────────────────
-// Each returns "" (valid) or a human-readable error string.
 
 export type FieldValidator = (
   value: string,
@@ -66,28 +63,28 @@ export const validators: Record<string, FieldValidator> = {
   },
 
   nrp(value) {
-    if (!value) return ""; // optional
+    if (!value) return "";
     if (!isNumericString(value)) return "NRP hanya boleh berisi angka";
     if (value.length < 4) return "NRP minimal 4 digit";
     return "";
   },
 
   pangkat() {
-    return ""; // free text, no constraint
+    return "";
   },
 
   kesatuan() {
-    return ""; // free text, no constraint
+    return "";
   },
 
   tanggalLahir(value) {
-    if (!value) return ""; // optional
+    if (!value) return "";
     if (!isValidDate(value)) return "Format tanggal tidak valid (dd/mm/yyyy)";
     return "";
   },
 
   tanggalGugur(value, ctx) {
-    if (!value) return ""; // optional
+    if (!value) return "";
     if (!isValidDate(value)) return "Format tanggal tidak valid (dd/mm/yyyy)";
 
     // Logical: gugur must not be before lahir
@@ -104,7 +101,6 @@ export const validators: Record<string, FieldValidator> = {
   },
 };
 
-// ─── Whole-form validation ────────────────────────────────────────────────────
 
 export interface MakamFormValues {
   nama: string;
@@ -119,10 +115,7 @@ export interface MakamFormValues {
 
 export type FormErrors = Partial<Record<keyof MakamFormValues, string>>;
 
-/**
- * Validates all fields at once (used on submit).
- * Returns a map of field → error string; empty map = no errors.
- */
+// Validates all fields on submit; returns a field → error map (empty = valid)
 export function validateMakamForm(
   form: MakamFormValues,
   existingMakams: Makam[],
@@ -142,9 +135,6 @@ export function validateMakamForm(
   return errors;
 }
 
-/**
- * Validates a single field for real-time feedback.
- */
 export function validateField(
   key: keyof MakamFormValues,
   value: string,

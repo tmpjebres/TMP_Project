@@ -2,11 +2,9 @@ import { supabaseClient } from '@/lib/supabase/client';
 import { logActivity, snapshotChanges, type ActivityChanges } from '@/lib/activity-log';
 import type { Makam } from '@/types';
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
 
 function isoToDmy(iso: string | null): string {
   if (!iso) return '';
-  // Expect "yyyy-mm-dd" (Supabase DATE), but be defensive
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!m) return '';
   const [, y, mm, dd] = m;
@@ -21,7 +19,6 @@ function dmyToIso(dmy: string): string | null {
   return `${y}-${mm}-${dd}`;
 }
 
-// ─── Tipe row hasil join makam + blok ────────────────────────────────────────
 type MakamRow = {
   id: string;
   nama: string;
@@ -35,7 +32,6 @@ type MakamRow = {
   blok: { nama: string } | null;
 };
 
-// ─── Helper: konversi row DB → Makam ─────────────────────────────────────────
 function rowToMakam(row: MakamRow): Makam {
   return {
     id: row.id,
@@ -51,7 +47,6 @@ function rowToMakam(row: MakamRow): Makam {
   };
 }
 
-// ─── Query selector (dipakai di GET) ─────────────────────────────────────────
 const MAKAM_SELECT = 'id, nama, blok_id, nomor, nrp, pangkat, tanggal_lahir, tanggal_gugur, kesatuan, blok:blok_id(nama)';
 
 async function getMakamById(id: string): Promise<{ data: Makam | null; error?: string }> {
@@ -65,7 +60,6 @@ async function getMakamById(id: string): Promise<{ data: Makam | null; error?: s
   return { data: rowToMakam(data as MakamRow) };
 }
 
-// ─── GET: Semua makam (dengan nama blok) ─────────────────────────────────────
 export async function getAllMakam(): Promise<{ data: Makam[]; error?: string }> {
   const pageSize = 1000;
   let from = 0;
@@ -92,14 +86,12 @@ export async function getAllMakam(): Promise<{ data: Makam[]; error?: string }> 
   return { data: allData };
 }
 
-// ─── GET: Total makam (untuk statistik) ─────────────────────────────────────
 export const getTotalMakam = async () => {
   return await supabaseClient
     .from("makam")
     .select("*", { count: "exact", head: true });
 };
 
-// ─── GET: Makam berdasarkan blok ──────────────────────────────────────────────
 export async function getMakamByBlok(blokId: string): Promise<{ data: Makam[]; error?: string }> {
   const { data, error } = await supabaseClient
     .from('makam')
@@ -111,7 +103,6 @@ export async function getMakamByBlok(blokId: string): Promise<{ data: Makam[]; e
   return { data: (data ?? []).map(r => rowToMakam(r as MakamRow)) };
 }
 
-// ─── CREATE: Makam baru ───────────────────────────────────────────────────────
 export async function createMakam(
   payload: Omit<Makam, 'id' | 'blokNama'>
 ): Promise<{ data: Makam | null; error?: string }> {
@@ -153,7 +144,6 @@ export async function createMakam(
   return { data: rowToMakam(data as MakamRow) };
 }
 
-// ─── UPDATE: Makam ────────────────────────────────────────────────────────────
 export async function updateMakam(
   id: string,
   payload: Omit<Makam, 'id' | 'blokNama'>
@@ -192,11 +182,9 @@ export async function updateMakam(
     if ((old.kesatuan ?? '-') !== newKesatuan) changes.kesatuan = { from: old.kesatuan ?? '-', to: newKesatuan };
   }
   logActivity('update', 'makam', payload.nama.trim(), changes);
-  // Fetch ulang supaya data & join `blok` konsisten
   return await getMakamById(id);
 }
 
-// ─── DELETE: Makam ────────────────────────────────────────────────────────────
 export async function deleteMakam(id: string): Promise<{ error?: string }> {
   const { data: old } = await supabaseClient
     .from('makam')

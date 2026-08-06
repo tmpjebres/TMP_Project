@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/client';
 import type { Role } from '@/types';
 
-// ─── POST: Buat user baru (hanya master) ──────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
@@ -12,7 +11,6 @@ export async function POST(req: NextRequest) {
       role: Role;
     };
 
-    // Validasi input
     if (!body.fullName?.trim()) {
       return NextResponse.json({ error: 'Nama lengkap wajib diisi.' }, { status: 400 });
     }
@@ -26,14 +24,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Role tidak valid.' }, { status: 400 });
     }
 
-    // Cek apakah pemanggil adalah master menggunakan client request
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
     const token = authHeader.replace('Bearer ', '');
 
-    // Verifikasi token dan cek role
     const serverClient = createServerSupabaseClient();
     const { data: { user: caller }, error: verifyError } = await serverClient.auth.getUser(token);
 
@@ -51,7 +47,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Hanya master yang dapat membuat user.' }, { status: 403 });
     }
 
-    // Cek duplikat username
     const { data: existing } = await serverClient
       .from('profiles')
       .select('id')
@@ -83,8 +78,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Pastikan full_name tersimpan di profiles, terlepas dari apakah trigger
-    // handle_new_user sudah membaca full_name dari user_metadata atau belum.
     const { error: profileUpdateError } = await (serverClient
       .from('profiles') as any)
       .update({ full_name: body.fullName.trim() })
@@ -94,7 +87,6 @@ export async function POST(req: NextRequest) {
       console.error('[API/users POST] gagal set full_name:', profileUpdateError.message);
     }
 
-    // Ambil profile yang sudah dibuat trigger
     const { data: profile } = await serverClient
       .from('profiles')
       .select('id, username, full_name, role, is_active, last_login_at, created_at')
@@ -109,7 +101,6 @@ export async function POST(req: NextRequest) {
         created_at: string;
       }>();
 
-    // Catat aktivitas
     await (serverClient.from('activity_log') as any).insert({
       actor_id: caller.id,
       action: 'create',
@@ -139,7 +130,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ─── DELETE: Hapus user (hanya master) ────────────────────────────────────────
 export async function DELETE(req: NextRequest) {
   try {
     const { userId } = await req.json() as { userId: string };
@@ -148,7 +138,6 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'userId wajib diisi.' }, { status: 400 });
     }
 
-    // Verifikasi caller adalah master
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
@@ -189,7 +178,6 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    // Catat aktivitas
     await (serverClient.from('activity_log') as any).insert({
       actor_id: caller.id,
       action: 'delete',

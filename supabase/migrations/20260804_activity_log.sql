@@ -1,6 +1,3 @@
--- =============================================================================
--- Migration: Activity Log (histori semua aktivitas per user untuk halaman detail)
--- =============================================================================
 
 create table if not exists public.activity_log (
   id uuid primary key default gen_random_uuid(),

@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// ─── Tipe Context ─────────────────────────────────────────────────────────────
 interface SidebarContextType {
   collapsed: boolean;
   toggleCollapsed: () => void;
@@ -15,7 +14,7 @@ const STORAGE_KEY = 'sidebar-collapsed';
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
-  // Baca preferensi tersimpan saat pertama kali mount (client-side only).
+  // Baca preferensi tersimpan saat mount (client-side only)
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) setCollapsed(saved === 'true');

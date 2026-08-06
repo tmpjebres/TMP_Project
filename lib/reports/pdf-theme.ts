@@ -1,6 +1,5 @@
 import PDFDocument from 'pdfkit';
 
-// ─── Palette & tipografi laporan (identitas TMP, gaya "premium brand report") ─
 export const INK = '#1C3F3A';
 export const INK_SOFT = '#5B7A74';
 export const BRASS = '#A9822F';
@@ -28,7 +27,6 @@ export function createReportDoc() {
   });
 }
 
-// ─── Masthead penuh, hanya di halaman pertama ────────────────────────────────
 export function drawMasthead(doc: PDFKit.PDFDocument, meta: ReportMeta) {
   const left = PAGE_MARGIN.left;
   const right = 595.28 - PAGE_MARGIN.right;
@@ -56,7 +54,6 @@ export function drawMasthead(doc: PDFKit.PDFDocument, meta: ReportMeta) {
   doc.y = lineY + 20;
 }
 
-// ─── Header ringkas untuk halaman lanjutan ───────────────────────────────────
 export function drawRunningHeader(doc: PDFKit.PDFDocument, meta: ReportMeta) {
   const left = PAGE_MARGIN.left;
   const right = 595.28 - PAGE_MARGIN.right;
@@ -72,7 +69,6 @@ export function drawRunningHeader(doc: PDFKit.PDFDocument, meta: ReportMeta) {
   doc.y = lineY + 18;
 }
 
-// ─── Footer identitas TMP, dipasang di semua halaman setelah render selesai ──
 export function drawFooter(doc: PDFKit.PDFDocument, meta: ReportMeta, page: number, totalPages: number) {
   const left = PAGE_MARGIN.left;
   const right = 595.28 - PAGE_MARGIN.right;
@@ -86,7 +82,6 @@ export function drawFooter(doc: PDFKit.PDFDocument, meta: ReportMeta, page: numb
     .text(`Halaman ${page} / ${totalPages}`, left, y + 8, { width: right - left, align: 'right' });
 }
 
-// ─── Judul section (dengan penanda brass kecil, bukan box tebal) ─────────────
 export function drawSectionTitle(doc: PDFKit.PDFDocument, title: string, subtitle?: string) {
   ensureSpace(doc, 40);
   const left = PAGE_MARGIN.left;
@@ -110,7 +105,6 @@ export function drawHairline(doc: PDFKit.PDFDocument, y?: number) {
   doc.moveTo(left, lineY).lineTo(right, lineY).lineWidth(0.75).strokeColor(HAIRLINE).stroke();
 }
 
-// ─── Pastikan ruang cukup, tambah halaman baru + header lanjutan bila perlu ──
 export function ensureSpace(doc: PDFKit.PDFDocument, needed: number) {
   const bottom = 841.89 - PAGE_MARGIN.bottom;
   if (doc.y + needed > bottom) {

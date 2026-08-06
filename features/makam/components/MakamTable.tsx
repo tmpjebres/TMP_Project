@@ -42,7 +42,7 @@ function SortTh({
 
 function formatTanggal(val: string) {
   if (!val) return '—';
-  return val; // stored as dd/mm/yyyy already
+  return val;
 }
 
 export function MakamTable({ data, sortConfig, onSort, onEdit, onDelete, canEdit }: Props) {

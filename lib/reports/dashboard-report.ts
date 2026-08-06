@@ -30,7 +30,6 @@ interface DashboardReportData {
   jadwal: JadwalTamu[];
 }
 
-// ─── Ambil semua data section dashboard untuk periode terpilih ──────────────
 export async function fetchDashboardReportData(
   serverClient: SupabaseClient,
   period: PeriodSelection
@@ -119,7 +118,6 @@ function bucketKey(tanggal: string, granularity: 'day' | 'month'): string {
   return granularity === 'day' ? tanggal : tanggal.slice(0, 7);
 }
 
-// ─── Rakit dokumen PDF dari data yang sudah diambil ──────────────────────────
 export async function buildDashboardReportPdf(
   data: DashboardReportData,
   meta: ReportMeta
@@ -147,7 +145,6 @@ export async function buildDashboardReportPdf(
   return done;
 }
 
-// ─── KPI: Total Makam, Makam Kosong, Tamu Umum, Tamu Rombongan ──────────────
 function drawKpiRow(doc: PDFKit.PDFDocument, data: DashboardReportData) {
   drawSectionTitle(doc, 'Ringkasan');
   ensureSpace(doc, 70);
@@ -185,7 +182,6 @@ function drawKpiRow(doc: PDFKit.PDFDocument, data: DashboardReportData) {
   doc.y += 22;
 }
 
-// ─── Grafik kunjungan: batang bertumpuk umum (ink) vs rombongan (brass) ─────
 function niceNumber(range: number): number {
   if (range <= 0) return 1;
   const exponent = Math.floor(Math.log10(range));
@@ -209,7 +205,6 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
   const points = data.chartData;
   const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 0);
 
-  // ─ Sumbu Y: tick "rapi" (kelipatan 1/2/5/10) supaya angka selalu bulat ────
   const niceStep = Math.max(1, Math.round(niceNumber(Math.max(maxVal, 1) / 4)));
   const niceMaxAxis = Math.max(niceStep, Math.ceil(Math.max(maxVal, 1) / niceStep) * niceStep);
   const tickCount = niceMaxAxis / niceStep;
@@ -220,7 +215,6 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
   const top = doc.y + 4 + topPadding;
   const baseline = top + chartHeight;
 
-  // Gridlines + label angka sumbu Y
   for (let i = 0; i <= tickCount; i++) {
     const tickValue = i * niceStep;
     const y = baseline - (tickValue / niceMaxAxis) * chartHeight;
@@ -279,7 +273,6 @@ function drawLegend(doc: PDFKit.PDFDocument, entries: { color: string; label: st
   });
 }
 
-// ─── Distribusi Blok: makam terisi/kapasitas per blok ───────────────────────
 function drawBlokDistribution(doc: PDFKit.PDFDocument, data: DashboardReportData) {
   drawSectionTitle(doc, 'Distribusi per Blok', 'Makam terisi tiap blok');
 
@@ -320,7 +313,6 @@ function drawBlokDistribution(doc: PDFKit.PDFDocument, data: DashboardReportData
   doc.y += 22;
 }
 
-// ─── Ringkasan Jadwal: seluruh kegiatan pada periode, urut tanggal ──────────
 function drawJadwalRingkasan(doc: PDFKit.PDFDocument, data: DashboardReportData) {
   drawSectionTitle(doc, 'Ringkasan Jadwal', 'Kegiatan tamu pada periode terpilih, urut tanggal');
 
@@ -340,7 +332,6 @@ function drawJadwalRingkasan(doc: PDFKit.PDFDocument, data: DashboardReportData)
   const textX = left + dateColWidth + colGap;
   const textWidth = right - textX;
 
-  // ─ Header kolom, biar terasa seperti tabel sungguhan ───────────────────────
   ensureSpace(doc, 40);
   const headerY = doc.y;
   doc.font('Helvetica-Bold').fontSize(7.5).fillColor(GRAY)

@@ -12,7 +12,6 @@ function todayTomorrowStr() {
   };
 }
 
-// ─── Ambil daftar notifikasi H-1 & H untuk user yang sedang login ─────────────
 export async function fetchNotifications(userId: string): Promise<{ data: NotificationItem[]; error?: string }> {
   const { today, tomorrow } = todayTomorrowStr();
 
@@ -55,7 +54,6 @@ export async function fetchNotifications(userId: string): Promise<{ data: Notifi
     };
   });
 
-  // Belum dibaca dulu, lalu urut berdasarkan jam
   items.sort((a, b) => {
     if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
     if (a.notifType !== b.notifType) return a.notifType === 'h' ? -1 : 1;
@@ -65,7 +63,6 @@ export async function fetchNotifications(userId: string): Promise<{ data: Notifi
   return { data: items };
 }
 
-// ─── Tandai satu notifikasi sebagai dibaca ────────────────────────────────────
 export async function markNotificationRead(
   jadwalTamuId: string,
   notifType: NotifType,
@@ -86,7 +83,6 @@ export async function markNotificationRead(
   return { success: true };
 }
 
-// ─── Tandai semua notifikasi yang sedang tampil sebagai dibaca ────────────────
 export async function markAllNotificationsRead(
   items: NotificationItem[],
   userId: string

@@ -69,7 +69,6 @@ export async function updateUserProfile(
   userId: string,
   updates: { username?: string; fullName?: string; role?: Role },
 ): Promise<{ data?: AppUser; error?: string }> {
-  // Validasi input awal
   if (!userId) return { error: "ID user tidak valid." };
 
   const hasNoUpdates =
@@ -95,7 +94,6 @@ export async function updateUserProfile(
     updates = { ...updates, fullName: trimmed };
   }
 
-  // Verifikasi hak akses
   const { userId: currentUserId, role: currentRole, error: authErr } =
     await getCurrentUserRole();
 
@@ -109,7 +107,6 @@ export async function updateUserProfile(
     return { error: "Master tidak dapat mengubah role dirinya sendiri." };
   }
 
-  // Cek apakah username sudah dipakai user lain
   if (updates.username) {
     const { data: existing, error: dupError } = await supabaseClient
       .from("profiles")
@@ -141,7 +138,6 @@ export async function updateUserProfile(
     .single();
 
   if (error) {
-    // Handle unique constraint violation dari database
     if (error.code === "23505") {
       return { error: "Username sudah digunakan oleh user lain." };
     }

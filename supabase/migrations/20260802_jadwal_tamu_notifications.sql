@@ -1,13 +1,3 @@
--- =============================================================================
--- Migration: Status Notifikasi Jadwal Tamu (pengingat H-1 & H)
--- Jalankan SETELAH migration jadwal_tamu sebelumnya.
---
--- Catatan desain: notifikasi H-1 dan H TIDAK disimpan sebagai baris konten
--- terpisah. Daftar notifikasi dihitung on-the-fly di aplikasi dari
--- jadwal_tamu (event yang tanggal_mulai = hari ini / besok). Tabel ini hanya
--- menyimpan status "sudah dibaca" per (event, user, tipe pengingat) supaya
--- H-1 dan H dianggap notifikasi yang berbeda untuk event yang sama.
--- =============================================================================
 
 create table if not exists public.jadwal_tamu_notification_status (
   id uuid primary key default gen_random_uuid(),

@@ -10,7 +10,6 @@ import { CreateUserModal } from "./CreateUserModal";
 import { EditUserModal } from "./EditUserModal";
 import { DeleteModal } from "./DeleteModal";
 
-// Kartu ringkasan kecil di atas tabel roster
 function StatCard({
   icon: Icon,
   label,
@@ -88,7 +87,6 @@ export default function UserManagement() {
   return (
     <>
       <div className="animate-fade-in flex flex-col min-h-[calc(100vh-8rem)]">
-        {/* ── Header ── */}
         <div className="flex items-start justify-between mb-7">
           <div>
             
@@ -116,7 +114,6 @@ export default function UserManagement() {
           )}
         </div>
 
-        {/* ── Stats ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <StatCard icon={Users} label="Total Pengguna" value={stats.total} accent="neutral" />
           <StatCard icon={CircleDot} label="Sedang Aktif" value={stats.active} accent="green" />
@@ -124,7 +121,6 @@ export default function UserManagement() {
           <StatCard icon={UserCog} label="Operator" value={stats.operator} accent="green" />
         </div>
 
-        {/* ── Search & Filter ── */}
         <div className="flex items-center gap-2 mb-4">
           <div className="relative flex-1">
             <Search
@@ -168,7 +164,6 @@ export default function UserManagement() {
           </div>
         </div>
 
-        {/* ── Table ── */}
         <div
           className="bg-white rounded-2xl overflow-hidden flex-1"
           style={{ border: "1px solid #e5e7eb" }}
@@ -186,7 +181,6 @@ export default function UserManagement() {
         </div>
       </div>
 
-      {/* ── Modals ── */}
       {modalOpen && (
         <CreateUserModal onSave={handleCreate} onClose={() => setModalOpen(false)} />
       )}
@@ -211,7 +205,6 @@ export default function UserManagement() {
         />
       )}
 
-      {/* ── Toast ── */}
       <ToastContainer toasts={toasts} dismiss={dismissToast} />
     </>
   );

@@ -39,7 +39,6 @@ export function useMakamData() {
   });
   const [page, setPage] = useState(1);
 
-  // Sinkron: saat search / filter berubah, kembali ke halaman 1
   useEffect(() => {
     setPage(1);
   }, [search, selectedBlok]);

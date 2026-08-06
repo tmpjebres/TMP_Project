@@ -23,7 +23,6 @@ export function DeleteModal({
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div className="px-6 pt-6 pb-5">
-          {/* Icon */}
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
             <Trash2 size={22} className="text-red-600" />
           </div>

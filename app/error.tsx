@@ -12,7 +12,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log ke console (atau ganti dengan reporting tool kamu, mis. Sentry)
+    // TODO: kirim ke reporting tool (mis. Sentry)
     console.error('[app/error.tsx]', error);
   }, [error]);
 

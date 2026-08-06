@@ -1,8 +1,4 @@
--- =============================================================================
--- Migration: Tipe Kegiatan untuk Jadwal Tamu
--- =============================================================================
 
--- ─── Tabel referensi tipe kegiatan (bisa ditambah dari form, bukan hardcode) ──
 create table if not exists public.jadwal_tamu_tipe_kegiatan (
   id uuid primary key default gen_random_uuid(),
   nama text not null unique,
@@ -35,7 +31,6 @@ create policy "jadwal_tamu_tipe_kegiatan_insert_master"
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'master')
   );
 
--- ─── Kolom tipe kegiatan di jadwal_tamu ────────────────────────────────────────
 alter table public.jadwal_tamu
   add column if not exists tipe_kegiatan text not null default 'Upacara';
 

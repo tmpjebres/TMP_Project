@@ -58,7 +58,6 @@ export default function Sidebar() {
           boxShadow: "4px 0 24px rgba(0,0,0,0.06)",
         }}
       >
-        {/* Tombol collapse (desktop only) */}
         <button
           onClick={toggleCollapsed}
           title={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
@@ -68,7 +67,6 @@ export default function Sidebar() {
           <ChevronLeft size={14} className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`} />
         </button>
 
-        {/* Logo */}
         <div
           className="h-16 flex items-center px-5 flex-shrink-0 overflow-hidden"
           style={{ borderBottom: "1px solid rgba(221,221,221,0.5)" }}
@@ -93,7 +91,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto overflow-x-hidden flex-1">
           {isMaster && (
             <Link
@@ -201,7 +198,6 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* Bottom Profile */}
         <div
           className="p-4 bg-white flex-shrink-0 "
           style={{ borderTop: "1px solid rgba(221,221,221,0.5)" }}

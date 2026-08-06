@@ -44,7 +44,7 @@ export default function JadwalTamuPage() {
   const [deleteTarget, setDeleteTarget] = useState<JadwalTamu | null>(null);
   const [attachmentTarget, setAttachmentTarget] = useState<JadwalTamu | null>(null);
 
-  // Deep-link dari halaman notifikasi: ?event=ID&date=YYYY-MM-DD
+  // Deep-link dari notifikasi: ?event=ID&date=YYYY-MM-DD
   const searchParams = useSearchParams();
   useEffect(() => {
     const eventId = searchParams.get('event');
@@ -143,7 +143,6 @@ export default function JadwalTamuPage() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-5 p-5 lg:p-6 min-h-screen bg-neutral-white">
-      {/* Kalender utama */}
       <div className="flex-1 min-w-0">
         <div className="mb-1">
           <h1 className="text-xl font-bold text-neutral-black" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
@@ -203,7 +202,6 @@ export default function JadwalTamuPage() {
         </div>
       </div>
 
-      {/* Sidebar kanan: mini kalender + detail */}
       <div className="w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-4">
         <MiniCalendar
           anchorDate={anchorDate}

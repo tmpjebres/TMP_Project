@@ -41,7 +41,6 @@ export default function DaftarTamu() {
     setCurrentPage(1);
   };
 
-  // ─── Load data dari Supabase ────────────────────────────────────────────────
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -104,7 +103,6 @@ export default function DaftarTamu() {
     return sorted.slice(start, start + ITEMS_PER_PAGE);
   }, [sorted, currentPage]);
 
-  // ─── Hapus tamu (auto-detect jenis) ─────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const { error } = await deleteTamu(deleteTarget);
@@ -113,7 +111,6 @@ export default function DaftarTamu() {
     setDeleteTarget(null);
   };
 
-  // ─── Update tamu (auto-detect jenis) ────────────────────────────────────────
   const handleEditSave = async (updated: Tamu) => {
     setActionError('');
     const { error } = await updateTamu(updated);
@@ -137,7 +134,6 @@ export default function DaftarTamu() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="bg-white rounded-xl p-4 mb-5" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-48">
@@ -179,7 +175,6 @@ export default function DaftarTamu() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-xl overflow-hidden flex flex-col flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         {loading ?
         <LoadingSpinner/> : (

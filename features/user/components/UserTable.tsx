@@ -73,7 +73,6 @@ export function UserTable({
             <tr key={u.id} className="relative hover:bg-neutral-50/80 transition-colors group">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
-                  {/* Aksen role di kiri baris, seperti label plakat */}
                   <span
                     className={`w-1 self-stretch rounded-full flex-shrink-0 ${
                       u.role === "master" ? "bg-brass" : "bg-green-accent"
@@ -107,7 +106,6 @@ export function UserTable({
               {isMaster && (
                 <td className="px-5 py-3.5">
                   <div className="flex items-center justify-center gap-1">
-                    {/* Detail log aktivitas */}
                     <Link
                       href={`/user-management/${u.id}`}
                       title="Lihat log aktivitas"
@@ -116,7 +114,6 @@ export function UserTable({
                       <History size={15} />
                     </Link>
 
-                    {/* Edit */}
                     <button
                       onClick={() => onEdit(u)}
                       title="Edit user"
@@ -125,7 +122,6 @@ export function UserTable({
                       <Pencil size={15} />
                     </button>
 
-                    {/* Delete — tidak bisa hapus diri sendiri */}
                     {u.id !== currentUserId ? (
                       <button
                         onClick={() => onDelete(u)}

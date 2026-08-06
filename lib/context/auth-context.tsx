@@ -13,7 +13,6 @@ import { isSupabasePausedError } from '@/lib/supabase/is-project-paused';
 import { redirectToPausedPage } from '@/lib/supabase/paused-redirect';
 import type { AuthUser, Role } from '@/types';
 
-// ─── Tipe Context ─────────────────────────────────────────────────────────────
 interface AuthContextType {
   user: AuthUser | null;
   session: Session | null;
@@ -30,17 +29,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// ─── Helper: konversi username ke email dummy ─────────────────────────────────
 const usernameToEmail = (username: string) =>
   `${username.toLowerCase().trim()}@makam.app`;
 
-// ─── Provider ────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ─── Load profile dari tabel profiles ──────────────────────────────────────
   const loadProfile = useCallback(async (supabaseUser: User) => {
     const { data, error } = await supabaseClient
       .from('profiles')
@@ -66,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } satisfies AuthUser;
   }, []);
 
-  // ─── Init session saat pertama mount ──────────────────────────────────────
   useEffect(() => {
     let settled = false;
 
@@ -103,7 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth();
 
-    // Listen perubahan auth state
     const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       async (event, newSession) => {
         if (event === 'SIGNED_OUT') {
@@ -120,7 +114,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [loadProfile]);
 
-  // ─── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(
     async (
       username: string,
@@ -140,7 +133,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { success: false, error: 'Database sedang tidak tersedia, mengalihkan...' };
           }
 
-          // Catat percobaan gagal
           supabaseClient
             .from('login_attempts')
             .insert({ username: normalizedUsername, success: false })
@@ -206,25 +198,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  // ─── Logout ──────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     await supabaseClient.auth.signOut();
   }, []);
 
-  // ─── Update Password ──────────────────────────────────────────────────────
   const updatePassword = useCallback(
     async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> => {
       if (!user) return { success: false, error: 'Tidak ada sesi aktif.' };
       if (newPassword.length < 8) return { success: false, error: 'Password baru minimal 8 karakter.' };
 
-      // Verifikasi password lama
       const { error: verifyError } = await supabaseClient.auth.signInWithPassword({
         email: usernameToEmail(user.username),
         password: currentPassword,
       });
       if (verifyError) return { success: false, error: 'Password saat ini salah.' };
 
-      // Update password baru
       const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPassword });
       if (updateError) return { success: false, error: updateError.message };
 
@@ -249,7 +237,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

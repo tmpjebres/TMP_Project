@@ -19,8 +19,6 @@ import type { JadwalTamu } from '@/types';
 
 export type CalendarViewMode = 'week' | 'month' | 'year';
 
-// ─── Palet pastel untuk badge event (base kalender tetap putih) ───────────────
-// Urutan di sini menentukan urutan pembagian warna (lihat buildTipeColorMap di bawah).
 export const PASTEL_PALETTE = [
   { bg: '#FDE7EC', text: '#B4436C', dot: '#E88AA6' }, // pink
   { bg: '#E7F0FD', text: '#3B6EA8', dot: '#8AB4E8' }, // blue
@@ -34,11 +32,7 @@ export const PASTEL_PALETTE = [
   { bg: '#E6EEFB', text: '#4A5FA5', dot: '#9DAEDE' }, // indigo
 ];
 
-/**
- * Hash fallback (dipakai kalau sebuah tipe kegiatan belum terdaftar di
- * tipeColorMap). Ini yang dulu jadi satu-satunya sumber warna dan bisa
- * collision antar tipe (contoh: "Peminjaman tempat" vs "Ziarah makam").
- */
+// Fallback hash-based color untuk tipe kegiatan yang belum ada di tipeColorMap
 export function pastelForId(id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
@@ -50,15 +44,7 @@ export const pastelForType = pastelForId;
 
 export type TipeColorMap = Record<string, (typeof PASTEL_PALETTE)[number]>;
 
-/**
- * Bikin peta warna: setiap `nama` tipe kegiatan mendapat slot warna berdasarkan
- * urutannya di `tipeList` (bukan hash string), jadi dijamin unik selama jumlah
- * tipe kegiatan <= panjang PASTEL_PALETTE. Tipe baru yang ditambahkan otomatis
- * kebagian warna berikutnya yang belum terpakai, tanpa perlu ubah kode.
- *
- * tipeList sebaiknya diurutkan konsisten (dari API: is_default desc, nama asc)
- * supaya assignment warna stabil antar reload.
- */
+// Peta warna per tipe kegiatan berdasar urutan di tipeList (unik selama <= PASTEL_PALETTE)
 export function buildTipeColorMap(tipeList: { nama: string }[]): TipeColorMap {
   const map: TipeColorMap = {};
   tipeList.forEach((tipe, index) => {
@@ -72,14 +58,12 @@ export function pastelFor(nama: string, colorMap?: TipeColorMap) {
   return colorMap?.[nama] ?? pastelForId(nama);
 }
 
-// ─── Navigasi tanggal berdasarkan mode view ────────────────────────────────────
 export function shiftDate(date: Date, mode: CalendarViewMode, direction: 1 | -1): Date {
   if (mode === 'week') return addWeeks(date, direction);
   if (mode === 'year') return addYears(date, direction);
   return addMonths(date, direction);
 }
 
-// ─── Grid tanggal untuk month view (6 baris x 7 kolom, termasuk hari bulan sebelah) ──
 export function buildMonthGrid(anchor: Date): Date[] {
   const monthStart = startOfMonth(anchor);
   const monthEnd = endOfMonth(anchor);
@@ -88,14 +72,12 @@ export function buildMonthGrid(anchor: Date): Date[] {
   return eachDayOfInterval({ start: gridStart, end: gridEnd });
 }
 
-// ─── 7 hari untuk week view ────────────────────────────────────────────────────
 export function buildWeekDays(anchor: Date): Date[] {
   const weekStart = startOfWeek(anchor, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(anchor, { weekStartsOn: 0 });
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 }
 
-// ─── 12 bulan untuk year view ──────────────────────────────────────────────────
 export function buildYearMonths(anchor: Date): Date[] {
   const yearStart = startOfYear(anchor);
   return Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
@@ -120,7 +102,6 @@ export function formatJam(jam?: string) {
   return jam.slice(0, 5);
 }
 
-// ─── Cek apakah sebuah tanggal ada di dalam rentang event (mulai..selesai) ────
 export function eventCoversDate(event: JadwalTamu, dateStr: string): boolean {
   if (!event.punyaWaktuSelesai || !event.tanggalSelesai) {
     return event.tanggalMulai === dateStr;

@@ -9,7 +9,7 @@ import { LOGIN_ROUTE } from '@/lib/routes';
 import Sidebar from '@/components/ui/Sidebar';
 import { FullScreenLoader } from '@/components/ui/LoadingAnimation';
 
-// Shell dashboard: satu guard dan satu Sidebar untuk semua route di bawah /dashboard.
+// Shell bersama: satu auth guard + Sidebar untuk semua route /dashboard
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
