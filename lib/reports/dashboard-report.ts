@@ -198,12 +198,22 @@ function drawKunjunganChart(doc: PDFKit.PDFDocument, data: DashboardReportData) 
   const label = data.granularity === 'day' ? 'Per hari' : 'Per bulan';
   drawSectionTitle(doc, 'Statistik Kunjungan', label);
 
+  const points = data.chartData;
+  const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 0);
+
+  if (maxVal === 0) {
+    ensureSpace(doc, 20);
+    doc.font('Helvetica').fontSize(9.5).fillColor(GRAY)
+      .text('Belum ada data kunjungan pada periode ini.', PAGE_MARGIN.left, doc.y);
+    doc.y += 20;
+    drawHairline(doc);
+    doc.y += 22;
+    return;
+  }
+
   const chartHeight = 150;
   const topPadding = 14; // ruang untuk label angka di atas batang tertinggi
   ensureSpace(doc, chartHeight + topPadding + 40);
-
-  const points = data.chartData;
-  const maxVal = Math.max(...points.map((p) => p.umum + p.rombongan), 0);
 
   const niceStep = Math.max(1, Math.round(niceNumber(Math.max(maxVal, 1) / 4)));
   const niceMaxAxis = Math.max(niceStep, Math.ceil(Math.max(maxVal, 1) / niceStep) * niceStep);
