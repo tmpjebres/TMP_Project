@@ -41,7 +41,7 @@ export default function SecurityAlertCard({ alert, active, onSelect, onMarkRead 
             onMarkRead();
           }}
           title="Tandai sudah ditinjau"
-          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent hover:bg-green-light dark:bg-dark-brand-light transition-colors"
+          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent hover:bg-green-light dark:hover:bg-dark-brand-light transition-colors"
         >
           <Check size={14} />
         </span>

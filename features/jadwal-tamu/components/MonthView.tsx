@@ -3,6 +3,7 @@
 import { format } from 'date-fns';
 import type { JadwalTamu } from '@/types';
 import { buildMonthGrid, eventCoversDate, isSameDay, isSameMonth, pastelFor, type TipeColorMap } from '../utils';
+import { useTheme } from '@/lib/context/theme-context';
 
 interface MonthViewProps {
   anchorDate: Date;
@@ -25,6 +26,12 @@ export default function MonthView({
 }: MonthViewProps) {
   const days = buildMonthGrid(anchorDate);
   const today = new Date();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const gridBorder = isDark ? '#28332F' : '#EEEEEE';
+  const cellBorder = isDark ? '#1D2724' : '#F3F3F3';
+  const cellBg = isDark ? '#161E1B' : '#FFFFFF';
+  const cellBgOutOfMonth = isDark ? '#0F1512' : '#FAFAFA';
 
   const eventsForDay = (day: Date) => {
     const dateStr = format(day, 'yyyy-MM-dd');
@@ -32,8 +39,8 @@ export default function MonthView({
   };
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #EEEEEE' }}>
-      <div className="grid grid-cols-7" style={{ borderBottom: '1px solid #EEEEEE' }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${gridBorder}` }}>
+      <div className="grid grid-cols-7" style={{ borderBottom: `1px solid ${gridBorder}` }}>
         {HARI.map((h) => (
           <div key={h} className="py-2.5 text-center text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary bg-neutral-light-gray dark:bg-dark-surface-hover">
             {h}
@@ -56,9 +63,9 @@ export default function MonthView({
               }}
               className="min-h-[104px] p-1.5 flex flex-col gap-1"
               style={{
-                borderRight: (idx + 1) % 7 !== 0 ? '1px solid #F3F3F3' : undefined,
-                borderTop: '1px solid #F3F3F3',
-                backgroundColor: inMonth ? '#FFFFFF' : '#FAFAFA',
+                borderRight: (idx + 1) % 7 !== 0 ? `1px solid ${cellBorder}` : undefined,
+                borderTop: `1px solid ${cellBorder}`,
+                backgroundColor: inMonth ? cellBg : cellBgOutOfMonth,
                 cursor: dayEvents.length === 0 ? 'pointer' : undefined,
               }}
             >

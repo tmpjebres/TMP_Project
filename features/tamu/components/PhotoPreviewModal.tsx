@@ -21,7 +21,7 @@ export default function PhotoPreviewModal({ photoUrl, onClose }: PhotoPreviewMod
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
+            className="p-2 hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover rounded-lg transition-colors"
           >
             <X size={20} />
           </button>

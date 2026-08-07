@@ -167,7 +167,7 @@ export default function DaftarTamu() {
           {(filterTanggalMulai || filterTanggalSampai) && (
             <button
               onClick={() => { setFilterTanggalMulai(""); setFilterTanggalSampai(""); }}
-              className="text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary flex items-center gap-1 font-medium"
+              className="text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:hover:text-dark-text-primary flex items-center gap-1 font-medium"
             >
               <X size={16} /> Reset tanggal
             </button>

@@ -4,6 +4,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/context/theme-context';
 
 interface ThemeToggleProps {
+  /** Tampilkan label teks di samping ikon (dipakai saat sidebar tidak collapsed) */
   showLabel?: boolean;
   className?: string;
 }
@@ -22,8 +23,7 @@ export default function ThemeToggle({ showLabel = true, className = '' }: ThemeT
         relative inline-flex items-center gap-3 rounded-lg cursor-pointer
         transition-all duration-200
         ${showLabel ? 'w-full px-4 py-3' : 'p-2.5'}
-        text-text-secondary hover:bg-green-light hover:text-green-primary
-        dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover dark:hover:text-dark-brand-accent
+        text-text-secondary hover:bg-green-light hover:text-green-primary dark:hover:text-dark-text-secondary dark:hover:bg-dark-surface-hover dark:hover:text-dark-brand-accent
         ${className}
       `}
     >

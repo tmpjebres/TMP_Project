@@ -36,7 +36,7 @@ export default function ConflictConfirmDialog({ conflicts, onConfirm, onCancel }
         <div className="flex gap-3">
           <button
             onClick={onConfirm}
-            className="px-6 py-3 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
+            className="px-6 py-3 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors"
           >
             Tetap Simpan
           </button>

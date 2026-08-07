@@ -127,7 +127,7 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
           >
             {describeEntry(entry)}
           </h3>
-          <button onClick={onClose} className="text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:text-dark-text-secondary">
+          <button onClick={onClose} className="text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:hover:text-dark-text-secondary">
             <X size={16} />
           </button>
         </div>
@@ -230,7 +230,7 @@ export function UserActivityLog({ userId }: { userId: string }) {
     <div className="animate-fade-in flex flex-col min-h-[calc(100vh-8rem)]">
       <Link
         href={ROUTES["user-management"]}
-        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 dark:text-dark-text-muted hover:text-neutral-700 dark:text-dark-text-primary mb-5 w-fit transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 dark:text-dark-text-muted hover:text-neutral-700 dark:hover:text-dark-text-primary mb-5 w-fit transition-colors"
       >
         <ArrowLeft size={15} />
         Kembali
@@ -279,7 +279,7 @@ export function UserActivityLog({ userId }: { userId: string }) {
                 className="relative flex items-center gap-4 py-3 cursor-pointer group"
               >
                 <EntryIcon action={e.action} />
-                <div className="flex-1 min-w-0 rounded-xl px-3 py-2 -my-2 transition-colors group-hover:bg-neutral-50 dark:bg-dark-surface-hover/80">
+                <div className="flex-1 min-w-0 rounded-xl px-3 py-2 -my-2 transition-colors group-hover:bg-neutral-50 dark:group-hover:bg-dark-surface-hover/80">
                   <p className="text-sm text-neutral-700 dark:text-dark-text-primary truncate">{describeEntry(e)}</p>
                 </div>
                 <span className="text-xs text-neutral-400 dark:text-dark-text-muted flex-shrink-0">{formatDateTime(e.createdAt)}</span>

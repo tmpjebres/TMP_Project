@@ -83,7 +83,7 @@ export function EditUserModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="p-1.5 hover:bg-neutral-100 dark:bg-dark-surface-hover rounded-lg transition-colors disabled:opacity-50"
+            className="p-1.5 hover:bg-neutral-100 dark:hover:bg-dark-surface-hover rounded-lg transition-colors disabled:opacity-50"
           >
             <X size={18} className="text-neutral-500 dark:text-dark-text-secondary" />
           </button>
@@ -97,7 +97,7 @@ export function EditUserModal({
             <input
               type="text"
               className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover
-                focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface outline-none transition-colors"
+                focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:focus:bg-dark-surface outline-none transition-colors"
               value={form.fullName}
               onChange={(e) => {
                 setForm((f) => ({ ...f, fullName: e.target.value }));
@@ -116,7 +116,7 @@ export function EditUserModal({
               className={`w-full px-3.5 py-2.5 text-sm rounded-xl border transition-colors outline-none
                 ${error
                   ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                  : "border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover focus:form-input:focus focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface"
+                  : "border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover focus:form-input:focus focus:ring-2 focus:ring-violet-100 focus:bg-white dark:focus:bg-dark-surface"
                 }`}
               value={form.username}
               onChange={(e) => {
@@ -149,7 +149,7 @@ export function EditUserModal({
               <div className="relative">
                 <select
                   className="w-full appearance-none px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover
-                    focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface outline-none transition-colors pr-9"
+                    focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:focus:bg-dark-surface outline-none transition-colors pr-9"
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as Role }))}
                   disabled={loading}
@@ -245,7 +245,7 @@ export function EditUserModal({
             onClick={handleSave}
             disabled={loading || !hasChanges || !form.username.trim() || !form.fullName.trim()}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              bg-green-primary dark:bg-dark-brand-secondary text-white hover:bg-green-secondary dark:bg-dark-brand-primary active:bg-green-primary dark:bg-dark-brand-secondary
+              bg-green-primary dark:bg-dark-brand-secondary text-white hover:bg-green-secondary dark:hover:bg-dark-brand-primary active:bg-green-primary dark:active:bg-dark-brand-secondary
               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
@@ -264,7 +264,7 @@ export function EditUserModal({
             onClick={onClose}
             disabled={loading}
             className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200 dark:border-dark-border
-              text-neutral-600 dark:text-dark-text-secondary hover:bg-neutral-50 dark:bg-dark-surface-hover active:bg-neutral-100 dark:bg-dark-surface-hover transition-colors disabled:opacity-50"
+              text-neutral-600 dark:text-dark-text-secondary hover:bg-neutral-50 dark:hover:bg-dark-surface-hover active:bg-neutral-100 dark:active:bg-dark-surface-hover transition-colors disabled:opacity-50"
           >
             Batal
           </button>

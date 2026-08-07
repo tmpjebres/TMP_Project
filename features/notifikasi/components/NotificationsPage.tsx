@@ -48,7 +48,7 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light rounded-lg hover:bg-green-light dark:bg-dark-brand-light/70 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light rounded-lg hover:bg-green-light dark:hover:bg-dark-brand-light/70 transition-colors"
           >
             <CheckCheck size={16} />
             Tandai semua dibaca

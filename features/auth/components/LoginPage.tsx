@@ -192,7 +192,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                     tabIndex={-1}
-                    className="absolute right-3 top-[1.05rem] text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors"
+                    className="absolute right-3 top-[1.05rem] text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff size={18} strokeWidth={1.8} />
@@ -206,7 +206,7 @@ export default function LoginPage() {
               <div className="mt-2 text-right">
                 <Link
                   href={ROUTES.help}
-                  className="font-body text-xs text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors"
+                  className="font-body text-xs text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent transition-colors"
                 >
                   Lupa kata sandi?
                 </Link>
@@ -240,7 +240,7 @@ export default function LoginPage() {
               <LoadingButton
                 type="submit"
                 loading={loading}
-                className="w-3/4 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200 disabled:opacity-60"
+                className="w-3/4 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:hover:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200 disabled:opacity-60"
               >
                 {loading ? "Memuat..." : "Masuk"}
               </LoadingButton>
@@ -248,9 +248,9 @@ export default function LoginPage() {
 
             <p className="font-body opacity-0 animate-fade-in [animation-delay:0.64s] text-xs text-neutral-gray dark:text-dark-text-secondary">
               Butuh bantuan masuk? Hubungi{" "}
-              <a href="mailto:admin@perusahaan.com" className="text-green-primary dark:text-dark-brand-accent font-medium hover:underline">
+              <Link href={ROUTES['help']} className="text-green-primary dark:text-dark-brand-accent font-medium hover:underline">
                 admin sistem
-              </a>
+              </Link>
               .
             </p>
           </form>

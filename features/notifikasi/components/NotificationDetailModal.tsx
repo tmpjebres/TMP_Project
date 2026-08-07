@@ -30,7 +30,7 @@ export default function NotificationDetailModal({ selection, onClose }: Notifica
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-end p-4 pb-0">
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
             <X size={18} />
           </button>
         </div>
@@ -82,7 +82,7 @@ function JadwalDetail({
 
       <button
         onClick={() => onGoTo(`${ROUTES['jadwal-tamu']}?event=${event.id}&date=${event.tanggalMulai}`)}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
+        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors"
       >
         Buka di Kalender Jadwal Tamu
         <ArrowRight size={15} />
@@ -126,7 +126,7 @@ function SecurityDetail({
 
       <button
         onClick={() => onGoTo(ROUTES['user-management'])}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
+        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors"
       >
         Buka Manajemen User
         <ArrowRight size={15} />

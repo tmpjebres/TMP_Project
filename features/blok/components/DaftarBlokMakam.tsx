@@ -148,7 +148,7 @@ export default function DaftarBlokMakam() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => openEdit(b)}
-                      className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
+                      className="p-2 hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover rounded-lg transition-colors"
                     >
                       <Edit size={16} className="text-neutral-gray dark:text-dark-text-secondary" />
                     </button>

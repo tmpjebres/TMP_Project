@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* --- Light mode (default) --- */
-    --canvas: #F4F5F4;          
+    --canvas: #F4F5F4;          /* dasar rgba(238,238,238,0.3) lama, dibuat solid */
     --surface: #FFFFFF;
     --surface-hover: #F7F8F7;
     --surface-sunken: rgba(238, 238, 238, 0.5);
@@ -18,7 +18,10 @@
   }
 
   .dark {
-    /* --- Dark mode --- */
+    /* --- Dark mode ---
+       Kanvas gelap netral (bukan hijau pekat & bukan hitam pekat) supaya mata
+       nyaman untuk pemakaian lama, dengan hijau/brass TMP tetap jadi aksen
+       yang menonjol di tombol, ikon aktif, dan status — bukan warna dasar. */
     --canvas: #0F1512;
     --surface: #161E1B;
     --surface-hover: #1D2724;
@@ -65,6 +68,25 @@
   .form-input::placeholder {
     @apply text-neutral-gray dark:text-dark-text-muted;
     opacity: 0.6;
+  }
+
+  /* Ikon kalender/jam bawaan browser pada <input type="date"|"time">
+     dirender native, tidak mengikuti class Tailwind. Invert supaya
+     terlihat di atas surface gelap. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: light;
+  }
+  .dark input[type="date"],
+  .dark input[type="time"],
+  .dark input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+  .dark input[type="date"]::-webkit-calendar-picker-indicator,
+  .dark input[type="time"]::-webkit-calendar-picker-indicator,
+  .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
   }
 
   .btn-primary {

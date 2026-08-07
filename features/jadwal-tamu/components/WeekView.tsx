@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import type { JadwalTamu } from '@/types';
 import { HOUR_ROWS, buildWeekDays, eventCoversDate, isSameDay, pastelFor, timeToMinutes, type TipeColorMap } from '../utils';
+import { useTheme } from '@/lib/context/theme-context';
 
 interface WeekViewProps {
   anchorDate: Date;
@@ -26,6 +27,10 @@ export default function WeekView({
 }: WeekViewProps) {
   const days = buildWeekDays(anchorDate);
   const today = new Date();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const gridBorder = isDark ? '#28332F' : '#EEEEEE';
+  const rowBorder = isDark ? '#1D2724' : '#F3F3F3';
 
   const eventsForDay = (day: Date) => {
     const dateStr = format(day, 'yyyy-MM-dd');
@@ -33,13 +38,13 @@ export default function WeekView({
   };
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #EEEEEE' }}>
-      <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)', borderBottom: '1px solid #EEEEEE' }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${gridBorder}` }}>
+      <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)', borderBottom: `1px solid ${gridBorder}` }}>
         <div className="bg-neutral-light-gray dark:bg-dark-surface-hover" />
         {days.map((day) => {
           const isToday = isSameDay(day, today);
           return (
-            <div key={day.toISOString()} className="py-2.5 text-center bg-neutral-light-gray dark:bg-dark-surface-hover" style={{ borderLeft: '1px solid #EEEEEE' }}>
+            <div key={day.toISOString()} className="py-2.5 text-center bg-neutral-light-gray dark:bg-dark-surface-hover" style={{ borderLeft: `1px solid ${gridBorder}` }}>
               <div className="text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary">{format(day, 'EEE', { locale: localeId })}</div>
               <div
                 className={`inline-flex items-center justify-center w-6 h-6 text-xs rounded-full font-medium mt-0.5 ${
@@ -60,7 +65,7 @@ export default function WeekView({
               <div
                 key={h}
                 className="text-[10px] text-neutral-gray dark:text-dark-text-secondary text-right pr-2 "
-                style={{ height: ROW_HEIGHT, borderTop: '1px solid #F3F3F3' }}
+                style={{ height: ROW_HEIGHT, borderTop: `1px solid ${rowBorder}` }}
               >
                 {String(h).padStart(2, '0')}:00
               </div>
@@ -77,10 +82,10 @@ export default function WeekView({
                 onClick={() => {
                   if (dayEvents.length === 0) onSelectEmptyDay?.(day);
                 }}
-                style={{ borderLeft: '1px solid #EEEEEE', cursor: dayEvents.length === 0 ? 'pointer' : undefined }}
+                style={{ borderLeft: `1px solid ${gridBorder}`, cursor: dayEvents.length === 0 ? 'pointer' : undefined }}
               >
                 {HOUR_ROWS.map((h) => (
-                  <div key={h} style={{ height: ROW_HEIGHT, borderTop: '1px solid #F3F3F3' }} />
+                  <div key={h} style={{ height: ROW_HEIGHT, borderTop: `1px solid ${rowBorder}` }} />
                 ))}
 
                 {dayEvents.map((ev) => {

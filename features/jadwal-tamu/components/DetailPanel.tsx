@@ -18,8 +18,8 @@ export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAt
   if (!event) {
     return (
       <div
-        className="flex-1 min-h-[280px] rounded-xl bg-white dark:bg-dark-surface flex flex-col items-center justify-center px-6 py-8 text-center"
-        style={{ border: '1px solid #EEEEEE' }}
+        className="flex-1 min-h-[280px] rounded-xl bg-white dark:bg-dark-surface border border-[#EEEEEE] dark:border-dark-border flex flex-col items-center justify-center px-6 py-8 text-center"
+        
       >
         <EmptyIllustration />
         <p className="text-sm font-semibold text-neutral-black dark:text-dark-text-primary mt-4">Belum ada acara dipilih</p>
@@ -33,7 +33,7 @@ export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAt
   const pastel = pastelFor(event.tipeKegiatan, tipeColorMap);
 
   return (
-    <div className="flex-1 rounded-xl bg-white dark:bg-dark-surface p-4 flex flex-col gap-3 overflow-y-auto" style={{ border: '1px solid #EEEEEE' }}>
+    <div className="flex-1 rounded-xl bg-white dark:bg-dark-surface border border-[#EEEEEE] dark:border-dark-border p-4 flex flex-col gap-3 overflow-y-auto">
       <div>
         <span
           className="inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold mb-2"
@@ -56,14 +56,14 @@ export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAt
       {event.attachmentUrl && (
         <button
           onClick={() => onViewAttachment(event)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light hover:bg-green-light dark:bg-dark-brand-light/70 transition-colors mt-1"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light hover:bg-green-light dark:hover:bg-dark-brand-light/70 transition-colors mt-1"
         >
           <FileText size={16} />
           Lihat Detail Surat
         </button>
       )}
 
-      <div className="mt-auto pt-3" style={{ borderTop: '1px solid #F3F3F3' }}>
+      <div className="mt-auto pt-3 border-t border-[#F3F3F3] dark:border-dark-border">
         <p className="text-[11px] text-neutral-gray dark:text-dark-text-secondary">
           Ditambahkan oleh <span className="font-medium">{event.createdByUsername ?? '-'}</span>
           {event.updatedByUsername && event.updatedByUsername !== event.createdByUsername && (
@@ -75,7 +75,7 @@ export default function DetailPanel({ event, canEdit, onEdit, onDelete, onViewAt
           <div className="flex gap-2 mt-3">
             <button
               onClick={() => onEdit(event)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light hover:bg-green-light dark:bg-dark-brand-light/70 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light hover:bg-green-light dark:hover:bg-dark-brand-light/70 transition-colors"
             >
               <Pencil size={14} /> Edit
             </button>

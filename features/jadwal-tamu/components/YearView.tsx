@@ -42,8 +42,7 @@ export default function YearView({ anchorDate, events, onSelectMonth }: YearView
           <button
             key={month.toISOString()}
             onClick={() => onSelectMonth(month)}
-            className="text-left p-3 rounded-xl hover:shadow-card transition-shadow bg-white dark:bg-dark-surface"
-            style={{ border: '1px solid #EEEEEE' }}
+            className="text-left p-3 rounded-xl hover:shadow-card transition-shadow bg-white dark:bg-dark-surface border border-[#EEEEEE] dark:border-dark-border"
           >
             <div className="text-sm font-bold text-neutral-black dark:text-dark-text-primary mb-2 capitalize" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               {format(month, 'MMMM', { locale: localeId })}

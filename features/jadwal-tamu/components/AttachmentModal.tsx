@@ -47,7 +47,7 @@ export default function AttachmentModal({ event, onClose }: AttachmentModalProps
             </h2>
             <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-0.5">{event.attachmentFilename ?? 'Lampiran'}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
             <X size={18} />
           </button>
         </div>
@@ -73,7 +73,7 @@ export default function AttachmentModal({ event, onClose }: AttachmentModalProps
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors"
             >
               <ExternalLink size={16} />
               Buka Link Drive

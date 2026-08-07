@@ -72,7 +72,7 @@ export default function InputTamuUmum() {
 
       <button
         onClick={() => router.push(ROUTES["input-tamu"])}
-        className="flex items-center gap-2 text-base text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary mb-6 transition-colors self-start"
+        className="flex items-center gap-2 text-base text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:hover:text-dark-text-primary mb-6 transition-colors self-start"
       >
         <ArrowLeft size={18} /> Kembali
       </button>

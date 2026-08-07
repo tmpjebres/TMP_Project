@@ -40,7 +40,7 @@ export default function InputTamu() {
             href={ROUTES[card.page]}
             className="group block bg-white dark:bg-dark-surface rounded-2xl text-left transition-all duration-200 cursor-pointer p-10
               border-2 border-[rgba(221,221,221,0.6)] shadow-sm
-              hover:border-green-primary dark:border-dark-brand-primary hover:shadow-card-hover hover:-translate-y-0.5"
+              hover:border-green-primary dark:hover:border-dark-brand-primary hover:shadow-card-hover hover:-translate-y-0.5"
           >
             <div className="w-16 h-16 bg-green-light dark:bg-dark-brand-light rounded-2xl flex items-center justify-center mb-6 transition-transform duration-200 group-hover:scale-110">
               <card.icon size={30} className="text-green-primary dark:text-dark-brand-accent" />

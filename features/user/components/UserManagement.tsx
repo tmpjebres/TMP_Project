@@ -133,12 +133,12 @@ export default function UserManagement() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border
-                bg-white dark:bg-dark-surface focus:border-green-accent dark:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:ring-dark-brand-light outline-none transition-colors"
+                bg-white dark:bg-dark-surface focus:border-green-accent dark:focus:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:focus:ring-dark-brand-light outline-none transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:text-dark-text-secondary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:hover:text-dark-text-secondary"
               >
                 <X size={14} />
               </button>
@@ -150,7 +150,7 @@ export default function UserManagement() {
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value as "all" | Role)}
               className="appearance-none pl-3.5 pr-9 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border
-                bg-white dark:bg-dark-surface focus:border-green-accent dark:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:ring-dark-brand-light outline-none transition-colors
+                bg-white dark:bg-dark-surface focus:border-green-accent dark:focus:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:focus:ring-dark-brand-light outline-none transition-colors
                 cursor-pointer"
             >
               <option value="all">Semua Role</option>

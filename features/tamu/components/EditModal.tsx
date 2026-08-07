@@ -23,7 +23,7 @@ export default function EditModal({ tamu, onSave, onClose }: EditModalProps) {
           <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 20, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">
             Edit Tamu
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg">
+          <button onClick={onClose} className="p-2 hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover rounded-lg">
             <X size={20} />
           </button>
         </div>

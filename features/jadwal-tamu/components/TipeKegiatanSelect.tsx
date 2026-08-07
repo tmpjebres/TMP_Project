@@ -51,7 +51,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
             type="button"
             onClick={handleConfirmNew}
             disabled={busy}
-            className="px-3 py-2.5 rounded-lg bg-green-primary dark:bg-dark-brand-secondary text-white text-xs font-semibold hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors disabled:opacity-60"
+            className="px-3 py-2.5 rounded-lg bg-green-primary dark:bg-dark-brand-secondary text-white text-xs font-semibold hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors disabled:opacity-60"
           >
             {busy ? '...' : 'Tambah'}
           </button>
@@ -62,7 +62,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
               setNewValue('');
               setError(null);
             }}
-            className="p-2.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary"
+            className="p-2.5 rounded-lg hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary"
           >
             <X size={16} />
           </button>
@@ -72,7 +72,9 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
           .input-field-plain {
             padding: 0.625rem 0.75rem;
             border-radius: 0.5rem;
-            border: 1px solid #dddddd;
+            border: 1px solid var(--border-subtle);
+            background-color: var(--surface);
+            color: var(--text-primary);
             font-size: 0.875rem;
             outline: none;
           }
@@ -94,7 +96,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
             type="button"
             onClick={() => onChange(tipe.nama)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              active ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : 'bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
+              active ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : 'bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent'
             }`}
           >
             {tipe.nama}
@@ -104,8 +106,8 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
       <button
         type="button"
         onClick={() => setAddingNew(true)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent hover:border-green-primary dark:border-dark-brand-primary transition-colors"
-        style={{ borderColor: '#DDDDDD' }}
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent hover:border-green-primary dark:hover:border-dark-brand-primary transition-colors"
+        style={{ borderColor: 'var(--border-subtle)' }}
       >
         <Plus size={13} />
         Tipe Baru

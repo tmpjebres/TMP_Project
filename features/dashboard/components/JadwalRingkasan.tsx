@@ -23,7 +23,7 @@ function JadwalRow({ item, onClick }: { item: JadwalTamu; onClick?: () => void }
     <div
       onClick={onClick}
       className={`flex items-start gap-3 py-2.5 border-b last:border-b-0 ${
-        onClick ? 'cursor-pointer rounded-lg px-2 -mx-2 transition-colors hover:bg-green-light dark:bg-dark-brand-light/40' : ''
+        onClick ? 'cursor-pointer rounded-lg px-2 -mx-2 transition-colors hover:bg-green-light dark:hover:bg-dark-brand-light/40' : ''
       }`}
       style={{ borderColor: 'rgba(221,221,221,0.5)' }}
     >
@@ -165,7 +165,7 @@ export default function JadwalRingkasan({
               <h3 className="font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 Semua Jadwal — {periodLabel}
               </h3>
-              <button onClick={() => setShowAll(false)} className="text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary">
+              <button onClick={() => setShowAll(false)} className="text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:hover:text-dark-text-primary">
                 <X size={20} />
               </button>
             </div>

@@ -22,7 +22,7 @@ export default function SortableHeader({
     <th style={{ fontSize: 14 }}>
       <button
         onClick={() => onSort(sortKey)}
-        className="flex items-center gap-1 font-semibold hover:text-neutral-black dark:text-dark-text-primary transition-colors"
+        className="flex items-center gap-1 font-semibold hover:text-neutral-black dark:hover:text-dark-text-primary transition-colors"
       >
         {label}
         {isActive ? (

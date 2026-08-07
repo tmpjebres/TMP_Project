@@ -78,7 +78,7 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               value.view === opt.value
                 ? 'bg-white dark:bg-dark-surface text-green-primary dark:text-dark-brand-accent shadow-sm'
-                : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
+                : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent'
             }`}
           >
             {opt.label}

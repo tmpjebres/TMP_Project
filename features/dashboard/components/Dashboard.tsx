@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/context/auth-context";
+import { useTheme } from "@/lib/context/theme-context";
 import { Database, Users, Grid3x3, UserSquare2, FileDown } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -24,6 +25,11 @@ const BLOK_COLORS = [
   "#74C69D", "#95D5B2", "#B7E4C7", "#D8F3DC",
 ];
 
+const BLOK_COLORS_DARK = [
+  "#52B788", "#74C69D", "#95D5B2", "#B7E4C7",
+  "#D8F3DC", "#40916C", "#2D6A4F", "#95D5B2",
+];
+
 const PREV_LABEL: Record<PeriodSelection["view"], string> = {
   minggu: "minggu lalu",
   bulan: "bulan lalu",
@@ -36,6 +42,16 @@ const emptyStats: TamuPeriodStats = {
 
 export default function Dashboard() {
   const { isMaster, session } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const chartAxisColor = isDark ? "#9FADA8" : "#666666";
+  const chartGridColor = isDark ? "#28332F" : "#EEEEEE";
+  const chartLabelColor = isDark ? "#EBEFED" : "#222222";
+  const chartTooltipStyle = isDark
+    ? { borderRadius: 10, border: "1px solid #28332F", background: "#161E1B", color: "#EBEFED", fontSize: 14, fontWeight: 500 }
+    : { borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 };
+  const areaUmumColor = isDark ? "#7BC4B8" : "#2D6A4F";
+  const areaRombonganColor = isDark ? "#5FA69C" : "#1B4332";
 
   const [period, setPeriod] = useState<PeriodSelection>(() => {
     const now = new Date();
@@ -221,7 +237,7 @@ export default function Dashboard() {
             <button
               onClick={handleExportDashboardPdf}
               disabled={exportingPdf || cardsBusy}
-              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black dark:text-dark-text-primary border rounded-lg px-3 py-1.5 hover:bg-neutral-50 dark:bg-dark-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black dark:text-dark-text-primary border rounded-lg px-3 py-1.5 hover:bg-neutral-50 dark:hover:bg-dark-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               style={{ borderColor: "rgba(221,221,221,0.8)" }}
               title="Export seluruh ringkasan dashboard ke PDF"
             >
@@ -305,19 +321,19 @@ export default function Dashboard() {
                   <AreaChart data={currentStats.chartData} margin={{ top: 24, right: 8, left: -10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradUmum" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2D6A4F" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#2D6A4F" stopOpacity={0} />
+                        <stop offset="5%" stopColor={areaUmumColor} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={areaUmumColor} stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradRombongan" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1B4332" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#1B4332" stopOpacity={0} />
+                        <stop offset="5%" stopColor={areaRombonganColor} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={areaRombonganColor} stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 12, fontWeight: 500 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} allowDecimals={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: chartAxisColor, fontSize: 12, fontWeight: 500 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: chartAxisColor, fontSize: 13 }} allowDecimals={false} />
                     <Tooltip
-                      contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 }}
+                      contentStyle={chartTooltipStyle}
                       formatter={(value: number, name: string, entry: any) => {
                         if (entry?.dataKey === "rombongan") {
                           const peserta = entry?.payload?.pesertaRombongan ?? 0;
@@ -326,13 +342,13 @@ export default function Dashboard() {
                         return [`${value} kunjungan`, name];
                       }}
                     />
-                    <Area type="monotone" dataKey="umum" stackId="1" stroke="#2D6A4F" strokeWidth={2} fill="url(#gradUmum)" name="Tamu Umum" />
-                    <Area type="monotone" dataKey="rombongan" stackId="1" stroke="#1B4332" strokeWidth={2} fill="url(#gradRombongan)" name="Tamu Rombongan">
+                    <Area type="monotone" dataKey="umum" stackId="1" stroke={areaUmumColor} strokeWidth={2} fill="url(#gradUmum)" name="Tamu Umum" />
+                    <Area type="monotone" dataKey="rombongan" stackId="1" stroke={areaRombonganColor} strokeWidth={2} fill="url(#gradRombongan)" name="Tamu Rombongan">
                       <LabelList
                         dataKey="kunjungan"
                         position="top"
                         formatter={(value: number) => (value === 0 ? "" : String(value))}
-                        style={{ fontSize: 11, fontWeight: 700, fill: "#2D6A4F" }}
+                        style={{ fontSize: 11, fontWeight: 700, fill: areaUmumColor }}
                       />
                     </Area>
                   </AreaChart>
@@ -365,20 +381,20 @@ export default function Dashboard() {
                 <>
                   <ResponsiveContainer width="100%" height={240}>
                     <BarChart data={blokData} layout="vertical" margin={{ top: 4, right: 64, left: 8, bottom: 4 }} barSize={30}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#EEEEEE" horizontal={false} />
-                      <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 13 }} domain={[0, Math.max(...blokData.map(d => d.kapasitas), 10) + 15]} />
-                      <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#222", fontSize: 15, fontWeight: 600 }} width={60} />
-                      <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #EEE", fontSize: 14 }} formatter={(v: number) => [v, "Terisi"]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} horizontal={false} />
+                      <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: chartAxisColor, fontSize: 13 }} domain={[0, Math.max(...blokData.map(d => d.kapasitas), 10) + 15]} />
+                      <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: chartLabelColor, fontSize: 15, fontWeight: 600 }} width={60} />
+                      <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v, "Terisi"]} />
                       <Bar dataKey="terisi" name="Terisi" radius={[0, 6, 6, 0]}>
-                        {blokData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                        <LabelList dataKey="terisi" position="right" style={{ fontSize: 14, fontWeight: 700, fill: "#333" }} />
+                        {blokData.map((entry, i) => <Cell key={i} fill={isDark ? (BLOK_COLORS_DARK[BLOK_COLORS.indexOf(entry.color)] ?? entry.color) : entry.color} />)}
+                        <LabelList dataKey="terisi" position="right" style={{ fontSize: 14, fontWeight: 700, fill: chartLabelColor }} />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                   <div className="mt-4 grid grid-cols-2 gap-2 w-full">
                     {blokData.map((b, i) => (
                       <div key={b.name} className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: b.color }} />
+                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: isDark ? (BLOK_COLORS_DARK[BLOK_COLORS.indexOf(b.color)] ?? b.color) : b.color }} />
                         <span className="text-sm font-medium text-neutral-gray dark:text-dark-text-secondary">
                           {b.name}: <strong className="text-neutral-black dark:text-dark-text-primary">{b.terisi}</strong>/{b.kapasitas}
                         </span>

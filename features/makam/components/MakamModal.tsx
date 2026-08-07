@@ -187,7 +187,7 @@ export function MakamModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
+            className="p-2 hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover rounded-lg transition-colors"
             aria-label="Tutup modal"
           >
             <X size={20} />

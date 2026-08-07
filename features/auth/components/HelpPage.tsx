@@ -104,7 +104,7 @@ export default function HelpPage() {
         <div className="w-full max-w-lg">
           <Link
             href={LOGIN_ROUTE}
-            className="inline-flex items-center gap-1.5 font-body text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors mb-8 opacity-0 animate-fade-in"
+            className="inline-flex items-center gap-1.5 font-body text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent transition-colors mb-8 opacity-0 animate-fade-in"
           >
             <ArrowLeft size={16} />
             Kembali ke halaman masuk
@@ -137,7 +137,7 @@ export default function HelpPage() {
                   className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-left font-body text-sm transition-all duration-200
                     ${active
                       ? "bg-green-primary dark:bg-dark-brand-secondary text-white border-green-primary dark:border-dark-brand-primary shadow-card"
-                      : "bg-green-light dark:bg-dark-brand-light/40 backdrop-blur-md border-green-light dark:border-dark-brand-light/80 text-neutral-black dark:text-dark-text-primary hover:bg-green-light dark:bg-dark-brand-light/70"
+                      : "bg-green-light dark:bg-dark-brand-light/40 backdrop-blur-md border-green-light dark:border-dark-brand-light/80 text-neutral-black dark:text-dark-text-primary hover:bg-green-light dark:hover:bg-dark-brand-light/70"
                     }`}
                 >
                   <Icon size={16} className={active ? "text-white shrink-0" : "text-green-accent dark:text-dark-brand-accent shrink-0"} />
@@ -159,7 +159,7 @@ export default function HelpPage() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-body font-medium text-green-primary dark:text-dark-brand-accent bg-white dark:bg-dark-surface/70 border border-green-light dark:border-dark-brand-light hover:bg-white dark:bg-dark-surface transition-colors"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-body font-medium text-green-primary dark:text-dark-brand-accent bg-white dark:bg-dark-surface/70 border border-green-light dark:border-dark-brand-light hover:bg-white dark:hover:bg-dark-surface transition-colors"
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? "Tersalin" : "Salin"}
@@ -169,7 +169,7 @@ export default function HelpPage() {
 
           <a
             href={mailtoHref}
-            className="opacity-0 animate-fade-in [animation-delay:0.4s] w-full flex items-center justify-center gap-2 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200"
+            className="opacity-0 animate-fade-in [animation-delay:0.4s] w-full flex items-center justify-center gap-2 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:hover:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200"
           >
             <Send size={18} />
             Buka draf email — {current.label}

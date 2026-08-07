@@ -58,7 +58,7 @@ export function BlokModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg"
+            className="p-2 hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover rounded-lg"
           >
             <X size={20} />
           </button>

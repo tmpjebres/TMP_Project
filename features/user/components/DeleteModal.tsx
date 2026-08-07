@@ -53,7 +53,7 @@ export function DeleteModal({
             onClick={onClose}
             disabled={loading}
             className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200 dark:border-dark-border
-              text-neutral-600 dark:text-dark-text-secondary hover:bg-neutral-50 dark:bg-dark-surface-hover transition-colors disabled:opacity-50"
+              text-neutral-600 dark:text-dark-text-secondary hover:bg-neutral-50 dark:hover:bg-dark-surface-hover transition-colors disabled:opacity-50"
           >
             Batal
           </button>

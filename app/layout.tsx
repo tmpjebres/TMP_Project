@@ -20,6 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
+        {/* Blocking script: pasang class "dark" sebelum paint pertama supaya
+            tidak ada flash terang→gelap saat reload di mode gelap. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body suppressHydrationWarning>

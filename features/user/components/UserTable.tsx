@@ -70,7 +70,7 @@ export function UserTable({
         </thead>
         <tbody className="divide-y divide-neutral-50 dark:divide-dark-border">
           {users.map((u) => (
-            <tr key={u.id} className="relative hover:bg-neutral-50 dark:bg-dark-surface-hover/80 transition-colors group">
+            <tr key={u.id} className="relative hover:bg-neutral-50 dark:hover:bg-dark-surface-hover/80 transition-colors group">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
                   <span
@@ -109,7 +109,7 @@ export function UserTable({
                     <Link
                       href={`/user-management/${u.id}`}
                       title="Lihat log aktivitas"
-                      className="p-1.5 rounded-lg hover:bg-green-light dark:bg-dark-brand-light text-neutral-400 dark:text-dark-text-muted hover:text-green-primary dark:text-dark-brand-accent transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-green-light dark:hover:bg-dark-brand-light text-neutral-400 dark:text-dark-text-muted hover:text-green-primary dark:hover:text-dark-brand-accent transition-colors"
                     >
                       <History size={15} />
                     </Link>

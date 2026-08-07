@@ -131,17 +131,17 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
         onSubmit={handleSubmit}
         className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
       >
-        <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid #EEEEEE' }}>
+        <div className="flex items-center justify-between p-5 border-b border-[#EEEEEE] dark:border-dark-border">
           <h2 className="text-base font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             {isEdit ? 'Edit Jadwal Tamu' : 'Tambah Jadwal Tamu'}
           </h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
             <X size={18} />
           </button>
         </div>
 
         {formError && (
-          <div className="flex items-start gap-2 px-5 py-3 bg-red-50" style={{ borderBottom: '1px solid #F3D1CC' }}>
+          <div className="flex items-start gap-2 px-5 py-3 bg-red-50 dark:bg-red-950/40 border-b border-[#F3D1CC] dark:border-red-900/50">
             <AlertCircle size={16} className="text-status-danger flex-shrink-0 mt-0.5" />
             <p className="text-sm text-status-danger font-medium">{formError}</p>
           </div>
@@ -227,7 +227,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
                     setFileError(null);
                   }}
                   className={`flex-1 px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                    attachmentMode === mode ? 'bg-white dark:bg-dark-surface text-green-primary dark:text-dark-brand-accent shadow-sm' : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
+                    attachmentMode === mode ? 'bg-white dark:bg-dark-surface text-green-primary dark:text-dark-brand-accent shadow-sm' : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:hover:text-dark-brand-accent'
                   }`}
                 >
                   {mode === 'none' ? 'Tanpa' : mode === 'pdf' ? 'PDF' : mode === 'image' ? 'Gambar' : 'Link Drive'}
@@ -236,7 +236,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
             </div>
 
             {(attachmentMode === 'pdf' || attachmentMode === 'image') && (
-              <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm text-neutral-gray dark:text-dark-text-secondary hover:bg-neutral-light-gray dark:bg-dark-surface-hover transition-colors" style={{ border: '1px dashed #DDDDDD' }}>
+              <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm text-neutral-gray dark:text-dark-text-secondary hover:bg-neutral-light-gray dark:hover:bg-dark-surface-hover transition-colors" style={{ border: '1px dashed var(--border-subtle)' }}>
                 <Paperclip size={16} />
                 {attachmentFile ? attachmentFile.name : isEdit && initial?.attachmentFilename ? `Ganti file (saat ini: ${initial.attachmentFilename})` : 'Pilih file (maks 1 MB)'}
                 <input
@@ -249,13 +249,13 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
             )}
 
             {attachmentMode === 'link' && (
-              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ border: '1px solid #DDDDDD' }}>
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ border: '1px solid var(--border-subtle)' }}>
                 <Link2 size={16} className="text-neutral-gray dark:text-dark-text-secondary flex-shrink-0" />
                 <input
                   value={attachmentLink}
                   onChange={(e) => setAttachmentLink(e.target.value)}
                   placeholder="https://drive.google.com/..."
-                  className="flex-1 text-sm outline-none"
+                  className="flex-1 text-sm outline-none bg-transparent text-text-primary"
                 />
               </div>
             )}
@@ -264,11 +264,11 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
           </Field>
         </div>
 
-        <div className="flex gap-3 p-5" style={{ borderTop: '1px solid #EEEEEE' }}>
+        <div className="flex gap-3 p-5 border-t border-[#EEEEEE] dark:border-dark-border">
           <button
             type="submit"
             disabled={submitting}
-            className="flex-1 px-6 py-3 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors disabled:opacity-60"
+            className="flex-1 px-6 py-3 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:hover:bg-dark-brand-primary transition-colors disabled:opacity-60"
           >
             {submitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambah Jadwal'}
           </button>
@@ -282,7 +282,9 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
             width: 100%;
             padding: 0.625rem 0.75rem;
             border-radius: 0.5rem;
-            border: 1px solid #dddddd;
+            border: 1px solid var(--border-subtle);
+            background-color: var(--surface);
+            color: var(--text-primary);
             font-size: 0.875rem;
             outline: none;
           }
