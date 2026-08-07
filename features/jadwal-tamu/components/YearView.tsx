@@ -42,15 +42,15 @@ export default function YearView({ anchorDate, events, onSelectMonth }: YearView
           <button
             key={month.toISOString()}
             onClick={() => onSelectMonth(month)}
-            className="text-left p-3 rounded-xl hover:shadow-card transition-shadow bg-white"
+            className="text-left p-3 rounded-xl hover:shadow-card transition-shadow bg-white dark:bg-dark-surface"
             style={{ border: '1px solid #EEEEEE' }}
           >
-            <div className="text-sm font-bold text-neutral-black mb-2 capitalize" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <div className="text-sm font-bold text-neutral-black dark:text-dark-text-primary mb-2 capitalize" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               {format(month, 'MMMM', { locale: localeId })}
             </div>
             <div className="grid grid-cols-7 gap-y-0.5">
               {HARI.map((h, i) => (
-                <span key={i} className="text-[9px] text-neutral-gray text-center">{h}</span>
+                <span key={i} className="text-[9px] text-neutral-gray dark:text-dark-text-secondary text-center">{h}</span>
               ))}
               {days.map((day, idx) => {
                 const inMonth = isSameMonth(day, month);
@@ -60,7 +60,7 @@ export default function YearView({ anchorDate, events, onSelectMonth }: YearView
                   <span
                     key={idx}
                     className={`relative text-[9px] text-center rounded-full w-5 h-5 flex items-center justify-center mx-auto ${
-                      isToday ? 'bg-green-primary text-white' : inMonth ? 'text-neutral-black' : 'text-neutral-gray/40'
+                      isToday ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : inMonth ? 'text-neutral-black dark:text-dark-text-primary' : 'text-neutral-gray dark:text-dark-text-secondary/40'
                     }`}
                   >
                     {format(day, 'd')}

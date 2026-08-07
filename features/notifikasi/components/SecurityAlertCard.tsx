@@ -18,7 +18,7 @@ export default function SecurityAlertCard({ alert, active, onSelect, onMarkRead 
   return (
     <button
       onClick={onSelect}
-      className="w-full flex gap-3 p-3.5 rounded-xl bg-white text-left transition-colors hover:shadow-card"
+      className="w-full flex gap-3 p-3.5 rounded-xl bg-white dark:bg-dark-surface text-left transition-colors hover:shadow-card"
       style={{ border: active ? '1.5px solid #3D7A73' : alert.isRead ? '1px solid #EEEEEE' : '1px solid #F0A396' }}
     >
       <span className="p-1.5 rounded-full bg-red-50 text-status-danger flex-shrink-0 h-fit">
@@ -26,10 +26,10 @@ export default function SecurityAlertCard({ alert, active, onSelect, onMarkRead 
       </span>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-neutral-black leading-snug">
+        <p className="text-sm font-bold text-neutral-black dark:text-dark-text-primary leading-snug">
           {alert.attemptCount}x login gagal &mdash; {alert.username}
         </p>
-        <p className="text-xs text-neutral-gray mt-1">{format(start, 'd MMM yyyy, HH:mm', { locale: localeId })}</p>
+        <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-1">{format(start, 'd MMM yyyy, HH:mm', { locale: localeId })}</p>
       </div>
 
       {!alert.isRead && (
@@ -41,7 +41,7 @@ export default function SecurityAlertCard({ alert, active, onSelect, onMarkRead 
             onMarkRead();
           }}
           title="Tandai sudah ditinjau"
-          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray hover:text-green-primary hover:bg-green-light transition-colors"
+          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent hover:bg-green-light dark:bg-dark-brand-light transition-colors"
         >
           <Check size={14} />
         </span>

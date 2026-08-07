@@ -230,7 +230,7 @@ export default function NotFound() {
         >
           404
         </h1>
-        <p className="max-w-md text-neutral-300/80 mb-2">
+        <p className="max-w-md text-neutral-300 dark:text-dark-text-muted/80 mb-2">
           Halaman yang kamu cari sudah pindah, dihapus, atau memang belum pernah ada.
         </p>
         <Link

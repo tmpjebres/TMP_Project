@@ -122,10 +122,10 @@ export default function DaftarTamu() {
   return (
     <div className="animate-fade-in flex flex-col min-h-[calc(100vh-8rem)]">
       <div className="mb-6">
-        <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 28, fontWeight: 800 }} className="text-neutral-black">
+        <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 28, fontWeight: 800 }} className="text-neutral-black dark:text-dark-text-primary">
           Daftar Tamu
         </h1>
-        <p className="text-base text-neutral-gray mt-1">Riwayat dan manajemen data kunjungan</p>
+        <p className="text-base text-neutral-gray dark:text-dark-text-secondary mt-1">Riwayat dan manajemen data kunjungan</p>
       </div>
 
       {actionError && (
@@ -134,10 +134,10 @@ export default function DaftarTamu() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl p-4 mb-5" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
+      <div className="bg-white dark:bg-dark-surface rounded-xl p-4 mb-5" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray dark:text-dark-text-secondary" size={18} />
             <input className="form-input pl-10 text-base" placeholder="Cari nama, instansi, atau tujuan..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <select className="form-input text-base" style={{ width: "auto" }} value={filterJenis} onChange={(e) => setFilterJenis(e.target.value as "semua" | "umum" | "rombongan")}>
@@ -154,7 +154,7 @@ export default function DaftarTamu() {
               max={filterTanggalSampai || undefined}
               onChange={(e) => setFilterTanggalMulai(e.target.value)}
             />
-            <span className="text-neutral-gray text-sm">s/d</span>
+            <span className="text-neutral-gray dark:text-dark-text-secondary text-sm">s/d</span>
             <input
               type="date"
               className="form-input text-base"
@@ -167,7 +167,7 @@ export default function DaftarTamu() {
           {(filterTanggalMulai || filterTanggalSampai) && (
             <button
               onClick={() => { setFilterTanggalMulai(""); setFilterTanggalSampai(""); }}
-              className="text-sm text-neutral-gray hover:text-neutral-black flex items-center gap-1 font-medium"
+              className="text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary flex items-center gap-1 font-medium"
             >
               <X size={16} /> Reset tanggal
             </button>
@@ -175,7 +175,7 @@ export default function DaftarTamu() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl overflow-hidden flex flex-col flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
+      <div className="bg-white dark:bg-dark-surface rounded-xl overflow-hidden flex flex-col flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         {loading ?
         <LoadingSpinner/> : (
           <div className="overflow-x-auto">
@@ -195,7 +195,7 @@ export default function DaftarTamu() {
               <tbody>
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-12 text-neutral-gray text-base">
+                    <td colSpan={8} className="text-center py-12 text-neutral-gray dark:text-dark-text-secondary text-base">
                       Tidak ada data ditemukan.
                     </td>
                   </tr>
@@ -217,7 +217,7 @@ export default function DaftarTamu() {
                           {t.fotoUrl ? (
                             <button
                               onClick={() => setPhotoPreview(t.fotoUrl ?? null)}
-                              className="group relative w-10 h-10 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-all hover:shadow-md"
+                              className="group relative w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-dark-border hover:border-blue-400 transition-all hover:shadow-md"
                               title="Lihat foto"
                             >
                               <img
@@ -230,8 +230,8 @@ export default function DaftarTamu() {
                               </div>
                             </button>
                           ) : (
-                            <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 border border-gray-200" title="Tidak ada foto">
-                              <ImageOff size={16} className="text-gray-300" />
+                            <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 dark:bg-dark-surface-hover border border-gray-200 dark:border-dark-border" title="Tidak ada foto">
+                              <ImageOff size={16} className="text-gray-300 dark:text-dark-text-muted" />
                             </span>
                           )}
                         </div>
@@ -257,7 +257,7 @@ export default function DaftarTamu() {
         )}
       </div>
 
-      <div className="px-4 py-3 flex items-center justify-between text-base text-neutral-gray font-medium border-t border-gray-200/50">
+      <div className="px-4 py-3 flex items-center justify-between text-base text-neutral-gray dark:text-dark-text-secondary font-medium border-t border-gray-200 dark:border-dark-border/50">
         <span>Menampilkan {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} dari {filtered.length} data</span>
         {totalPages > 1 && (
           <div className="flex items-center gap-2">

@@ -13,7 +13,7 @@ export function SectionLoading({
   return (
     <div className="flex flex-col items-center justify-center py-10 gap-4 w-full" role="status" aria-live="polite">
       <SkeletonIllustration variant={variant} />
-      <p className="text-sm text-neutral-gray animate-pulse">{label}</p>
+      <p className="text-sm text-neutral-gray dark:text-dark-text-secondary animate-pulse">{label}</p>
     </div>
   );
 }
@@ -29,9 +29,9 @@ export function SectionEmpty({
     <div className="flex flex-col items-center justify-center py-10 gap-3 text-center w-full">
       <EmptyIllustration />
       <div>
-        <p className="text-sm font-semibold text-neutral-black">{title}</p>
+        <p className="text-sm font-semibold text-neutral-black dark:text-dark-text-primary">{title}</p>
         {description && (
-          <p className="text-xs text-neutral-gray mt-1 max-w-[260px] mx-auto">{description}</p>
+          <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-1 max-w-[260px] mx-auto">{description}</p>
         )}
       </div>
     </div>
@@ -53,16 +53,16 @@ export function SectionError({
     <div className="flex flex-col items-center justify-center py-10 gap-3 text-center w-full">
       <ErrorIllustration />
       <div>
-        <p className="text-sm font-semibold text-neutral-black">{title}</p>
+        <p className="text-sm font-semibold text-neutral-black dark:text-dark-text-primary">{title}</p>
         {description && (
-          <p className="text-xs text-neutral-gray mt-1 max-w-[260px] mx-auto">{description}</p>
+          <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-1 max-w-[260px] mx-auto">{description}</p>
         )}
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
           disabled={retrying}
-          className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-white bg-green-primary rounded-lg px-4 py-2 hover:opacity-90 disabled:opacity-60 transition-opacity"
+          className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-white bg-green-primary dark:bg-dark-brand-secondary rounded-lg px-4 py-2 hover:opacity-90 disabled:opacity-60 transition-opacity"
         >
           <RefreshCw size={14} className={retrying ? 'animate-spin' : ''} />
           {retrying ? 'Mencoba lagi...' : 'Coba lagi'}

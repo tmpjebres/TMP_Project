@@ -90,7 +90,7 @@ export default function HelpPage() {
   };
 
   return (
-    <div className="h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
+    <div className="h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white dark:bg-dark-surface overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
       <div className="h-screen overflow-y-auto flex items-start justify-center px-6 md:px-16 relative py-12">
         <div
           className="pointer-events-none absolute -z-10 w-[620px] h-[620px] rounded-full opacity-[0.18] blur-3xl animate-drift bg-[radial-gradient(circle_at_30%_30%,theme(colors.green.accent)_0%,theme(colors.green.primary)_55%,transparent_75%)]"
@@ -104,21 +104,21 @@ export default function HelpPage() {
         <div className="w-full max-w-lg">
           <Link
             href={LOGIN_ROUTE}
-            className="inline-flex items-center gap-1.5 font-body text-sm text-neutral-gray hover:text-green-primary transition-colors mb-8 opacity-0 animate-fade-in"
+            className="inline-flex items-center gap-1.5 font-body text-sm text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors mb-8 opacity-0 animate-fade-in"
           >
             <ArrowLeft size={16} />
             Kembali ke halaman masuk
           </Link>
 
-          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.05s] text-xs font-semibold tracking-[0.18em] uppercase text-green-accent mb-4">
+          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.05s] text-xs font-semibold tracking-[0.18em] uppercase text-green-accent dark:text-dark-brand-accent mb-4">
             TMP Management System
           </p>
 
-          <h1 className="font-display text-4xl md:text-5xl font-light text-green-primary mb-3 tracking-normal opacity-0 animate-fade-in [animation-delay:0.12s]">
+          <h1 className="font-display text-4xl md:text-5xl font-light text-green-primary dark:text-dark-brand-accent mb-3 tracking-normal opacity-0 animate-fade-in [animation-delay:0.12s]">
             Butuh bantuan?
           </h1>
 
-          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.2s] text-neutral-gray mb-8 leading-relaxed">
+          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.2s] text-neutral-gray dark:text-dark-text-secondary mb-8 leading-relaxed">
             Sistem ini belum melayani permintaan otomatis. Pilih jenis kendala, lalu
             kirim email ke admin — mulai dari lupa kata sandi sampai masalah lainnya.
           </p>
@@ -136,30 +136,30 @@ export default function HelpPage() {
                   aria-pressed={active}
                   className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-left font-body text-sm transition-all duration-200
                     ${active
-                      ? "bg-green-primary text-white border-green-primary shadow-card"
-                      : "bg-green-light/40 backdrop-blur-md border-green-light/80 text-neutral-black hover:bg-green-light/70"
+                      ? "bg-green-primary dark:bg-dark-brand-secondary text-white border-green-primary dark:border-dark-brand-primary shadow-card"
+                      : "bg-green-light dark:bg-dark-brand-light/40 backdrop-blur-md border-green-light dark:border-dark-brand-light/80 text-neutral-black dark:text-dark-text-primary hover:bg-green-light dark:bg-dark-brand-light/70"
                     }`}
                 >
-                  <Icon size={16} className={active ? "text-white shrink-0" : "text-green-accent shrink-0"} />
+                  <Icon size={16} className={active ? "text-white shrink-0" : "text-green-accent dark:text-dark-brand-accent shrink-0"} />
                   <span className="leading-tight">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="opacity-0 animate-fade-in [animation-delay:0.32s] rounded-2xl border bg-green-light/40 backdrop-blur-md border-green-light/80 shadow-card p-5 mb-5">
+          <div className="opacity-0 animate-fade-in [animation-delay:0.32s] rounded-2xl border bg-green-light dark:bg-dark-brand-light/40 backdrop-blur-md border-green-light dark:border-dark-brand-light/80 shadow-card p-5 mb-5">
             <div className="flex items-center gap-3">
-              <div className="shrink-0 w-10 h-10 rounded-xl bg-green-primary/10 flex items-center justify-center text-green-primary">
+              <div className="shrink-0 w-10 h-10 rounded-xl bg-green-primary dark:bg-dark-brand-secondary/10 flex items-center justify-center text-green-primary dark:text-dark-brand-accent">
                 <Mail size={18} />
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <p className="font-body text-xs text-neutral-gray mb-0.5">Kirim permintaan ke</p>
-                <p className="font-body font-medium text-neutral-black truncate">{SUPPORT_EMAIL}</p>
+                <p className="font-body text-xs text-neutral-gray dark:text-dark-text-secondary mb-0.5">Kirim permintaan ke</p>
+                <p className="font-body font-medium text-neutral-black dark:text-dark-text-primary truncate">{SUPPORT_EMAIL}</p>
               </div>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-body font-medium text-green-primary bg-white/70 border border-green-light hover:bg-white transition-colors"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-body font-medium text-green-primary dark:text-dark-brand-accent bg-white dark:bg-dark-surface/70 border border-green-light dark:border-dark-brand-light hover:bg-white dark:bg-dark-surface transition-colors"
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? "Tersalin" : "Salin"}
@@ -169,39 +169,39 @@ export default function HelpPage() {
 
           <a
             href={mailtoHref}
-            className="opacity-0 animate-fade-in [animation-delay:0.4s] w-full flex items-center justify-center gap-2 px-5 py-4 bg-green-primary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200"
+            className="opacity-0 animate-fade-in [animation-delay:0.4s] w-full flex items-center justify-center gap-2 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200"
           >
             <Send size={18} />
             Buka draf email — {current.label}
           </a>
 
-          <p className="opacity-0 animate-fade-in [animation-delay:0.46s] font-body text-xs text-neutral-gray text-center mt-3">
+          <p className="opacity-0 animate-fade-in [animation-delay:0.46s] font-body text-xs text-neutral-gray dark:text-dark-text-secondary text-center mt-3">
             Tombol ini membuka aplikasi email Anda dengan subjek dan isi pesan yang sudah terisi
             sesuai jenis kendala yang dipilih.
           </p>
 
-          <div className="opacity-0 animate-fade-in [animation-delay:0.54s] mt-8 rounded-2xl border border-green-light bg-white p-5 text-left">
+          <div className="opacity-0 animate-fade-in [animation-delay:0.54s] mt-8 rounded-2xl border border-green-light dark:border-dark-brand-light bg-white dark:bg-dark-surface p-5 text-left">
             <div className="flex items-center gap-2 mb-3">
-              <ClipboardList size={16} className="text-green-accent" />
-              <p className="font-body text-sm font-semibold text-green-primary">
+              <ClipboardList size={16} className="text-green-accent dark:text-dark-brand-accent" />
+              <p className="font-body text-sm font-semibold text-green-primary dark:text-dark-brand-accent">
                 Sertakan informasi berikut di email
               </p>
             </div>
-            <ul className="space-y-2 font-body text-sm text-neutral-gray">
+            <ul className="space-y-2 font-body text-sm text-neutral-gray dark:text-dark-text-secondary">
               <li className="flex gap-2">
-                <span className="text-green-accent">•</span>
+                <span className="text-green-accent dark:text-dark-brand-accent">•</span>
                 Nama pengguna (username) akun Anda
               </li>
               <li className="flex gap-2">
-                <span className="text-green-accent">•</span>
+                <span className="text-green-accent dark:text-dark-brand-accent">•</span>
                 Nama lengkap dan jabatan / unit kerja
               </li>
               <li className="flex gap-2">
-                <span className="text-green-accent">•</span>
+                <span className="text-green-accent dark:text-dark-brand-accent">•</span>
                 Deskripsi singkat kendala yang dialami, termasuk pesan error jika ada
               </li>
             </ul>
-            <p className="font-body text-xs text-neutral-gray mt-4 pt-4 border-t border-green-light">
+            <p className="font-body text-xs text-neutral-gray dark:text-dark-text-secondary mt-4 pt-4 border-t border-green-light dark:border-dark-brand-light">
               Admin akan membalas melalui email yang sama. Proses biasanya selesai dalam
               1×24 jam kerja.
             </p>

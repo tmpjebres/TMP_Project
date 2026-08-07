@@ -80,7 +80,7 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
           Database sedang beristirahat
         </h1>
 
-        <p className="max-w-lg text-neutral-300/80 mb-8">
+        <p className="max-w-lg text-neutral-300 dark:text-dark-text-muted/80 mb-8">
           Project database kami di-pause sementara karena tidak ada aktivitas.
           Ini normal, dan biasanya aktif kembali otomatis dalam beberapa detik
           begitu ada yang mengaksesnya. Halaman ini akan mencoba lagi sendiri
@@ -108,13 +108,13 @@ export default function ServicePausedView({ onRetry }: { onRetry?: () => void })
 
           <Link
             href={LOGIN_ROUTE}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-neutral-200 border border-white/15 hover:border-teal-300/40 hover:text-white transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-neutral-200 dark:text-dark-text-muted border border-white/15 hover:border-teal-300/40 hover:text-white transition-all"
           >
             Kembali ke halaman masuk
           </Link>
         </div>
 
-        <p className="text-xs text-neutral-500 mt-8 max-w-sm">
+        <p className="text-xs text-neutral-500 dark:text-dark-text-secondary mt-8 max-w-sm">
           Kalau masalah ini terus berlanjut lebih dari beberapa menit, hubungi
           tim teknis untuk mengaktifkan kembali project database secara manual.
         </p>

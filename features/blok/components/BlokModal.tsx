@@ -44,7 +44,7 @@ export function BlokModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
         <div className="flex items-center justify-between mb-6">
           <h2
             style={{
@@ -52,20 +52,20 @@ export function BlokModal({
               fontSize: 20,
               fontWeight: 700,
             }}
-            className="text-neutral-black"
+            className="text-neutral-black dark:text-dark-text-primary"
           >
             {initial ? "Edit Blok" : "Tambah Blok"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray rounded-lg"
+            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg"
           >
             <X size={20} />
           </button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
           <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">
+            <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
               Nama Blok
             </label>
             <input
@@ -80,7 +80,7 @@ export function BlokModal({
             />
           </div>
           <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">
+            <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
               Kapasitas
             </label>
             <input

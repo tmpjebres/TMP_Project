@@ -16,7 +16,7 @@ export function PaginationBar({ page, setPage, total, pageSize }: Props) {
       <button
         disabled={page === 1}
         onClick={() => setPage(page - 1)}
-        className="px-3 py-1 border rounded disabled:opacity-40 text-sm hover:bg-neutral-light-gray transition-colors"
+        className="px-3 py-1 border rounded disabled:opacity-40 text-sm hover:bg-neutral-light-gray dark:bg-dark-surface-hover transition-colors"
       >
         Prev
       </button>
@@ -26,7 +26,7 @@ export function PaginationBar({ page, setPage, total, pageSize }: Props) {
       <button
         disabled={page === totalPages}
         onClick={() => setPage(page + 1)}
-        className="px-3 py-1 border rounded disabled:opacity-40 text-sm hover:bg-neutral-light-gray transition-colors"
+        className="px-3 py-1 border rounded disabled:opacity-40 text-sm hover:bg-neutral-light-gray dark:bg-dark-surface-hover transition-colors"
       >
         Next
       </button>

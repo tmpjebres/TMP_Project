@@ -34,6 +34,35 @@ module.exports = {
           warning: '#FFC107',
           danger: '#DC3545',
         },
+        surface: {
+          DEFAULT: 'var(--surface)',
+          hover: 'var(--surface-hover)',
+          sunken: 'var(--surface-sunken)',
+        },
+        canvas: 'var(--canvas)',
+        'border-subtle': 'var(--border-subtle)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
+        dark: {
+          canvas: '#0F1512',
+          surface: '#161E1B',
+          'surface-hover': '#1D2724',
+          'surface-sunken': '#0C1210',
+          border: '#28332F',
+          'text-primary': '#EBEFED',
+          'text-secondary': '#9FADA8',
+          'text-muted': '#71827C',
+          'brand-primary': '#5FA69C',
+          'brand-secondary': '#4A9089',
+          'brand-accent': '#7BC4B8',
+          'brand-light': 'rgba(95,166,156,0.12)',
+          brass: '#D4B27E',
+          'brass-light': 'rgba(212,178,126,0.12)',
+          success: '#4ADE80',
+          warning: '#FBBF24',
+          danger: '#F87171',
+        },
       },
       fontFamily: {
         display: ['"Plus Jakarta Sans"', 'sans-serif'],
@@ -42,9 +71,10 @@ module.exports = {
       boxShadow: {
         card: '0 4px 20px rgba(28, 63, 58, 0.08)',
         'card-hover': '0 12px 40px rgba(28, 63, 58, 0.15)',
-        // Focus glow for glass surfaces — same primary-green rgb base as
-        // `card`/`card-hover` above, just tighter and tinted toward accent.
         glow: '0 8px 28px -6px rgba(61, 122, 115, 0.35)',
+        'card-dark': '0 4px 20px rgba(0, 0, 0, 0.35)',
+        'card-hover-dark': '0 14px 40px rgba(0, 0, 0, 0.5)',
+        'glow-dark': '0 8px 28px -6px rgba(95, 166, 156, 0.25)',
       },
       keyframes: {
         'fade-in': {

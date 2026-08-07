@@ -23,11 +23,11 @@ export function MakamToolbar({
   canAdd,
 }: Props) {
   return (
-    <div className="bg-white rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-center justify-between"
+    <div className="bg-white dark:bg-dark-surface rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-center justify-between"
       style={{ border: '1px solid rgba(221,221,221,0.5)' }}>
       <div className="flex flex-wrap gap-3 flex-1">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray dark:text-dark-text-secondary" size={18} />
           <input
             className="form-input pl-10 text-base"
             placeholder="Cari Nama, No Makam, NRP, Pangkat, dan lainnya disini..."

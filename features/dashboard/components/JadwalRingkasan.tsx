@@ -23,16 +23,16 @@ function JadwalRow({ item, onClick }: { item: JadwalTamu; onClick?: () => void }
     <div
       onClick={onClick}
       className={`flex items-start gap-3 py-2.5 border-b last:border-b-0 ${
-        onClick ? 'cursor-pointer rounded-lg px-2 -mx-2 transition-colors hover:bg-green-light/40' : ''
+        onClick ? 'cursor-pointer rounded-lg px-2 -mx-2 transition-colors hover:bg-green-light dark:bg-dark-brand-light/40' : ''
       }`}
       style={{ borderColor: 'rgba(221,221,221,0.5)' }}
     >
-      <div className="w-9 h-9 rounded-lg bg-green-light flex items-center justify-center flex-shrink-0 mt-0.5">
-        <CalendarDays size={16} className="text-green-primary" />
+      <div className="w-9 h-9 rounded-lg bg-green-light dark:bg-dark-brand-light flex items-center justify-center flex-shrink-0 mt-0.5">
+        <CalendarDays size={16} className="text-green-primary dark:text-dark-brand-accent" />
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-neutral-black truncate">{item.namaKegiatan}</p>
-        <p className="text-xs text-neutral-gray mt-0.5">
+        <p className="text-sm font-semibold text-neutral-black dark:text-dark-text-primary truncate">{item.namaKegiatan}</p>
+        <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-0.5">
           {formatTanggal(item.tanggalMulai)} · {item.jamMulai} · {item.tipeKegiatan}
         </p>
       </div>
@@ -106,18 +106,18 @@ export default function JadwalRingkasan({
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 flex flex-col" style={{ border: '1px solid rgba(221,221,221,0.5)', minHeight: 280 }}>
+    <div className="bg-white dark:bg-dark-surface rounded-xl p-6 flex flex-col" style={{ border: '1px solid rgba(221,221,221,0.5)', minHeight: 280 }}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700 }} className="text-neutral-black">
+          <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">
             Ringkasan Jadwal
           </h3>
-          <p className="text-sm text-neutral-gray mt-0.5">{periodLabel}</p>
+          <p className="text-sm text-neutral-gray dark:text-dark-text-secondary mt-0.5">{periodLabel}</p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <button
             onClick={goToJadwalTamu}
-            className="flex items-center gap-1 text-sm font-medium text-green-primary hover:underline"
+            className="flex items-center gap-1 text-sm font-medium text-green-primary dark:text-dark-brand-accent hover:underline"
           >
             Buka Jadwal Tamu <ArrowRight size={14} />
           </button>
@@ -150,7 +150,7 @@ export default function JadwalRingkasan({
           {remaining > 0 && (
             <button
               onClick={() => setShowAll(true)}
-              className="mt-3 text-sm font-medium text-green-primary hover:underline self-start"
+              className="mt-3 text-sm font-medium text-green-primary dark:text-dark-brand-accent hover:underline self-start"
             >
               Lihat semua ({items.length} jadwal)
             </button>
@@ -160,12 +160,12 @@ export default function JadwalRingkasan({
 
       {showAll && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-          <div className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] flex flex-col">
+          <div className="bg-white dark:bg-dark-surface rounded-xl w-full max-w-lg max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'rgba(221,221,221,0.5)' }}>
-              <h3 className="font-bold text-neutral-black" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              <h3 className="font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 Semua Jadwal — {periodLabel}
               </h3>
-              <button onClick={() => setShowAll(false)} className="text-neutral-gray hover:text-neutral-black">
+              <button onClick={() => setShowAll(false)} className="text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary">
                 <X size={20} />
               </button>
             </div>

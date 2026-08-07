@@ -36,7 +36,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'rgba(238,238,238,0.3)' }}>
+    <div className="min-h-screen bg-canvas">
       <Sidebar />
       <main
         className={`min-h-screen transition-[margin] duration-300 ease-out ${

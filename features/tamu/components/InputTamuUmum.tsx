@@ -72,7 +72,7 @@ export default function InputTamuUmum() {
 
       <button
         onClick={() => router.push(ROUTES["input-tamu"])}
-        className="flex items-center gap-2 text-base text-neutral-gray hover:text-neutral-black mb-6 transition-colors self-start"
+        className="flex items-center gap-2 text-base text-neutral-gray dark:text-dark-text-secondary hover:text-neutral-black dark:text-dark-text-primary mb-6 transition-colors self-start"
       >
         <ArrowLeft size={18} /> Kembali
       </button>
@@ -82,22 +82,22 @@ export default function InputTamuUmum() {
           <div className="mb-8">
             <h1
               style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 28, fontWeight: 800 }}
-              className="text-neutral-black text-center"
+              className="text-neutral-black dark:text-dark-text-primary text-center"
             >
               Tamu Umum
             </h1>
-            <p className="text-base text-center text-neutral-gray mt-1">
+            <p className="text-base text-center text-neutral-gray dark:text-dark-text-secondary mt-1">
               Catat kunjungan tamu perorangan
             </p>
           </div>
 
           <div
-            className="bg-white rounded-2xl p-8"
+            className="bg-white dark:bg-dark-surface rounded-2xl p-8"
             style={{ border: "1px solid rgba(221,221,221,0.5)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
           >
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
                   Tanggal <span className="text-status-danger">*</span>
                 </label>
                 <input
@@ -112,7 +112,7 @@ export default function InputTamuUmum() {
               </div>
 
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
                   Nama <span className="text-status-danger">*</span>
                 </label>
                 <input
@@ -126,7 +126,7 @@ export default function InputTamuUmum() {
               </div>
 
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
                   Tujuan <span className="text-status-danger">*</span>
                 </label>
                 <textarea
@@ -140,7 +140,7 @@ export default function InputTamuUmum() {
               </div>
 
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
                   Foto Tamu <span className="text-status-danger">*</span>
                 </label>
                 <CameraCapture

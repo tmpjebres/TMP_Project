@@ -22,14 +22,14 @@ function ConfirmDialog({
 }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
         <h2
           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700 }}
-          className="text-neutral-black mb-3"
+          className="text-neutral-black dark:text-dark-text-primary mb-3"
         >
           Konfirmasi Hapus
         </h2>
-        <p className="text-base text-neutral-gray mb-7">{message}</p>
+        <p className="text-base text-neutral-gray dark:text-dark-text-secondary mb-7">{message}</p>
         <div className="flex gap-3">
           <button
             onClick={onConfirm}
@@ -101,11 +101,11 @@ export default function DaftarMakam() {
       <div className="mb-6">
         <h1
           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 28, fontWeight: 800 }}
-          className="text-neutral-black"
+          className="text-neutral-black dark:text-dark-text-primary"
         >
           Daftar Makam
         </h1>
-        <p className="text-base text-neutral-gray mt-1">
+        <p className="text-base text-neutral-gray dark:text-dark-text-secondary mt-1">
           Data pahlawan di Taman Makam Pahlawan
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function DaftarMakam() {
       )}
 
       {!loading && (
-        <div className="px-4 py-3 flex items-center justify-between text-base text-neutral-gray font-medium border-t border-gray-200/50">
+        <div className="px-4 py-3 flex items-center justify-between text-base text-neutral-gray dark:text-dark-text-secondary font-medium border-t border-gray-200 dark:border-dark-border/50">
           <span>
             Menampilkan {Math.min(page * pageSize, totalData)} dari {totalData} data
           </span>

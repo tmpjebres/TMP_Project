@@ -30,8 +30,8 @@ export default function GlobalError({
       <p className="text-xs font-semibold tracking-[0.25em] uppercase text-teal-300/70 mb-4">
         Terjadi kesalahan
       </p>
-      <h1 className="text-3xl font-bold text-neutral-100 mb-4">Ada yang tidak beres</h1>
-      <p className="max-w-md text-neutral-300/80 mb-8">
+      <h1 className="text-3xl font-bold text-neutral-100 dark:text-dark-text-secondary mb-4">Ada yang tidak beres</h1>
+      <p className="max-w-md text-neutral-300 dark:text-dark-text-muted/80 mb-8">
         Halaman gagal dimuat karena kesalahan yang tidak terduga. Coba muat
         ulang, atau hubungi tim teknis kalau masalah ini berlanjut.
       </p>

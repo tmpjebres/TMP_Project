@@ -95,11 +95,11 @@ export default function DaftarBlokMakam() {
               fontSize: 28,
               fontWeight: 800,
             }}
-            className="text-neutral-black"
+            className="text-neutral-black dark:text-dark-text-primary"
           >
             Blok Makam
           </h1>
-          <p className="text-base text-neutral-gray mt-1">
+          <p className="text-base text-neutral-gray dark:text-dark-text-secondary mt-1">
             Kelola pembagian blok di Taman Makam Pahlawan
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function DaftarBlokMakam() {
           {bloks.map((b) => (
             <div
               key={b.id}
-              className="bg-white rounded-2xl p-6"
+              className="bg-white dark:bg-dark-surface rounded-2xl p-6"
               style={{
                 border: "1px solid rgba(221,221,221,0.5)",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
@@ -130,7 +130,7 @@ export default function DaftarBlokMakam() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <p className="text-sm font-bold text-neutral-gray uppercase tracking-wider">
+                  <p className="text-sm font-bold text-neutral-gray dark:text-dark-text-secondary uppercase tracking-wider">
                     Blok
                   </p>
                   <h2
@@ -139,7 +139,7 @@ export default function DaftarBlokMakam() {
                       fontSize: 32,
                       fontWeight: 800,
                     }}
-                    className="text-neutral-black"
+                    className="text-neutral-black dark:text-dark-text-primary"
                   >
                     {b.nama}
                   </h2>
@@ -148,9 +148,9 @@ export default function DaftarBlokMakam() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => openEdit(b)}
-                      className="p-2 hover:bg-neutral-light-gray rounded-lg transition-colors"
+                      className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
                     >
-                      <Edit size={16} className="text-neutral-gray" />
+                      <Edit size={16} className="text-neutral-gray dark:text-dark-text-secondary" />
                     </button>
                     <button
                       onClick={() => handleDeleteRequest(b)}
@@ -163,34 +163,34 @@ export default function DaftarBlokMakam() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-base">
-                  <span className="text-neutral-gray">Kapasitas</span>
-                  <span className="font-semibold text-neutral-black">
+                  <span className="text-neutral-gray dark:text-dark-text-secondary">Kapasitas</span>
+                  <span className="font-semibold text-neutral-black dark:text-dark-text-primary">
                     {b.kapasitas}
                   </span>
                 </div>
                 <div className="flex justify-between text-base">
-                  <span className="text-neutral-gray">Terisi</span>
-                  <span className="font-semibold text-neutral-black">
+                  <span className="text-neutral-gray dark:text-dark-text-secondary">Terisi</span>
+                  <span className="font-semibold text-neutral-black dark:text-dark-text-primary">
                     {b.terisi}
                   </span>
                 </div>
                 <div className="flex justify-between text-base">
-                  <span className="text-neutral-gray">Tersedia</span>
-                  <span className="font-semibold text-green-primary">
+                  <span className="text-neutral-gray dark:text-dark-text-secondary">Tersedia</span>
+                  <span className="font-semibold text-green-primary dark:text-dark-brand-accent">
                     {b.kapasitas - b.terisi}
                   </span>
                 </div>
               </div>
               <div className="mt-4">
-                <div className="w-full bg-neutral-light-gray rounded-full h-2">
+                <div className="w-full bg-neutral-light-gray dark:bg-dark-surface-hover rounded-full h-2">
                   <div
-                    className="bg-green-primary h-2 rounded-full transition-all"
+                    className="bg-green-primary dark:bg-dark-brand-secondary h-2 rounded-full transition-all"
                     style={{
                       width: `${Math.min((b.terisi / b.kapasitas) * 100, 100)}%`,
                     }}
                   />
                 </div>
-                <p className="text-sm text-neutral-gray mt-1 text-right">
+                <p className="text-sm text-neutral-gray dark:text-dark-text-secondary mt-1 text-right">
                   {b.kapasitas > 0
                     ? Math.round((b.terisi / b.kapasitas) * 100)
                     : 0}
@@ -212,18 +212,18 @@ export default function DaftarBlokMakam() {
 
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8">
+          <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
             <h2
               style={{
                 fontFamily: "Plus Jakarta Sans, sans-serif",
                 fontSize: 18,
                 fontWeight: 700,
               }}
-              className="text-neutral-black mb-3"
+              className="text-neutral-black dark:text-dark-text-primary mb-3"
             >
               Konfirmasi Hapus
             </h2>
-            <p className="text-base text-neutral-gray mb-7">
+            <p className="text-base text-neutral-gray dark:text-dark-text-secondary mb-7">
               Hapus Blok <strong>{deleteTarget.nama}</strong>?
             </p>
             <div className="flex gap-3">

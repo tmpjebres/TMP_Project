@@ -11,7 +11,7 @@ export function RoleBadge({ role }: { role: Role }) {
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-green-light text-green-primary border border-green-accent/25">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-green-light dark:bg-dark-brand-light text-green-primary dark:text-dark-brand-accent border border-green-accent dark:border-dark-brand-primary/25">
       <User size={11} />
       Operator
     </span>

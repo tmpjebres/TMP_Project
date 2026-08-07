@@ -21,7 +21,7 @@ export default function NotificationCard({ item, active, onSelect, onMarkRead }:
         onSelect();
         onMarkRead();
       }}
-      className="w-full flex gap-3 p-3.5 rounded-xl bg-white text-left transition-colors hover:shadow-card"
+      className="w-full flex gap-3 p-3.5 rounded-xl bg-white dark:bg-dark-surface text-left transition-colors hover:shadow-card"
       style={{
         border: active ? '1.5px solid #3D7A73' : isRead ? '1px solid #EEEEEE' : `1px solid ${pastel.dot}`,
       }}
@@ -38,9 +38,9 @@ export default function NotificationCard({ item, active, onSelect, onMarkRead }:
           </span>
         </div>
 
-        <p className="text-sm font-bold text-neutral-black leading-snug truncate">{event.namaKegiatan}</p>
+        <p className="text-sm font-bold text-neutral-black dark:text-dark-text-primary leading-snug truncate">{event.namaKegiatan}</p>
 
-        <span className="flex items-center gap-1.5 text-xs text-neutral-gray mt-1">
+        <span className="flex items-center gap-1.5 text-xs text-neutral-gray dark:text-dark-text-secondary mt-1">
           <Clock size={12} /> {formatJam(event.jamMulai)} &middot; {event.instansi}
         </span>
       </div>
@@ -54,7 +54,7 @@ export default function NotificationCard({ item, active, onSelect, onMarkRead }:
             onMarkRead();
           }}
           title="Tandai sudah dibaca"
-          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray hover:text-green-primary hover:bg-green-light transition-colors"
+          className="flex-shrink-0 self-start p-1.5 rounded-lg text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent hover:bg-green-light dark:bg-dark-brand-light transition-colors"
         >
           <Check size={14} />
         </span>

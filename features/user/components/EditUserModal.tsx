@@ -71,33 +71,33 @@ export function EditUserModal({
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-100">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-100 dark:border-dark-border">
           <div className="flex items-center gap-3">
             <Avatar username={user.username} role={user.role} />
             <div>
-              <h2 className="text-base font-bold text-neutral-900">Edit User</h2>
-              <p className="text-xs text-neutral-400">Bergabung {user.createdAt}</p>
+              <h2 className="text-base font-bold text-neutral-900 dark:text-dark-text-primary">Edit User</h2>
+              <p className="text-xs text-neutral-400 dark:text-dark-text-muted">Bergabung {user.createdAt}</p>
             </div>
           </div>
           <button
             onClick={onClose}
             disabled={loading}
-            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors disabled:opacity-50"
+            className="p-1.5 hover:bg-neutral-100 dark:bg-dark-surface-hover rounded-lg transition-colors disabled:opacity-50"
           >
-            <X size={18} className="text-neutral-500" />
+            <X size={18} className="text-neutral-500 dark:text-dark-text-secondary" />
           </button>
         </div>
 
         <div className="px-6 py-5 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+            <label className="block text-sm font-semibold text-neutral-700 dark:text-dark-text-primary mb-1.5">
               Nama Lengkap
             </label>
             <input
               type="text"
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 bg-neutral-50
-                focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white outline-none transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover
+                focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface outline-none transition-colors"
               value={form.fullName}
               onChange={(e) => {
                 setForm((f) => ({ ...f, fullName: e.target.value }));
@@ -108,7 +108,7 @@ export function EditUserModal({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+            <label className="block text-sm font-semibold text-neutral-700 dark:text-dark-text-primary mb-1.5">
               Username
             </label>
             <input
@@ -116,7 +116,7 @@ export function EditUserModal({
               className={`w-full px-3.5 py-2.5 text-sm rounded-xl border transition-colors outline-none
                 ${error
                   ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                  : "border-neutral-200 bg-neutral-50 focus:form-input:focus focus:ring-2 focus:ring-violet-100 focus:bg-white"
+                  : "border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover focus:form-input:focus focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface"
                 }`}
               value={form.username}
               onChange={(e) => {
@@ -135,21 +135,21 @@ export function EditUserModal({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+            <label className="block text-sm font-semibold text-neutral-700 dark:text-dark-text-primary mb-1.5">
               Role
             </label>
             {isSelf ? (
-              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-neutral-50">
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover">
                 <RoleBadge role={form.role} />
-                <span className="text-xs text-neutral-400 ml-auto">
+                <span className="text-xs text-neutral-400 dark:text-dark-text-muted ml-auto">
                   Tidak bisa mengubah role sendiri
                 </span>
               </div>
             ) : (
               <div className="relative">
                 <select
-                  className="w-full appearance-none px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 bg-neutral-50
-                    focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white outline-none transition-colors pr-9"
+                  className="w-full appearance-none px-3.5 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover
+                    focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:bg-white dark:bg-dark-surface outline-none transition-colors pr-9"
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as Role }))}
                   disabled={loading}
@@ -159,22 +159,22 @@ export function EditUserModal({
                 </select>
                 <ChevronDown
                   size={15}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted pointer-events-none"
                 />
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+            <label className="block text-sm font-semibold text-neutral-700 dark:text-dark-text-primary mb-1.5">
               Status Akun
             </label>
-            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-neutral-50">
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover">
               <div>
-                <p className="text-sm font-medium text-neutral-800">
+                <p className="text-sm font-medium text-neutral-800 dark:text-dark-text-primary">
                   {user.isActive ? "Aktif" : "Nonaktif"}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-400 dark:text-dark-text-muted">
                   {isSelf
                     ? "Tidak bisa menonaktifkan akun sendiri"
                     : user.isActive
@@ -198,12 +198,12 @@ export function EditUserModal({
                 style={{ backgroundColor: user.isActive ? "#10b981" : "#d4d4d4" }}
               >
                 <span
-                  className={`inline-flex items-center justify-center h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                  className={`inline-flex items-center justify-center h-4 w-4 transform rounded-full bg-white dark:bg-dark-surface shadow-sm transition-transform duration-200 ${
                     user.isActive ? "translate-x-4" : "translate-x-0.5"
                   }`}
                 >
                   {togglingId === user.id && (
-                    <Loader2 size={10} className="animate-spin text-neutral-400" />
+                    <Loader2 size={10} className="animate-spin text-neutral-400 dark:text-dark-text-muted" />
                   )}
                 </span>
               </button>
@@ -218,21 +218,21 @@ export function EditUserModal({
               {form.fullName.trim() !== user.fullName && (
                 <p>
                   Nama:{" "}
-                  <span className="line-through text-neutral-500">{user.fullName}</span>{" "}
+                  <span className="line-through text-neutral-500 dark:text-dark-text-secondary">{user.fullName}</span>{" "}
                   → <span className="font-semibold">{form.fullName.trim()}</span>
                 </p>
               )}
               {form.username.trim() !== user.username && (
                 <p>
                   Username:{" "}
-                  <span className="line-through text-neutral-500">{user.username}</span>{" "}
+                  <span className="line-through text-neutral-500 dark:text-dark-text-secondary">{user.username}</span>{" "}
                   → <span className="font-semibold">{form.username.trim()}</span>
                 </p>
               )}
               {form.role !== user.role && (
                 <p>
                   Role:{" "}
-                  <span className="line-through text-neutral-500 capitalize">{user.role}</span>{" "}
+                  <span className="line-through text-neutral-500 dark:text-dark-text-secondary capitalize">{user.role}</span>{" "}
                   → <span className="font-semibold capitalize">{form.role}</span>
                 </p>
               )}
@@ -245,7 +245,7 @@ export function EditUserModal({
             onClick={handleSave}
             disabled={loading || !hasChanges || !form.username.trim() || !form.fullName.trim()}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              bg-green-primary text-white hover:bg-green-secondary active:bg-green-primary
+              bg-green-primary dark:bg-dark-brand-secondary text-white hover:bg-green-secondary dark:bg-dark-brand-primary active:bg-green-primary dark:bg-dark-brand-secondary
               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
@@ -263,8 +263,8 @@ export function EditUserModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200
-              text-neutral-600 hover:bg-neutral-50 active:bg-neutral-100 transition-colors disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200 dark:border-dark-border
+              text-neutral-600 dark:text-dark-text-secondary hover:bg-neutral-50 dark:bg-dark-surface-hover active:bg-neutral-100 dark:bg-dark-surface-hover transition-colors disabled:opacity-50"
           >
             Batal
           </button>

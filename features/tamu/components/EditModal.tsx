@@ -18,37 +18,37 @@ export default function EditModal({ tamu, onSave, onClose }: EditModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 20, fontWeight: 700 }} className="text-neutral-black">
+          <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 20, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">
             Edit Tamu
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-neutral-light-gray rounded-lg">
+          <button onClick={onClose} className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg">
             <X size={20} />
           </button>
         </div>
         <div className="space-y-5">
           <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">Tanggal</label>
+            <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Tanggal</label>
             <input type="date" className="form-input text-base py-3.5" value={form.tanggal} onChange={set("tanggal")} />
           </div>
           {tamu.jenis === "umum" ? (
             <div>
-              <label className="block text-base font-semibold text-neutral-black mb-2">Nama</label>
+              <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Nama</label>
               <input type="text" className="form-input text-base py-3.5" value={(form as TamuUmum).nama} onChange={set("nama")} />
             </div>
           ) : (
             <>
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Nama Pimpinan</label>
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Nama Pimpinan</label>
                 <input type="text" className="form-input text-base py-3.5" value={(form as TamuRombongan).namaPimpinan} onChange={set("namaPimpinan")} />
               </div>
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Instansi</label>
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Instansi</label>
                 <input type="text" className="form-input text-base py-3.5" value={(form as TamuRombongan).instansi} onChange={set("instansi")} />
               </div>
               <div>
-                <label className="block text-base font-semibold text-neutral-black mb-2">Jumlah Peserta</label>
+                <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Jumlah Peserta</label>
                 <input
                   type="number"
                   className="form-input text-base py-3.5"
@@ -59,7 +59,7 @@ export default function EditModal({ tamu, onSave, onClose }: EditModalProps) {
             </>
           )}
           <div>
-            <label className="block text-base font-semibold text-neutral-black mb-2">Tujuan</label>
+            <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Tujuan</label>
             <textarea rows={3} className="form-input text-base resize-none" value={form.tujuan} onChange={set("tujuan")} />
           </div>
         </div>

@@ -28,9 +28,9 @@ export default function NotificationDetailModal({ selection, onClose }: Notifica
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-end p-4 pb-0">
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray text-neutral-gray">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
             <X size={18} />
           </button>
         </div>
@@ -69,7 +69,7 @@ function JadwalDetail({
         </span>
       </div>
 
-      <h2 className="text-lg font-bold text-neutral-black leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <h2 className="text-lg font-bold text-neutral-black dark:text-dark-text-primary leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         {event.namaKegiatan}
       </h2>
 
@@ -82,7 +82,7 @@ function JadwalDetail({
 
       <button
         onClick={() => onGoTo(`${ROUTES['jadwal-tamu']}?event=${event.id}&date=${event.tanggalMulai}`)}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary transition-colors"
+        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
       >
         Buka di Kalender Jadwal Tamu
         <ArrowRight size={15} />
@@ -108,10 +108,10 @@ function SecurityDetail({
         <ShieldAlert size={18} />
       </span>
 
-      <h2 className="text-lg font-bold text-neutral-black leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <h2 className="text-lg font-bold text-neutral-black dark:text-dark-text-primary leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         {alert.attemptCount}x Percobaan Login Gagal Berturut-turut
       </h2>
-      <p className="text-sm text-neutral-gray -mt-1">
+      <p className="text-sm text-neutral-gray dark:text-dark-text-secondary -mt-1">
         Terdeteksi otomatis oleh sistem karena melebihi batas wajar dalam rentang waktu singkat.
       </p>
 
@@ -126,12 +126,12 @@ function SecurityDetail({
 
       <button
         onClick={() => onGoTo(ROUTES['user-management'])}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary transition-colors"
+        className="flex items-center justify-center gap-2 px-4 py-2.5 mt-2 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors"
       >
         Buka Manajemen User
         <ArrowRight size={15} />
       </button>
-      <p className="text-[11px] text-neutral-gray">
+      <p className="text-[11px] text-neutral-gray dark:text-dark-text-secondary">
         Sarankan periksa apakah percobaan ini wajar (mis. lupa password) atau perlu tindakan lanjut (reset password / nonaktifkan akun).
       </p>
     </div>
@@ -141,10 +141,10 @@ function SecurityDetail({
 function DetailRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="text-green-accent mt-0.5">{icon}</span>
+      <span className="text-green-accent dark:text-dark-brand-accent mt-0.5">{icon}</span>
       <div>
-        <p className="text-[11px] text-neutral-gray leading-none mb-0.5">{label}</p>
-        <p className="text-sm font-medium text-neutral-black leading-tight">{value}</p>
+        <p className="text-[11px] text-neutral-gray dark:text-dark-text-secondary leading-none mb-0.5">{label}</p>
+        <p className="text-sm font-medium text-neutral-black dark:text-dark-text-primary leading-tight">{value}</p>
       </div>
     </div>
   );

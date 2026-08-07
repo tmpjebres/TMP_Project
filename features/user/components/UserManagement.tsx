@@ -23,10 +23,10 @@ function StatCard({
 }) {
   const tint =
     accent === "green"
-      ? "bg-green-light text-green-primary"
+      ? "bg-green-light dark:bg-dark-brand-light text-green-primary dark:text-dark-brand-accent"
       : accent === "brass"
         ? "bg-brass-light text-brass-dark"
-        : "bg-neutral-100 text-neutral-500";
+        : "bg-neutral-100 dark:bg-dark-surface-hover text-neutral-500 dark:text-dark-text-secondary";
   return (
     <div className="stat-card flex items-center gap-4 !p-5">
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${tint}`}>
@@ -34,12 +34,12 @@ function StatCard({
       </div>
       <div>
         <p
-          className="text-neutral-900 leading-none"
+          className="text-neutral-900 dark:text-dark-text-primary leading-none"
           style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 22, fontWeight: 800 }}
         >
           {value}
         </p>
-        <p className="text-xs text-neutral-400 mt-1">{label}</p>
+        <p className="text-xs text-neutral-400 dark:text-dark-text-muted mt-1">{label}</p>
       </div>
     </div>
   );
@@ -91,7 +91,7 @@ export default function UserManagement() {
           <div>
             
             <h1
-              className="text-neutral-900"
+              className="text-neutral-900 dark:text-dark-text-primary"
               style={{
                 fontFamily: "Plus Jakarta Sans, sans-serif",
                 fontSize: 28,
@@ -101,7 +101,7 @@ export default function UserManagement() {
             >
               User Management
             </h1>
-            <p className="text-sm text-neutral-400 mt-1">
+            <p className="text-sm text-neutral-400 dark:text-dark-text-muted mt-1">
               Kelola akses dan aktivitas setiap pengguna sistem TMP.
             </p>
           </div>
@@ -125,20 +125,20 @@ export default function UserManagement() {
           <div className="relative flex-1">
             <Search
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted pointer-events-none"
             />
             <input
               type="text"
               placeholder="Cari nama, username, atau role..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-neutral-200
-                bg-white focus:border-green-accent focus:ring-2 focus:ring-green-light outline-none transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border
+                bg-white dark:bg-dark-surface focus:border-green-accent dark:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:ring-dark-brand-light outline-none transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:text-dark-text-secondary"
               >
                 <X size={14} />
               </button>
@@ -149,8 +149,8 @@ export default function UserManagement() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value as "all" | Role)}
-              className="appearance-none pl-3.5 pr-9 py-2.5 text-sm rounded-xl border border-neutral-200
-                bg-white focus:border-green-accent focus:ring-2 focus:ring-green-light outline-none transition-colors
+              className="appearance-none pl-3.5 pr-9 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-dark-border
+                bg-white dark:bg-dark-surface focus:border-green-accent dark:border-dark-brand-primary focus:ring-2 focus:ring-green-light dark:ring-dark-brand-light outline-none transition-colors
                 cursor-pointer"
             >
               <option value="all">Semua Role</option>
@@ -159,13 +159,13 @@ export default function UserManagement() {
             </select>
             <ChevronDown
               size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-dark-text-muted pointer-events-none"
             />
           </div>
         </div>
 
         <div
-          className="bg-white rounded-2xl overflow-hidden flex-1"
+          className="bg-white dark:bg-dark-surface rounded-2xl overflow-hidden flex-1"
           style={{ border: "1px solid #e5e7eb" }}
         >
           <UserTable

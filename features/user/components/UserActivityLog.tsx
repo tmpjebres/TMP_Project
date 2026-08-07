@@ -66,17 +66,17 @@ const FIELD_LABEL: Record<string, string> = {
 function iconStyle(action: string): { icon: typeof Plus; bg: string; fg: string } {
   switch (action) {
     case "login_success":
-      return { icon: LogIn, bg: "bg-green-light", fg: "text-green-primary" };
+      return { icon: LogIn, bg: "bg-green-light dark:bg-dark-brand-light", fg: "text-green-primary dark:text-dark-brand-accent" };
     case "login_failed":
       return { icon: LogOut, bg: "bg-red-50", fg: "text-red-600" };
     case "create":
-      return { icon: Plus, bg: "bg-green-light", fg: "text-green-primary" };
+      return { icon: Plus, bg: "bg-green-light dark:bg-dark-brand-light", fg: "text-green-primary dark:text-dark-brand-accent" };
     case "update":
       return { icon: Pencil, bg: "bg-brass-light", fg: "text-brass-dark" };
     case "delete":
       return { icon: Trash2, bg: "bg-red-50", fg: "text-red-600" };
     default:
-      return { icon: Power, bg: "bg-neutral-100", fg: "text-neutral-500" };
+      return { icon: Power, bg: "bg-neutral-100 dark:bg-dark-surface-hover", fg: "text-neutral-500 dark:text-dark-text-secondary" };
   }
 }
 
@@ -116,57 +116,57 @@ function ActivityDetailModal({ entry, onClose }: { entry: UserActivityEntry; onC
   const modal = (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        className="bg-white dark:bg-dark-surface rounded-2xl w-full max-w-md shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-100 flex-shrink-0">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-100 dark:border-dark-border flex-shrink-0">
           <EntryIcon action={entry.action} />
           <h3
-            className="text-sm font-semibold text-neutral-800 flex-1"
+            className="text-sm font-semibold text-neutral-800 dark:text-dark-text-primary flex-1"
             style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
           >
             {describeEntry(entry)}
           </h3>
-          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600">
+          <button onClick={onClose} className="text-neutral-400 dark:text-dark-text-muted hover:text-neutral-600 dark:text-dark-text-secondary">
             <X size={16} />
           </button>
         </div>
 
         <div className="px-5 py-4 overflow-y-auto">
-          <p className="text-xs text-neutral-400 mb-3">{formatDateTime(entry.createdAt)}</p>
+          <p className="text-xs text-neutral-400 dark:text-dark-text-muted mb-3">{formatDateTime(entry.createdAt)}</p>
 
           {fields.length === 0 ? (
-            <div className="rounded-xl border border-neutral-100 p-3 space-y-1.5 text-sm">
+            <div className="rounded-xl border border-neutral-100 dark:border-dark-border p-3 space-y-1.5 text-sm">
               <div className="flex justify-between">
-                <span className="text-neutral-400">Aktivitas</span>
-                <span className="text-neutral-700 font-medium">{ACTION_LABEL[entry.action] ?? entry.action}</span>
+                <span className="text-neutral-400 dark:text-dark-text-muted">Aktivitas</span>
+                <span className="text-neutral-700 dark:text-dark-text-primary font-medium">{ACTION_LABEL[entry.action] ?? entry.action}</span>
               </div>
               {entry.entityType !== "auth" && (
                 <div className="flex justify-between">
-                  <span className="text-neutral-400">Jenis Data</span>
-                  <span className="text-neutral-700 font-medium">{ENTITY_LABEL[entry.entityType] ?? entry.entityType}</span>
+                  <span className="text-neutral-400 dark:text-dark-text-muted">Jenis Data</span>
+                  <span className="text-neutral-700 dark:text-dark-text-primary font-medium">{ENTITY_LABEL[entry.entityType] ?? entry.entityType}</span>
                 </div>
               )}
               {entry.entityLabel && (
                 <div className="flex justify-between">
-                  <span className="text-neutral-400">Nama</span>
-                  <span className="text-neutral-700 font-medium">{entry.entityLabel}</span>
+                  <span className="text-neutral-400 dark:text-dark-text-muted">Nama</span>
+                  <span className="text-neutral-700 dark:text-dark-text-primary font-medium">{entry.entityLabel}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-neutral-400">Waktu</span>
-                <span className="text-neutral-700 font-medium">{formatDateTime(entry.createdAt)}</span>
+                <span className="text-neutral-400 dark:text-dark-text-muted">Waktu</span>
+                <span className="text-neutral-700 dark:text-dark-text-primary font-medium">{formatDateTime(entry.createdAt)}</span>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               {fields.map(([field, diff]) => (
-                <div key={field} className="rounded-xl border border-neutral-100 p-3">
-                  <p className="text-xs font-semibold text-neutral-500 mb-1.5">{FIELD_LABEL[field] ?? field}</p>
+                <div key={field} className="rounded-xl border border-neutral-100 dark:border-dark-border p-3">
+                  <p className="text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary mb-1.5">{FIELD_LABEL[field] ?? field}</p>
                   <div className="flex items-center gap-2 text-sm">
                     <span className="px-2 py-1 rounded-md bg-red-50 text-red-600 line-through">{diff.from}</span>
-                    <span className="text-neutral-300">→</span>
-                    <span className="px-2 py-1 rounded-md bg-green-light text-green-primary font-medium">{diff.to}</span>
+                    <span className="text-neutral-300 dark:text-dark-text-muted">→</span>
+                    <span className="px-2 py-1 rounded-md bg-green-light dark:bg-dark-brand-light text-green-primary dark:text-dark-brand-accent font-medium">{diff.to}</span>
                   </div>
                 </div>
               ))}
@@ -217,9 +217,9 @@ export function UserActivityLog({ userId }: { userId: string }) {
 
   if (error || !user) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400">
+      <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400 dark:text-dark-text-muted">
         <p className="text-sm font-medium">{error ?? "User tidak ditemukan."}</p>
-        <Link href={ROUTES["user-management"]} className="text-xs text-green-primary font-medium hover:underline">
+        <Link href={ROUTES["user-management"]} className="text-xs text-green-primary dark:text-dark-brand-accent font-medium hover:underline">
           Kembali ke User Management
         </Link>
       </div>
@@ -230,20 +230,20 @@ export function UserActivityLog({ userId }: { userId: string }) {
     <div className="animate-fade-in flex flex-col min-h-[calc(100vh-8rem)]">
       <Link
         href={ROUTES["user-management"]}
-        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-neutral-700 mb-5 w-fit transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 dark:text-dark-text-muted hover:text-neutral-700 dark:text-dark-text-primary mb-5 w-fit transition-colors"
       >
         <ArrowLeft size={15} />
         Kembali
       </Link>
 
-      <div className="bg-white rounded-2xl p-6 mb-6 flex items-center gap-5" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="bg-white dark:bg-dark-surface rounded-2xl p-6 mb-6 flex items-center gap-5" style={{ border: "1px solid #e5e7eb" }}>
         <div className="scale-[1.8] ml-2">
           <Avatar username={user.username} role={user.role} />
         </div>
         <div className="ml-3">
           <div className="flex items-center gap-2 flex-wrap">
             <h1
-              className="text-neutral-900"
+              className="text-neutral-900 dark:text-dark-text-primary"
               style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 24, fontWeight: 800, letterSpacing: "-0.3px" }}
             >
               {user.fullName}
@@ -251,27 +251,27 @@ export function UserActivityLog({ userId }: { userId: string }) {
             <RoleBadge role={user.role} />
             <StatusBadge isActive={user.isActive} />
           </div>
-          <p className="text-sm text-neutral-400 mt-0.5">@{user.username}</p>
+          <p className="text-sm text-neutral-400 dark:text-dark-text-muted mt-0.5">@{user.username}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl flex-1" style={{ border: "1px solid #e5e7eb" }}>
-        <div className="px-6 py-4 border-b border-neutral-100 flex items-center gap-2">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl flex-1" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="px-6 py-4 border-b border-neutral-100 dark:border-dark-border flex items-center gap-2">
           <History size={16} className="text-brass-dark" />
-          <h2 className="text-sm font-semibold text-neutral-700" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+          <h2 className="text-sm font-semibold text-neutral-700 dark:text-dark-text-primary" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
             Riwayat Aktivitas
           </h2>
-          <span className="text-xs text-neutral-400 ml-auto">{entries.length} aktivitas tercatat</span>
+          <span className="text-xs text-neutral-400 dark:text-dark-text-muted ml-auto">{entries.length} aktivitas tercatat</span>
         </div>
 
         {entries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 text-neutral-400">
+          <div className="flex flex-col items-center justify-center py-16 gap-2 text-neutral-400 dark:text-dark-text-muted">
             <History size={28} className="opacity-30" />
             <p className="text-sm font-medium">Belum ada aktivitas tercatat.</p>
           </div>
         ) : (
           <ul className="relative px-6 py-2">
-            <span className="absolute left-[38px] top-2 bottom-2 w-px bg-neutral-100" aria-hidden="true" />
+            <span className="absolute left-[38px] top-2 bottom-2 w-px bg-neutral-100 dark:bg-dark-surface-hover" aria-hidden="true" />
             {entries.map((e) => (
               <li
                 key={e.id}
@@ -279,10 +279,10 @@ export function UserActivityLog({ userId }: { userId: string }) {
                 className="relative flex items-center gap-4 py-3 cursor-pointer group"
               >
                 <EntryIcon action={e.action} />
-                <div className="flex-1 min-w-0 rounded-xl px-3 py-2 -my-2 transition-colors group-hover:bg-neutral-50/80">
-                  <p className="text-sm text-neutral-700 truncate">{describeEntry(e)}</p>
+                <div className="flex-1 min-w-0 rounded-xl px-3 py-2 -my-2 transition-colors group-hover:bg-neutral-50 dark:bg-dark-surface-hover/80">
+                  <p className="text-sm text-neutral-700 dark:text-dark-text-primary truncate">{describeEntry(e)}</p>
                 </div>
-                <span className="text-xs text-neutral-400 flex-shrink-0">{formatDateTime(e.createdAt)}</span>
+                <span className="text-xs text-neutral-400 dark:text-dark-text-muted flex-shrink-0">{formatDateTime(e.createdAt)}</span>
               </li>
             ))}
           </ul>

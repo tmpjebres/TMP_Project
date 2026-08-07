@@ -37,10 +37,10 @@ export default function NotificationsPage() {
     <div className="flex flex-col min-h-[calc(100vh-8rem)]">
       <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold text-neutral-black" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+          <h1 className="text-xl font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             Notifikasi
           </h1>
-          <p className="text-sm text-neutral-gray">
+          <p className="text-sm text-neutral-gray dark:text-dark-text-secondary">
             Pengingat jadwal tamu{isMaster ? ' dan alert keamanan login' : ''}
           </p>
         </div>
@@ -48,7 +48,7 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-primary bg-green-light rounded-lg hover:bg-green-light/70 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-primary dark:text-dark-brand-accent bg-green-light dark:bg-dark-brand-light rounded-lg hover:bg-green-light dark:bg-dark-brand-light/70 transition-colors"
           >
             <CheckCheck size={16} />
             Tandai semua dibaca
@@ -58,7 +58,7 @@ export default function NotificationsPage() {
 
       <div className="mt-6 flex flex-col gap-6">
         {loading ? (
-          <div className="flex items-center justify-center h-40 text-neutral-gray text-sm">Memuat notifikasi...</div>
+          <div className="flex items-center justify-center h-40 text-neutral-gray dark:text-dark-text-secondary text-sm">Memuat notifikasi...</div>
         ) : isEmpty ? (
           <EmptyState />
         ) : (
@@ -113,7 +113,7 @@ export default function NotificationsPage() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <h2 className="text-xs font-semibold text-neutral-gray uppercase tracking-wider mb-3">{title}</h2>
+      <h2 className="text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary uppercase tracking-wider mb-3">{title}</h2>
       <div className="grid grid-cols-1 gap-3">{children}</div>
     </div>
   );
@@ -121,12 +121,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-white" style={{ border: '1px solid #EEEEEE' }}>
-      <div className="p-3 rounded-full bg-green-light mb-3">
-        <BellRing size={22} className="text-green-primary" />
+    <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-white dark:bg-dark-surface" style={{ border: '1px solid #EEEEEE' }}>
+      <div className="p-3 rounded-full bg-green-light dark:bg-dark-brand-light mb-3">
+        <BellRing size={22} className="text-green-primary dark:text-dark-brand-accent" />
       </div>
-      <p className="text-sm font-semibold text-neutral-black">Tidak ada notifikasi</p>
-      <p className="text-xs text-neutral-gray mt-1 max-w-[220px]">
+      <p className="text-sm font-semibold text-neutral-black dark:text-dark-text-primary">Tidak ada notifikasi</p>
+      <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-1 max-w-[220px]">
         Belum ada kegiatan yang dijadwalkan untuk hari ini atau besok.
       </p>
     </div>

@@ -30,13 +30,13 @@ export function UserTable({
 
   if (users.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-2 text-neutral-400">
+      <div className="flex flex-col items-center justify-center py-20 gap-2 text-neutral-400 dark:text-dark-text-muted">
         <User size={32} className="opacity-30" />
         <p className="text-sm font-medium">
           {hasActiveFilter ? "Tidak ada hasil yang cocok." : "Belum ada user."}
         </p>
         {hasActiveFilter && (
-          <button onClick={onResetFilter} className="text-xs text-green-primary font-medium hover:underline">
+          <button onClick={onResetFilter} className="text-xs text-green-primary dark:text-dark-brand-accent font-medium hover:underline">
             Reset filter
           </button>
         )}
@@ -48,40 +48,40 @@ export function UserTable({
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-100 bg-neutral-50/60">
-            <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+          <tr className="border-b border-neutral-100 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface-hover/60">
+            <th className="text-left px-5 py-3.5 text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary uppercase tracking-wide">
               Pengguna
             </th>
-            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary uppercase tracking-wide">
               Role
             </th>
-            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary uppercase tracking-wide">
               Status
             </th>
-            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            <th className="text-center px-5 py-3.5 text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary uppercase tracking-wide">
               Login Terakhir
             </th>
             {isMaster && (
-              <th className="px-5 py-3.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide text-center">
+              <th className="px-5 py-3.5 text-xs font-semibold text-neutral-500 dark:text-dark-text-secondary uppercase tracking-wide text-center">
                 Aksi
               </th>
             )}
           </tr>
         </thead>
-        <tbody className="divide-y divide-neutral-50">
+        <tbody className="divide-y divide-neutral-50 dark:divide-dark-border">
           {users.map((u) => (
-            <tr key={u.id} className="relative hover:bg-neutral-50/80 transition-colors group">
+            <tr key={u.id} className="relative hover:bg-neutral-50 dark:bg-dark-surface-hover/80 transition-colors group">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
                   <span
                     className={`w-1 self-stretch rounded-full flex-shrink-0 ${
-                      u.role === "master" ? "bg-brass" : "bg-green-accent"
+                      u.role === "master" ? "bg-brass" : "bg-green-accent dark:bg-dark-brand-primary"
                     }`}
                   />
                   <Avatar username={u.username} role={u.role} />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-neutral-900 truncate">
+                      <span className="font-semibold text-neutral-900 dark:text-dark-text-primary truncate">
                         {u.fullName}
                       </span>
                       {u.id === currentUserId && (
@@ -90,7 +90,7 @@ export function UserTable({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-400 truncate">@{u.username}</p>
+                    <p className="text-xs text-neutral-400 dark:text-dark-text-muted truncate">@{u.username}</p>
                   </div>
                 </div>
               </td>
@@ -100,7 +100,7 @@ export function UserTable({
               <td className="px-5 py-3.5 text-center">
                 <StatusBadge isActive={u.isActive} />
               </td>
-              <td className="px-5 py-3.5 text-neutral-400 text-xs text-center">
+              <td className="px-5 py-3.5 text-neutral-400 dark:text-dark-text-muted text-xs text-center">
                 {formatLastLogin(u.lastLoginAt)}
               </td>
               {isMaster && (
@@ -109,7 +109,7 @@ export function UserTable({
                     <Link
                       href={`/user-management/${u.id}`}
                       title="Lihat log aktivitas"
-                      className="p-1.5 rounded-lg hover:bg-green-light text-neutral-400 hover:text-green-primary transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-green-light dark:bg-dark-brand-light text-neutral-400 dark:text-dark-text-muted hover:text-green-primary dark:text-dark-brand-accent transition-colors"
                     >
                       <History size={15} />
                     </Link>
@@ -117,7 +117,7 @@ export function UserTable({
                     <button
                       onClick={() => onEdit(u)}
                       title="Edit user"
-                      className="p-1.5 rounded-lg hover:bg-brass-light text-neutral-400 hover:text-brass-dark transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-brass-light text-neutral-400 dark:text-dark-text-muted hover:text-brass-dark transition-colors"
                     >
                       <Pencil size={15} />
                     </button>
@@ -126,7 +126,7 @@ export function UserTable({
                       <button
                         onClick={() => onDelete(u)}
                         title="Hapus user"
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 dark:text-dark-text-muted hover:text-red-600 transition-colors"
                       >
                         <Trash2 size={15} />
                       </button>

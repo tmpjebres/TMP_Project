@@ -36,16 +36,16 @@ function FieldGlass({
   return (
     <div
       className={`group relative rounded-2xl border px-4 opacity-0 animate-fade-in ${delayClass}
-        bg-green-light/40 backdrop-blur-md border-green-light/80 shadow-card
+        bg-green-light dark:bg-dark-brand-light/40 backdrop-blur-md border-green-light dark:border-dark-brand-light/80 shadow-card
         transition-all duration-300
-        ${focused ? "bg-green-light/70 border-green-accent/70 shadow-glow -translate-y-px" : ""}`}
+        ${focused ? "bg-green-light dark:bg-dark-brand-light/70 border-green-accent dark:border-dark-brand-primary/70 shadow-glow -translate-y-px" : ""}`}
     >
       <label
         htmlFor={id}
         className={`pointer-events-none absolute left-4 origin-left transition-all duration-300 ease-out
           ${active
-            ? "top-[0.5rem] scale-[0.72] text-green-accent font-semibold tracking-wide uppercase"
-            : "top-[1.15rem] scale-100 text-neutral-gray"
+            ? "top-[0.5rem] scale-[0.72] text-green-accent dark:text-dark-brand-accent font-semibold tracking-wide uppercase"
+            : "top-[1.15rem] scale-100 text-neutral-gray dark:text-dark-text-secondary"
           }`}
       >
         {label}
@@ -59,7 +59,7 @@ function FieldGlass({
         onFocus={onFocus}
         onBlur={onBlur}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full bg-transparent border-none outline-none pt-6 pb-[0.6rem] text-neutral-black font-body
+        className={`w-full bg-transparent border-none outline-none pt-6 pb-[0.6rem] text-neutral-black dark:text-dark-text-primary font-body
           [&:-webkit-autofill]:[-webkit-text-fill-color:theme(colors.neutral.black)]
           [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_1000px_theme(colors.tranparent)_inset]
           [&:-webkit-autofill]:[transition:background-color_9999s_ease-in-out_0s]
@@ -116,7 +116,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-white dark:bg-dark-surface overflow-hidden relative motion-reduce:[&_*]:!animate-none motion-reduce:[&_*]:!transition-none">
       <div className="flex items-center justify-center px-6 md:px-16 relative">
         <div
           className="pointer-events-none absolute -z-10 w-[620px] h-[620px] rounded-full opacity-[0.18] blur-3xl animate-drift bg-[radial-gradient(circle_at_30%_30%,theme(colors.green.accent)_0%,theme(colors.green.primary)_55%,transparent_75%)]"
@@ -129,12 +129,12 @@ export default function LoginPage() {
 
         <div className={`w-full max-w-lg text-center ${shake ? "animate-shake" : ""}`}>
           <p
-            className="font-body opacity-0 animate-fade-in [animation-delay:0.02s] text-xs font-semibold tracking-[0.18em] uppercase text-green-accent mb-4"
+            className="font-body opacity-0 animate-fade-in [animation-delay:0.02s] text-xs font-semibold tracking-[0.18em] uppercase text-green-accent dark:text-dark-brand-accent mb-4"
           >
             TMP Management System
           </p>
 
-          <h1 className="font-display text-4xl md:text-5xl text-green-primary mb-3 tracking-normal">
+          <h1 className="font-display text-4xl md:text-5xl text-green-primary dark:text-dark-brand-accent mb-3 tracking-normal">
             {"Masuk".split(" ").map((word, i) => (
               <span
                 key={word}
@@ -146,7 +146,7 @@ export default function LoginPage() {
             ))}
           </h1>
 
-          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.32s] text-neutral-gray mb-10">
+          <p className="font-body opacity-0 animate-fade-in [animation-delay:0.32s] text-neutral-gray dark:text-dark-text-secondary mb-10">
             Kelola data makam, blok, dan tamu dalam satu portal admin.
           </p>
 
@@ -192,7 +192,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                     tabIndex={-1}
-                    className="absolute right-3 top-[1.05rem] text-neutral-gray hover:text-green-primary transition-colors"
+                    className="absolute right-3 top-[1.05rem] text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff size={18} strokeWidth={1.8} />
@@ -206,7 +206,7 @@ export default function LoginPage() {
               <div className="mt-2 text-right">
                 <Link
                   href={ROUTES.help}
-                  className="font-body text-xs text-neutral-gray hover:text-green-primary transition-colors"
+                  className="font-body text-xs text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent transition-colors"
                 >
                   Lupa kata sandi?
                 </Link>
@@ -240,15 +240,15 @@ export default function LoginPage() {
               <LoadingButton
                 type="submit"
                 loading={loading}
-                className="w-3/4 px-5 py-4 bg-green-primary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200 disabled:opacity-60"
+                className="w-3/4 px-5 py-4 bg-green-primary dark:bg-dark-brand-secondary text-white rounded-xl font-body font-medium shadow-card hover:bg-green-secondary dark:bg-dark-brand-primary hover:shadow-card-hover active:scale-[0.97] transition-all duration-200 disabled:opacity-60"
               >
                 {loading ? "Memuat..." : "Masuk"}
               </LoadingButton>
             </div>
 
-            <p className="font-body opacity-0 animate-fade-in [animation-delay:0.64s] text-xs text-neutral-gray">
+            <p className="font-body opacity-0 animate-fade-in [animation-delay:0.64s] text-xs text-neutral-gray dark:text-dark-text-secondary">
               Butuh bantuan masuk? Hubungi{" "}
-              <a href="mailto:admin@perusahaan.com" className="text-green-primary font-medium hover:underline">
+              <a href="mailto:admin@perusahaan.com" className="text-green-primary dark:text-dark-brand-accent font-medium hover:underline">
                 admin sistem
               </a>
               .

@@ -129,13 +129,13 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
+        className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
       >
         <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid #EEEEEE' }}>
-          <h2 className="text-base font-bold text-neutral-black" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+          <h2 className="text-base font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             {isEdit ? 'Edit Jadwal Tamu' : 'Tambah Jadwal Tamu'}
           </h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray text-neutral-gray">
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary">
             <X size={18} />
           </button>
         </div>
@@ -201,7 +201,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
               onChange={(e) => setPunyaWaktuSelesai(e.target.checked)}
               className="w-4 h-4 accent-green-primary"
             />
-            <span className="text-sm font-medium text-neutral-black">Punya tanggal & jam selesai</span>
+            <span className="text-sm font-medium text-neutral-black dark:text-dark-text-primary">Punya tanggal & jam selesai</span>
           </label>
 
           {punyaWaktuSelesai && (
@@ -216,7 +216,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
           )}
 
           <Field label="Attachment Surat (opsional)">
-            <div className="flex rounded-lg p-1 bg-neutral-light-gray mb-2">
+            <div className="flex rounded-lg p-1 bg-neutral-light-gray dark:bg-dark-surface-hover mb-2">
               {(['none', 'pdf', 'image', 'link'] as const).map((mode) => (
                 <button
                   key={mode}
@@ -227,7 +227,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
                     setFileError(null);
                   }}
                   className={`flex-1 px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                    attachmentMode === mode ? 'bg-white text-green-primary shadow-sm' : 'text-neutral-gray hover:text-green-primary'
+                    attachmentMode === mode ? 'bg-white dark:bg-dark-surface text-green-primary dark:text-dark-brand-accent shadow-sm' : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
                   }`}
                 >
                   {mode === 'none' ? 'Tanpa' : mode === 'pdf' ? 'PDF' : mode === 'image' ? 'Gambar' : 'Link Drive'}
@@ -236,7 +236,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
             </div>
 
             {(attachmentMode === 'pdf' || attachmentMode === 'image') && (
-              <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm text-neutral-gray hover:bg-neutral-light-gray transition-colors" style={{ border: '1px dashed #DDDDDD' }}>
+              <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm text-neutral-gray dark:text-dark-text-secondary hover:bg-neutral-light-gray dark:bg-dark-surface-hover transition-colors" style={{ border: '1px dashed #DDDDDD' }}>
                 <Paperclip size={16} />
                 {attachmentFile ? attachmentFile.name : isEdit && initial?.attachmentFilename ? `Ganti file (saat ini: ${initial.attachmentFilename})` : 'Pilih file (maks 1 MB)'}
                 <input
@@ -250,7 +250,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
 
             {attachmentMode === 'link' && (
               <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ border: '1px solid #DDDDDD' }}>
-                <Link2 size={16} className="text-neutral-gray flex-shrink-0" />
+                <Link2 size={16} className="text-neutral-gray dark:text-dark-text-secondary flex-shrink-0" />
                 <input
                   value={attachmentLink}
                   onChange={(e) => setAttachmentLink(e.target.value)}
@@ -268,7 +268,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
           <button
             type="submit"
             disabled={submitting}
-            className="flex-1 px-6 py-3 bg-green-primary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary transition-colors disabled:opacity-60"
+            className="flex-1 px-6 py-3 bg-green-primary dark:bg-dark-brand-secondary text-white text-sm font-semibold rounded-lg hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors disabled:opacity-60"
           >
             {submitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambah Jadwal'}
           </button>
@@ -298,7 +298,7 @@ export default function EventFormModal({ initial, defaultDate, onClose, onSubmit
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-neutral-gray mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary mb-1.5">{label}</label>
       {children}
     </div>
   );

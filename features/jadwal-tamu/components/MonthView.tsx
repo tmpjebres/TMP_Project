@@ -35,7 +35,7 @@ export default function MonthView({
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #EEEEEE' }}>
       <div className="grid grid-cols-7" style={{ borderBottom: '1px solid #EEEEEE' }}>
         {HARI.map((h) => (
-          <div key={h} className="py-2.5 text-center text-xs font-semibold text-neutral-gray bg-neutral-light-gray">
+          <div key={h} className="py-2.5 text-center text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary bg-neutral-light-gray dark:bg-dark-surface-hover">
             {h}
           </div>
         ))}
@@ -64,7 +64,7 @@ export default function MonthView({
             >
               <span
                 className={`inline-flex items-center justify-center w-6 h-6 text-xs rounded-full font-medium ${
-                  isToday ? 'bg-green-primary text-white' : inMonth ? 'text-neutral-black' : 'text-neutral-gray/50'
+                  isToday ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : inMonth ? 'text-neutral-black dark:text-dark-text-primary' : 'text-neutral-gray dark:text-dark-text-secondary/50'
                 }`}
               >
                 {format(day, 'd')}
@@ -91,7 +91,7 @@ export default function MonthView({
                   );
                 })}
                 {overflow > 0 && (
-                  <span className="text-[11px] text-neutral-gray pl-1.5">+{overflow} lainnya</span>
+                  <span className="text-[11px] text-neutral-gray dark:text-dark-text-secondary pl-1.5">+{overflow} lainnya</span>
                 )}
               </div>
             </div>

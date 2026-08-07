@@ -208,10 +208,10 @@ export default function Dashboard() {
     <div className="animate-fade-in flex flex-col gap-6 h-full">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 800 }} className="text-neutral-black text-2xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-3xl">
+          <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 800 }} className="text-neutral-black dark:text-dark-text-primary text-2xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-3xl">
             Dashboard
           </h1>
-          <p className="text-xs sm:text-xs md:text-xs lg:text-base xl:text-base text-neutral-gray mt-1">
+          <p className="text-xs sm:text-xs md:text-xs lg:text-base xl:text-base text-neutral-gray dark:text-dark-text-secondary mt-1">
             Ringkasan data Taman Makam Pahlawan &middot; {range.label}
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function Dashboard() {
             <button
               onClick={handleExportDashboardPdf}
               disabled={exportingPdf || cardsBusy}
-              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black border rounded-lg px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-neutral-black dark:text-dark-text-primary border rounded-lg px-3 py-1.5 hover:bg-neutral-50 dark:bg-dark-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               style={{ borderColor: "rgba(221,221,221,0.8)" }}
               title="Export seluruh ringkasan dashboard ke PDF"
             >
@@ -237,7 +237,7 @@ export default function Dashboard() {
         document.body
       )}
 
-      <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
+      <div className="bg-white dark:bg-dark-surface rounded-xl p-4 sm:p-6" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
         {cardsBusy ? (
           <SectionLoading variant="cards" label="Memuat ringkasan..." />
         ) : cardsFailed ? (
@@ -253,12 +253,12 @@ export default function Dashboard() {
               <div key={s.label} className="stat-card">
                 <div className="flex items-start justify-between xl:h-20">
                   <div>
-                    <p className="text-base text-neutral-gray font-medium">{s.label}</p>
-                    <p className="text-3xl font-extrabold text-neutral-black mt-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+                    <p className="text-base text-neutral-gray dark:text-dark-text-secondary font-medium">{s.label}</p>
+                    <p className="text-3xl font-extrabold text-neutral-black dark:text-dark-text-primary mt-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
                       {s.value}
                     </p>
                     {"sub" in s && s.sub && (
-                      <p className="text-xs text-neutral-gray mt-0.5">{s.sub}</p>
+                      <p className="text-xs text-neutral-gray dark:text-dark-text-secondary mt-0.5">{s.sub}</p>
                     )}
                   </div>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.bg }}>
@@ -278,11 +278,11 @@ export default function Dashboard() {
 
       {isMaster ? (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 bg-white rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
+          <div className="lg:col-span-3 bg-white dark:bg-dark-surface rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
             <div className="mb-2 flex items-center justify-between">
               <div>
-                <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Statistik Kunjungan</h3>
-                <p className="text-sm text-neutral-gray mt-0.5">{range.label}</p>
+                <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">Statistik Kunjungan</h3>
+                <p className="text-sm text-neutral-gray dark:text-dark-text-secondary mt-0.5">{range.label}</p>
               </div>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -341,10 +341,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="lg:col-span-2 bg-white rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
+          <div className="lg:col-span-2 bg-white dark:bg-dark-surface rounded-xl p-6 flex flex-col" style={{ border: "1px solid rgba(221,221,221,0.5)", minHeight: 360 }}>
             <div className="mb-4">
-              <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black">Distribusi per Blok</h3>
-              <p className="text-sm text-neutral-gray mt-0.5">Makam terisi tiap blok</p>
+              <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 18, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">Distribusi per Blok</h3>
+              <p className="text-sm text-neutral-gray dark:text-dark-text-secondary mt-0.5">Makam terisi tiap blok</p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center">
               {blokLoading ? (
@@ -379,8 +379,8 @@ export default function Dashboard() {
                     {blokData.map((b, i) => (
                       <div key={b.name} className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: b.color }} />
-                        <span className="text-sm font-medium text-neutral-gray">
-                          {b.name}: <strong className="text-neutral-black">{b.terisi}</strong>/{b.kapasitas}
+                        <span className="text-sm font-medium text-neutral-gray dark:text-dark-text-secondary">
+                          {b.name}: <strong className="text-neutral-black dark:text-dark-text-primary">{b.terisi}</strong>/{b.kapasitas}
                         </span>
                       </div>
                     ))}
@@ -404,8 +404,8 @@ export default function Dashboard() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl p-10 text-center flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
-          <p className="text-neutral-gray text-base">Statistik detail hanya tersedia untuk Master.</p>
+        <div className="bg-white dark:bg-dark-surface rounded-xl p-10 text-center flex-1" style={{ border: "1px solid rgba(221,221,221,0.5)" }}>
+          <p className="text-neutral-gray dark:text-dark-text-secondary text-base">Statistik detail hanya tersedia untuk Master.</p>
         </div>
       )}
     </div>

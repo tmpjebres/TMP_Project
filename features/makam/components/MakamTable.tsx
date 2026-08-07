@@ -34,7 +34,7 @@ function SortTh({
     >
       <span className="flex items-center gap-1">
         {label}
-        <span className="text-neutral-gray text-xs">{indicator}</span>
+        <span className="text-neutral-gray dark:text-dark-text-secondary text-xs">{indicator}</span>
       </span>
     </th>
   );
@@ -48,14 +48,14 @@ function formatTanggal(val: string) {
 export function MakamTable({ data, sortConfig, onSort, onEdit, onDelete, canEdit }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid rgba(221,221,221,0.5)' }}>
-        <p className="text-center py-12 text-neutral-gray text-base">Tidak ada data ditemukan.</p>
+      <div className="bg-white dark:bg-dark-surface rounded-xl overflow-hidden" style={{ border: '1px solid rgba(221,221,221,0.5)' }}>
+        <p className="text-center py-12 text-neutral-gray dark:text-dark-text-secondary text-base">Tidak ada data ditemukan.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid rgba(221,221,221,0.5)' }}>
+    <div className="bg-white dark:bg-dark-surface rounded-xl overflow-hidden" style={{ border: '1px solid rgba(221,221,221,0.5)' }}>
       <div className="overflow-x-auto">
         <table className="data-table">
           <thead>
@@ -76,7 +76,7 @@ export function MakamTable({ data, sortConfig, onSort, onEdit, onDelete, canEdit
               <tr key={item.id}>
                 <td className="text-base font-semibold">{item.nama}</td>
                 <td className="text-base">
-                  <span className="px-2 py-0.5 bg-green-light text-green-primary text-sm font-semibold rounded">
+                  <span className="px-2 py-0.5 bg-green-light dark:bg-dark-brand-light text-green-primary dark:text-dark-brand-accent text-sm font-semibold rounded">
                     {item.blokNama}
                   </span>
                 </td>

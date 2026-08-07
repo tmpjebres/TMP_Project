@@ -27,7 +27,7 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
     <div className="flex flex-wrap items-center gap-3">
       {value.view !== 'tahun' && (
         <select
-          className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
+          className="text-sm font-medium rounded-lg px-3 py-2 bg-white dark:bg-dark-surface text-neutral-black dark:text-dark-text-primary outline-none"
           style={{ border: '1px solid #DDDDDD' }}
           value={value.month}
           onChange={(e) => {
@@ -43,7 +43,7 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
       )}
 
       <select
-        className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
+        className="text-sm font-medium rounded-lg px-3 py-2 bg-white dark:bg-dark-surface text-neutral-black dark:text-dark-text-primary outline-none"
         style={{ border: '1px solid #DDDDDD' }}
         value={value.year}
         onChange={(e) => {
@@ -59,7 +59,7 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
 
       {value.view === 'minggu' && (
         <select
-          className="text-sm font-medium rounded-lg px-3 py-2 bg-white text-neutral-black outline-none"
+          className="text-sm font-medium rounded-lg px-3 py-2 bg-white dark:bg-dark-surface text-neutral-black dark:text-dark-text-primary outline-none"
           style={{ border: '1px solid #DDDDDD' }}
           value={value.week}
           onChange={(e) => onChange({ ...value, week: Number(e.target.value) })}
@@ -70,15 +70,15 @@ export default function PeriodSelector({ value, onChange }: PeriodSelectorProps)
         </select>
       )}
 
-      <div className="flex rounded-lg p-1 bg-neutral-light-gray">
+      <div className="flex rounded-lg p-1 bg-neutral-light-gray dark:bg-dark-surface-hover">
         {VIEW_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             onClick={() => onChange({ ...value, view: opt.value, week: opt.value === 'minggu' ? (value.week || 1) : value.week })}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               value.view === opt.value
-                ? 'bg-white text-green-primary shadow-sm'
-                : 'text-neutral-gray hover:text-green-primary'
+                ? 'bg-white dark:bg-dark-surface text-green-primary dark:text-dark-brand-accent shadow-sm'
+                : 'text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
             }`}
           >
             {opt.label}

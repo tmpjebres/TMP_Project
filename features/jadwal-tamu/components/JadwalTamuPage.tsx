@@ -142,13 +142,13 @@ export default function JadwalTamuPage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-5 p-5 lg:p-6 min-h-screen bg-neutral-white">
+    <div className="flex flex-col lg:flex-row gap-5 p-5 lg:p-6 min-h-screen bg-neutral-white dark:bg-dark-surface">
       <div className="flex-1 min-w-0">
         <div className="mb-1">
-          <h1 className="text-xl font-bold text-neutral-black" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+          <h1 className="text-xl font-bold text-neutral-black dark:text-dark-text-primary" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             Jadwal Tamu
           </h1>
-          <p className="text-sm text-neutral-gray">Kalender rencana kedatangan tamu ke TMP</p>
+          <p className="text-sm text-neutral-gray dark:text-dark-text-secondary">Kalender rencana kedatangan tamu ke TMP</p>
         </div>
 
         <div className="mt-4">
@@ -164,7 +164,7 @@ export default function JadwalTamuPage() {
           />
 
           {loading ? (
-            <div className="flex items-center justify-center h-64 text-neutral-gray text-sm">Memuat jadwal...</div>
+            <div className="flex items-center justify-center h-64 text-neutral-gray dark:text-dark-text-secondary text-sm">Memuat jadwal...</div>
           ) : (
             <>
               {viewMode === 'month' && (

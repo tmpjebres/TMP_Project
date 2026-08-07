@@ -22,13 +22,13 @@ export default function SortableHeader({
     <th style={{ fontSize: 14 }}>
       <button
         onClick={() => onSort(sortKey)}
-        className="flex items-center gap-1 font-semibold hover:text-neutral-black transition-colors"
+        className="flex items-center gap-1 font-semibold hover:text-neutral-black dark:text-dark-text-primary transition-colors"
       >
         {label}
         {isActive ? (
           dir === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />
         ) : (
-          <ArrowUpDown size={14} className="text-neutral-gray/50" />
+          <ArrowUpDown size={14} className="text-neutral-gray dark:text-dark-text-secondary/50" />
         )}
       </button>
     </th>

@@ -39,17 +39,17 @@ export default function Profile() {
       {showToast && <Toast message="Password berhasil diperbarui" onDone={() => setShowToast(false)} />}
 
       <div className="mb-6">
-        <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 28, fontWeight: 800 }} className="text-neutral-black">Profil</h1>
-        <p className="text-base text-neutral-gray mt-1">Informasi akun Anda</p>
+        <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 28, fontWeight: 800 }} className="text-neutral-black dark:text-dark-text-primary">Profil</h1>
+        <p className="text-base text-neutral-gray dark:text-dark-text-secondary mt-1">Informasi akun Anda</p>
       </div>
 
-      <div className="bg-white rounded-2xl p-8 mb-6" style={{ border: '1px solid rgba(221,221,221,0.5)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div className="bg-white dark:bg-dark-surface rounded-2xl p-8 mb-6" style={{ border: '1px solid rgba(221,221,221,0.5)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="flex items-center gap-5 mb-8">
-          <div className="w-20 h-20 bg-green-light rounded-full flex items-center justify-center flex-shrink-0">
-            <User size={40} className="text-green-primary" />
+          <div className="w-20 h-20 bg-green-light dark:bg-dark-brand-light rounded-full flex items-center justify-center flex-shrink-0">
+            <User size={40} className="text-green-primary dark:text-dark-brand-accent" />
           </div>
           <div>
-            <p style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 22, fontWeight: 700 }} className="text-neutral-black">{user?.username}</p>
+            <p style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 22, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">{user?.username}</p>
             <span className={`px-3 py-1 text-sm font-semibold rounded-full mt-1 inline-block ${user?.role === 'master' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
               {user?.role === 'master' ? 'Master' : 'Operator'}
             </span>
@@ -57,36 +57,36 @@ export default function Profile() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-bold text-neutral-gray uppercase tracking-wider mb-2">Username</label>
+            <label className="block text-sm font-bold text-neutral-gray dark:text-dark-text-secondary uppercase tracking-wider mb-2">Username</label>
             <input type="text" value={user?.username ?? ''} readOnly
-              className="form-input text-base py-3.5 bg-neutral-light-gray cursor-not-allowed text-neutral-gray" />
+              className="form-input text-base py-3.5 bg-neutral-light-gray dark:bg-dark-surface-hover cursor-not-allowed text-neutral-gray dark:text-dark-text-secondary" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-neutral-gray uppercase tracking-wider mb-2">Role</label>
+            <label className="block text-sm font-bold text-neutral-gray dark:text-dark-text-secondary uppercase tracking-wider mb-2">Role</label>
             <input type="text" value={user?.role === 'master' ? 'Master' : 'Operator'} readOnly
-              className="form-input text-base py-3.5 bg-neutral-light-gray cursor-not-allowed text-neutral-gray" />
+              className="form-input text-base py-3.5 bg-neutral-light-gray dark:bg-dark-surface-hover cursor-not-allowed text-neutral-gray dark:text-dark-text-secondary" />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-8" style={{ border: '1px solid rgba(221,221,221,0.5)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700 }} className="text-neutral-black mb-6">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl p-8" style={{ border: '1px solid rgba(221,221,221,0.5)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary mb-6">
           Ganti Password
         </h2>
         <form onSubmit={handleUpdatePassword}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
             <div>
-              <label className="block text-base font-semibold text-neutral-black mb-2">Password Saat Ini</label>
+              <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Password Saat Ini</label>
               <input type="password" className="form-input text-base py-3.5" placeholder="Password saat ini" value={currentPwd}
                 onChange={e => { setCurrentPwd(e.target.value); setError(''); }} />
             </div>
             <div>
-              <label className="block text-base font-semibold text-neutral-black mb-2">Password Baru</label>
+              <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Password Baru</label>
               <input type="password" className="form-input text-base py-3.5" placeholder="Min. 8 karakter" value={newPwd}
                 onChange={e => { setNewPwd(e.target.value); setError(''); }} />
             </div>
             <div>
-              <label className="block text-base font-semibold text-neutral-black mb-2">Konfirmasi Password</label>
+              <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">Konfirmasi Password</label>
               <input type="password" className="form-input text-base py-3.5" placeholder="Ulangi password baru" value={confirmPwd}
                 onChange={e => { setConfirmPwd(e.target.value); setError(''); }} />
             </div>

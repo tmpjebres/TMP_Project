@@ -35,15 +35,15 @@ export default function WeekView({
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #EEEEEE' }}>
       <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)', borderBottom: '1px solid #EEEEEE' }}>
-        <div className="bg-neutral-light-gray" />
+        <div className="bg-neutral-light-gray dark:bg-dark-surface-hover" />
         {days.map((day) => {
           const isToday = isSameDay(day, today);
           return (
-            <div key={day.toISOString()} className="py-2.5 text-center bg-neutral-light-gray" style={{ borderLeft: '1px solid #EEEEEE' }}>
-              <div className="text-xs font-semibold text-neutral-gray">{format(day, 'EEE', { locale: localeId })}</div>
+            <div key={day.toISOString()} className="py-2.5 text-center bg-neutral-light-gray dark:bg-dark-surface-hover" style={{ borderLeft: '1px solid #EEEEEE' }}>
+              <div className="text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary">{format(day, 'EEE', { locale: localeId })}</div>
               <div
                 className={`inline-flex items-center justify-center w-6 h-6 text-xs rounded-full font-medium mt-0.5 ${
-                  isToday ? 'bg-green-primary text-white' : 'text-neutral-black'
+                  isToday ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : 'text-neutral-black dark:text-dark-text-primary'
                 }`}
               >
                 {format(day, 'd')}
@@ -59,7 +59,7 @@ export default function WeekView({
             {HOUR_ROWS.map((h) => (
               <div
                 key={h}
-                className="text-[10px] text-neutral-gray text-right pr-2 "
+                className="text-[10px] text-neutral-gray dark:text-dark-text-secondary text-right pr-2 "
                 style={{ height: ROW_HEIGHT, borderTop: '1px solid #F3F3F3' }}
               >
                 {String(h).padStart(2, '0')}:00

@@ -25,16 +25,16 @@ export default function MiniCalendar({ anchorDate, events, onSelectDate, onMonth
   };
 
   return (
-    <div className="p-4 rounded-xl bg-white" style={{ border: '1px solid #EEEEEE' }}>
+    <div className="p-4 rounded-xl bg-white dark:bg-dark-surface" style={{ border: '1px solid #EEEEEE' }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-bold text-neutral-black capitalize" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+        <span className="text-sm font-bold text-neutral-black dark:text-dark-text-primary capitalize" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
           {format(anchorDate, 'MMMM yyyy', { locale: localeId })}
         </span>
         <div className="flex items-center gap-1">
-          <button onClick={() => onMonthShift(-1)} className="p-1 rounded-md hover:bg-green-light text-neutral-gray hover:text-green-primary">
+          <button onClick={() => onMonthShift(-1)} className="p-1 rounded-md hover:bg-green-light dark:bg-dark-brand-light text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent">
             <ChevronLeft size={14} />
           </button>
-          <button onClick={() => onMonthShift(1)} className="p-1 rounded-md hover:bg-green-light text-neutral-gray hover:text-green-primary">
+          <button onClick={() => onMonthShift(1)} className="p-1 rounded-md hover:bg-green-light dark:bg-dark-brand-light text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent">
             <ChevronRight size={14} />
           </button>
         </div>
@@ -42,7 +42,7 @@ export default function MiniCalendar({ anchorDate, events, onSelectDate, onMonth
 
       <div className="grid grid-cols-7 gap-y-1">
         {HARI.map((h, i) => (
-          <span key={i} className="text-[10px] text-neutral-gray text-center font-medium">{h}</span>
+          <span key={i} className="text-[10px] text-neutral-gray dark:text-dark-text-secondary text-center font-medium">{h}</span>
         ))}
         {days.map((day, idx) => {
           const inMonth = isSameMonth(day, anchorDate);

@@ -12,16 +12,16 @@ export default function PhotoPreviewModal({ photoUrl, onClose }: PhotoPreviewMod
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl overflow-hidden shadow-2xl max-w-lg w-full"
+        className="relative bg-white dark:bg-dark-surface rounded-2xl overflow-hidden shadow-2xl max-w-lg w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 16, fontWeight: 700 }} className="text-neutral-black">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-dark-border">
+          <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 16, fontWeight: 700 }} className="text-neutral-black dark:text-dark-text-primary">
             Bukti Foto Tamu
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray rounded-lg transition-colors"
+            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
           >
             <X size={20} />
           </button>

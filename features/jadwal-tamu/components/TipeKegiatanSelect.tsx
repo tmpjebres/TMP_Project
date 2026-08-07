@@ -51,7 +51,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
             type="button"
             onClick={handleConfirmNew}
             disabled={busy}
-            className="px-3 py-2.5 rounded-lg bg-green-primary text-white text-xs font-semibold hover:bg-green-secondary transition-colors disabled:opacity-60"
+            className="px-3 py-2.5 rounded-lg bg-green-primary dark:bg-dark-brand-secondary text-white text-xs font-semibold hover:bg-green-secondary dark:bg-dark-brand-primary transition-colors disabled:opacity-60"
           >
             {busy ? '...' : 'Tambah'}
           </button>
@@ -62,7 +62,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
               setNewValue('');
               setError(null);
             }}
-            className="p-2.5 rounded-lg hover:bg-neutral-light-gray text-neutral-gray"
+            className="p-2.5 rounded-lg hover:bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary"
           >
             <X size={16} />
           </button>
@@ -94,7 +94,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
             type="button"
             onClick={() => onChange(tipe.nama)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              active ? 'bg-green-primary text-white' : 'bg-neutral-light-gray text-neutral-gray hover:text-green-primary'
+              active ? 'bg-green-primary dark:bg-dark-brand-secondary text-white' : 'bg-neutral-light-gray dark:bg-dark-surface-hover text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent'
             }`}
           >
             {tipe.nama}
@@ -104,7 +104,7 @@ export default function TipeKegiatanSelect({ tipeList, value, onChange, onAddNew
       <button
         type="button"
         onClick={() => setAddingNew(true)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed text-neutral-gray hover:text-green-primary hover:border-green-primary transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed text-neutral-gray dark:text-dark-text-secondary hover:text-green-primary dark:text-dark-brand-accent hover:border-green-primary dark:border-dark-brand-primary transition-colors"
         style={{ borderColor: '#DDDDDD' }}
       >
         <Plus size={13} />

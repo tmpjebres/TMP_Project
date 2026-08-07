@@ -48,7 +48,7 @@ function FormField({
 }: FormFieldProps) {
   return (
     <div className={className}>
-      <label className="block text-base font-semibold text-neutral-black mb-2">
+      <label className="block text-base font-semibold text-neutral-black dark:text-dark-text-primary mb-2">
         {label}
         {required && (
           <span className="text-status-danger ml-1" aria-label="wajib diisi">
@@ -172,7 +172,7 @@ export function MakamModal({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 my-8">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-2xl p-8 my-8">
         <div className="flex items-center justify-between mb-6">
           <h2
             id="modal-title"
@@ -181,13 +181,13 @@ export function MakamModal({
               fontSize: 20,
               fontWeight: 700,
             }}
-            className="text-neutral-black"
+            className="text-neutral-black dark:text-dark-text-primary"
           >
             {makam ? "Edit Makam" : "Tambah Makam"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-light-gray rounded-lg transition-colors"
+            className="p-2 hover:bg-neutral-light-gray dark:bg-dark-surface-hover rounded-lg transition-colors"
             aria-label="Tutup modal"
           >
             <X size={20} />
