@@ -1,392 +1,1461 @@
 # TMP Project
 
+**Sistem Administrasi Taman Makam Pahlawan**
+
+TMP Project is a role-based web application for the administration and day-to-day management of a **Taman Makam Pahlawan (TMP)**. The application centralizes cemetery records, visitor management, scheduled activities, notifications, user administration, dashboard reporting, and activity auditing in a single web-based system.
+
+Built with **Next.js 14 App Router** and **Supabase**, TMP combines a feature-oriented application architecture with PostgreSQL, Row Level Security (RLS), Supabase Authentication, and private file storage.
+
+> **Documentation status:** This README is based on the repository implementation available at the time of analysis. The application source code, configuration, database definitions, migrations, and package scripts are treated as the primary sources of truth.
+
+---
+
 ## Overview
 
-TMP Project is a Next.js 14 (App Router) web dashboard for administering a **Taman Makam Pahlawan** (heroes' cemetery), as stated in the application metadata: `"Sistem Administrasi Taman Makam Pahlawan"` (`app/layout.tsx`). The application manages visitor registration (`tamu`), grave/cemetery-block records (`makam`, `blok`), scheduled visits/events (`jadwal_tamu`), user accounts, and system notifications, backed by Supabase (PostgreSQL + Auth + Storage).
+TMP is designed around two application roles:
 
-The application is a single Next.js project (frontend + API routes in one codebase), with Supabase as the sole backend/data platform. There is no separate backend service in the repository.
+| Role         | Description                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Master**   | Administrative role with access to privileged management, user administration, dashboard reporting, and other master-only operations. |
+| **Operator** | Operational role intended primarily for day-to-day application usage and visitor data entry.                                          |
+
+The system covers the following core domains:
+
+* Cemetery block and grave management
+* Individual and group visitor management
+* Visitor activity scheduling
+* Application notifications
+* User administration and role management
+* Failed-login security alerts
+* Activity and audit logging
+* Dashboard statistics and reporting
+* PDF report generation
+* Visitor and schedule attachment storage
+
+TMP is implemented as a **single Next.js application**. There is no separate backend service in the repository; Supabase provides authentication, PostgreSQL data storage, Row Level Security, and file storage, while Next.js provides the application UI, routing, and privileged server-side route handlers.
+
+---
 
 ## Key Features
 
-Based on the `features/` directory and corresponding routes under `app/(dashboard)/`:
+### Cemetery Management
 
-- **Visitor intake (`tamu`)** — register individual (`tamu-umum`) and group (`tamu-rombongan`) visitors, including photo capture, and view/edit/delete a visitor list (`daftar-tamu`).
-- **Visit scheduling (`jadwal-tamu`)** — calendar-based scheduling of activities/events with month/week/year views, attachments, and conflict detection (`ConflictConfirmDialog.tsx`).
-- **Grave records (`makam`)** — list, search, sort, and manage grave records tied to cemetery blocks.
-- **Cemetery blocks (`blok`)** — manage block capacity and occupancy (`kapasitas`, `terisi`).
-- **User management (`user-management`)** — create/edit/delete/deactivate user accounts; restricted to the `master` role (`features/user`, `app/api/users/route.ts`).
-- **Notifications (`notifikasi`)** — upcoming/past event reminders and security alerts (e.g. failed login streaks), computed from `jadwal_tamu` and related tables (`features/notifikasi/api.ts`).
-- **Dashboard reporting** — a dashboard overview (`features/dashboard`) with a server-generated PDF export (`app/api/reports/dashboard/route.ts`, `lib/reports/dashboard-report.ts`, using `pdfkit`).
-- **Activity log** — an audit trail of create/update/delete/export actions (`lib/activity-log.ts`, `activity_log` table, migration `20260804_activity_log.sql`).
+Manage cemetery blocks and grave records, including:
 
-No functionality beyond what is listed above was identified in the repository.
+* Block capacity
+* Current occupancy
+* Grave records
+* Grave-to-block relationships
+* Grave search and sorting
+* Grave CRUD operations
 
-## Architecture
+Block occupancy is also maintained at the database level through PostgreSQL triggers when grave records are inserted, updated, or deleted.
 
-### Architecture Overview
+### Visitor Management
 
-The project follows a **feature-based architecture** layered on top of the Next.js App Router:
+TMP supports two visitor categories:
 
-- `app/` — routing, layouts, and the only two API route handlers in the project.
-- `features/<domain>/` — per-domain UI components, hooks, and data-access (`api.ts`) modules (`tamu`, `jadwal-tamu`, `blok`, `makam`, `user`, `notifikasi`, `dashboard`, `auth`).
-- `lib/` — cross-cutting infrastructure: Supabase clients, React Contexts (auth, theme, sidebar, notifications), activity logging, PDF report generation, and shared utilities.
-- `components/ui/` — shared, non-domain-specific UI primitives (Sidebar, Toast, LoadingButton, CameraCapture, etc.).
-- `types/index.ts` — a single shared TypeScript type module for domain entities.
-- `supabase/` and `supabase-schema.sql` — database schema and migrations (source of truth for the data model).
+* **Individual / general visitors**
+* **Group / organizational visitors**
 
-This is **not** a strictly layered (controller/service/repository) architecture. Each feature's `api.ts` talks directly to Supabase (via `supabaseClient`) from the client, combining what would elsewhere be "service" and "data access" responsibilities. There is no dedicated service layer, repository layer, or dependency-injection mechanism.
+Visitor management includes:
 
-### Architecture Diagram
+* Visitor registration
+* Visitor identity and visit information
+* Group information
+* Visitor list and search
+* Visitor editing and deletion
+* Visitor photo capture/upload
 
-```mermaid
-flowchart TB
-    subgraph Client["Browser (Client Components)"]
-        UI["Feature UI Components<br/>(features/*/components)"]
-        Ctx["React Contexts<br/>(auth, theme, sidebar, notification)"]
-        FeatureAPI["Feature api.ts modules<br/>(features/*/api.ts)"]
-    end
+### Visitor Activity Scheduling
 
-    subgraph NextServer["Next.js Server (app/)"]
-        Pages["App Router Pages/Layouts"]
-        APIUsers["/api/users route handler"]
-        APIReports["/api/reports/dashboard route handler"]
-    end
+The scheduling module provides calendar-based management of visitor activities and events.
 
-    subgraph Supabase["Supabase Platform"]
-        Auth["Supabase Auth"]
-        DB[("PostgreSQL: profiles, blok, makam,\ntamu_umum, tamu_rombongan, jadwal_tamu,\nactivity_log, login_attempts")]
-        Storage["Supabase Storage\n(tamu photos, jadwal-tamu attachments)"]
-    end
+Supported capabilities include:
 
-    UI --> Ctx
-    UI --> FeatureAPI
-    FeatureAPI -->|"anon key, client-side"| Auth
-    FeatureAPI -->|"anon key, RLS-scoped"| DB
-    FeatureAPI --> Storage
+* Activity name and type
+* Institution
+* Activity leader
+* Group size
+* Start and end date/time
+* Month, week, and year calendar views
+* Schedule conflict detection
+* Conflict confirmation workflow
+* Attachments
+* External links
+* Soft deletion
+* Schedule audit history
 
-    Pages --> UI
-    UI -->|"Authorization: Bearer <token>"| APIUsers
-    UI -->|"Authorization: Bearer <token>"| APIReports
-    APIUsers -->|"service role key"| Auth
-    APIUsers -->|"service role key"| DB
-    APIReports -->|"service role key"| DB
-```
+Supported schedule attachment formats include:
 
-### Application Layers
+* PDF
+* JPEG
+* PNG
+* WebP
+* External links
 
-| Layer | Present? | Location | Notes |
-|---|---|---|---|
-| Presentation / routing | Yes | `app/` | App Router pages, layouts, route groups |
-| UI / component layer | Yes | `features/*/components`, `components/ui` | Client components (`'use client'`) |
-| Feature/domain logic | Yes | `features/*` | Colocated components, hooks, `api.ts` |
-| Data access | Merged into feature layer | `features/*/api.ts` | Direct Supabase queries; no separate repository layer |
-| Server API layer | Minimal | `app/api/users`, `app/api/reports/dashboard` | Only 2 route handlers exist |
-| Infrastructure / cross-cutting | Yes | `lib/` | Supabase clients, contexts, activity log, PDF reports |
-| Database | Yes | `supabase-schema.sql`, `supabase/migrations` | PostgreSQL via Supabase, with Row Level Security policies |
+Attachments are stored in the private `jadwal-tamu-attachment` Supabase Storage bucket.
 
-### Data Flow
+### Notifications
 
-**Read/write flow for most domain features (e.g. visitor intake, grave records, blocks):**
+The notification system provides schedule-related notifications for:
+
+* `H-1` / one day before an activity
+* `H` / the current day
+* Past scheduled activities within the notification history window
+
+Notification read state is maintained per user.
+
+The notification module also exposes security alerts related to repeated failed login attempts.
+
+### Security Alerts
+
+TMP tracks unsuccessful login attempts through the `login_attempts` table.
+
+A database trigger can generate a security alert when the configured failed-login pattern is detected. The implemented detection logic evaluates the latest five login attempts for a username and can generate an alert when five consecutive attempts fail within a 30-minute window, subject to the existing alert-window logic.
+
+Security alerts are restricted to Master users through the application's authorization model and database policies.
+
+### User Management
+
+Master users can:
+
+* Create users
+* Update usernames
+* Update full names
+* Change roles
+* Activate or deactivate accounts
+* Delete users
+* View user activity
+* Review login history
+
+A user cannot deactivate or delete their own account through the implemented management operations.
+
+### Dashboard & Reporting
+
+The dashboard provides:
+
+* Visitor statistics
+* Period-based visitor views
+* Cemetery block occupancy distribution
+* Scheduled activity summaries
+* Dashboard visualizations
+
+Dashboard reports can be generated as PDF files through a server-side Next.js route handler using PDFKit.
+
+Supported reporting periods include:
+
+* Week
+* Month
+* Year
+
+PDF export activity is recorded in the application activity log.
+
+### Activity & Audit Logging
+
+TMP maintains application-level activity records for administrative operations such as:
+
+* Create
+* Update
+* Delete
+* Activate
+* Deactivate
+* Export
+
+The scheduling module additionally maintains a dedicated schedule audit log.
+
+---
+
+# Architecture
+
+## Architecture Overview
+
+TMP follows a **feature-oriented architecture** built on top of the Next.js App Router.
+
+The repository is organized around three primary application concerns:
+
+1. **Routing and application entry points** under `app/`
+2. **Domain-specific feature modules** under `features/`
+3. **Shared infrastructure and cross-cutting concerns** under `lib/`
+
+The architecture is intentionally pragmatic rather than a strict controller/service/repository pattern. Feature-level `api.ts` modules perform direct Supabase data access, while privileged operations that require server-side credentials are implemented through Next.js Route Handlers.
 
 ```text
-User (browser)
- ↓
-Feature UI component ('use client')
- ↓
-features/<domain>/api.ts function
- ↓
-supabaseClient (anon key, browser-side, RLS-enforced)
- ↓
-Supabase PostgreSQL / Storage
- ↓
-Response mapped from snake_case row → camelCase domain type (types/index.ts)
- ↓
-React state update in the component/hook
- ↓
-UI re-render
+┌─────────────────────────────────────────────────────┐
+│                  Next.js App Router                 │
+│              Routes · Layouts · Pages               │
+└──────────────────────────┬──────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────┐
+│                   Feature Modules                   │
+│                                                     │
+│ auth · dashboard · tamu · jadwal-tamu               │
+│ makam · blok · notifikasi · user                    │
+└──────────────────────────┬──────────────────────────┘
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+┌──────────────────────────┐   ┌──────────────────────┐
+│ Shared Infrastructure    │   │ Next.js Route        │
+│                          │   │ Handlers              │
+│ Contexts · UI · Reports  │   │                      │
+│ Supabase · Utilities     │   │ Users · Reports      │
+└────────────┬─────────────┘   └──────────┬───────────┘
+             │                            │
+             └──────────────┬─────────────┘
+                            ▼
+                 ┌──────────────────────┐
+                 │       Supabase       │
+                 │                      │
+                 │ Auth · PostgreSQL    │
+                 │ RLS · Storage        │
+                 └──────────────────────┘
 ```
 
-**Privileged flow for user management and dashboard PDF export:**
+### Architectural Characteristics
+
+| Concern                           | Implementation                                                |
+| --------------------------------- | ------------------------------------------------------------- |
+| Routing                           | Next.js App Router                                            |
+| Domain organization               | Feature-oriented modules under `features/`                    |
+| Feature data access               | Direct Supabase queries through `features/*/api.ts`           |
+| Shared infrastructure             | `lib/`                                                        |
+| Shared UI                         | `components/ui/`                                              |
+| Server-side privileged operations | Next.js Route Handlers                                        |
+| Authentication                    | Supabase Auth                                                 |
+| Authorization                     | Application guards + server-side role checks + PostgreSQL RLS |
+| Database                          | PostgreSQL through Supabase                                   |
+| File storage                      | Supabase Storage                                              |
+
+TMP does **not** implement a dedicated service layer, repository layer, or dependency-injection framework. Data access is colocated with the relevant feature domain.
+
+---
+
+## Application Layers
+
+| Layer               | Location                           | Responsibility                                         |
+| ------------------- | ---------------------------------- | ------------------------------------------------------ |
+| Routing             | `app/`                             | Routes, layouts, pages, route handlers                 |
+| Feature UI          | `features/*/components`            | Domain-specific presentation and interaction           |
+| Feature logic       | `features/*`                       | Hooks, utilities, stateful behavior, domain logic      |
+| Feature data access | `features/*/api.ts`                | Supabase queries and row-to-domain mapping             |
+| Shared UI           | `components/ui/`                   | Reusable UI primitives                                 |
+| Shared state        | `lib/context/`                     | Authentication, notifications, theme, sidebar          |
+| Infrastructure      | `lib/`                             | Supabase clients, reports, activity logging, utilities |
+| Domain types        | `types/`                           | Shared TypeScript domain types                         |
+| Database            | `supabase/`, `supabase-schema.sql` | Schema, migrations, policies, triggers                 |
+
+---
+
+# Data Flow
+
+## Standard Feature Data Flow
+
+Most operational features follow this pattern:
 
 ```text
-User (browser, must already hold a Supabase session)
- ↓
-Feature UI component reads the current session's access token
- ↓
-fetch() to /api/users or /api/reports/dashboard with "Authorization: Bearer <token>"
- ↓
+User Interaction
+       ↓
+Next.js Route Page
+       ↓
+Feature UI Component
+       ↓
+Feature API Module
+       ↓
+Supabase Client
+       ↓
+PostgreSQL / Storage
+       ↓
+Mapped Application Data
+       ↓
+React State / Hook
+       ↓
+Rendered UI
+```
+
+Feature API modules generally perform direct browser-side communication with Supabase using the public Supabase client. Database operations are constrained by PostgreSQL Row Level Security.
+
+---
+
+## Authentication Flow
+
+```text
+Login Form
+    ↓
+AuthContext.login()
+    ↓
+Supabase Auth signInWithPassword()
+    ↓
+Supabase Auth Session
+    ↓
+profiles lookup
+    ↓
+Role + Active Status Verification
+    ↓
+Authenticated Application State
+```
+
+The application presents a username-based login interface while internally deriving the Supabase Auth email from the username:
+
+```text
+<username>@makam.app
+```
+
+The synthetic email convention is an implementation detail and is not exposed as a normal user-facing email field.
+
+---
+
+## Privileged Server Flow
+
+User management and dashboard PDF generation require server-side privileged operations.
+
+```text
+Browser
+   ↓
+Supabase Session Access Token
+   ↓
+Authorization: Bearer <access token>
+   ↓
 Next.js Route Handler
- ↓
-createServerSupabaseClient() (service role key)
- ↓
-serverClient.auth.getUser(token) — verifies the caller
- ↓
-Query "profiles" table to confirm caller.role === 'master'
- ↓
-Perform privileged operation (create/delete user via Supabase Auth Admin API,
- or query + build a PDF via pdfkit)
- ↓
-Write an activity_log entry
- ↓
-JSON or PDF response back to the browser
+   ↓
+Server Supabase Client
+   ↓
+Token Verification
+   ↓
+profiles Role Verification
+   ↓
+Master Authorization
+   ↓
+Privileged Operation
+   ↓
+Activity Log
+   ↓
+Response
 ```
 
-Both API route handlers (`app/api/users/route.ts`, `app/api/reports/dashboard/route.ts`) independently re-verify the bearer token and the caller's `master` role server-side before performing any privileged action; this authorization check was not found to be centralized (e.g. no shared middleware or wrapper function performs it).
+The privileged route handlers independently verify the bearer token and confirm that the caller has the `master` role before performing administrative operations.
 
-## Technology Stack
+---
 
-| Layer | Technology | Role |
-|---|---|---|
-| Framework | Next.js 14.2.5 (App Router) | Routing, rendering, API route handlers |
-| Language | TypeScript (`strict: true`) | Application language |
-| UI runtime | React 18 | Component rendering |
-| Styling | Tailwind CSS 3, `tailwindcss-animate`, `tailwind-merge`, `clsx` | Utility-first styling and conditional class composition |
-| Icons | `lucide-react` | Icon set used across UI components |
-| Charts | `recharts` | Dashboard data visualization |
-| 3D | `three` (+ `@types/three`) | Present as a dependency; usage was not exhaustively traced beyond dependency declaration — see *Documentation Gaps* |
-| Backend platform | Supabase (`@supabase/supabase-js`) | Auth, PostgreSQL database, file storage |
-| PDF generation | `pdfkit` (+ `@types/pdfkit`) | Server-side dashboard report export (`lib/reports`) |
-| Dates | `date-fns` | Date formatting/manipulation |
-| Linting | `next lint` (ESLint via Next.js) | Code linting; no standalone `.eslintrc` file was found in the repository |
-| Formatting | Not found in the repository | No Prettier configuration file was identified |
-| Testing | Not found in the repository | No test files, test runner, or test script were identified |
-| CI/CD | Not found in the repository | No GitHub Actions/GitLab CI configuration was identified |
-| Deployment | Not found in the repository | No Dockerfile, Vercel, or other deployment configuration was identified |
+# Technology Stack
 
-## Repository Structure
+| Layer            | Technology                      | Role                                                                                               |
+| ---------------- | ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js 14.2.5                  | Application framework, App Router, rendering, API route handlers                                   |
+| Language         | TypeScript                      | Application language                                                                               |
+| UI Runtime       | React 18                        | Component rendering                                                                                |
+| Styling          | Tailwind CSS 3.4.1              | Utility-first styling                                                                              |
+| CSS Processing   | PostCSS + Autoprefixer          | CSS build processing                                                                               |
+| Backend Platform | Supabase                        | Authentication, PostgreSQL, Storage                                                                |
+| Database         | PostgreSQL via Supabase         | Persistent application data                                                                        |
+| Supabase SDK     | `@supabase/supabase-js` 2.110.8 | Client/server Supabase integration                                                                 |
+| Charts           | Recharts                        | Dashboard visualization                                                                            |
+| Icons            | Lucide React                    | UI iconography                                                                                     |
+| Date Utilities   | date-fns                        | Date manipulation and formatting                                                                   |
+| PDF Generation   | PDFKit                          | Server-side dashboard report generation                                                            |
+| 3D               | Three.js                        | Repository dependency; concrete application usage should be verified against current feature usage |
+| Runtime          | Node.js / Next.js runtime       | Application execution                                                                              |
+
+---
+
+# Repository Structure
 
 ```text
 .
-├── app/                        # Next.js App Router: routes, layouts, API handlers
-│   ├── (dashboard)/            # Route group: authenticated dashboard pages
+├── app/
+│   ├── (dashboard)/
+│   │   ├── daftar-blok/
+│   │   ├── daftar-makam/
+│   │   ├── daftar-tamu/
+│   │   ├── input-tamu/
+│   │   ├── jadwal-tamu/
+│   │   ├── notifikasi/
+│   │   ├── profile/
+│   │   ├── user-management/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   │
 │   ├── api/
-│   │   ├── reports/dashboard/  # GET — dashboard PDF export
-│   │   └── users/              # POST/DELETE — user account management
-│   ├── login/                  # Public login page
-│   ├── help/                   # Help page
-│   ├── service-paused/         # Shown when the Supabase project is paused
-│   ├── error.tsx, not-found.tsx, layout.tsx, globals.css
-├── features/                   # Feature/domain modules (UI + hooks + api.ts)
-│   ├── auth/  blok/  dashboard/  jadwal-tamu/  makam/  notifikasi/  tamu/  user/
-├── components/ui/              # Shared, cross-feature UI primitives
-├── lib/                        # Supabase clients, React Contexts, activity log, reports, utils
-│   ├── context/  reports/  supabase/  utils/
-├── types/index.ts              # Shared domain type definitions
-├── supabase/migrations/        # Incremental SQL migrations
-├── supabase-schema.sql         # Base database schema (tables, RLS policies)
-├── data/                       # Source data files (CSV/XLSX) — not runtime application code
-├── next.config.js, tailwind.config.js, postcss.config.js, tsconfig.json
-└── package.json
+│   │   ├── reports/dashboard/
+│   │   └── users/
+│   │
+│   ├── help/
+│   ├── login/
+│   ├── service-paused/
+│   ├── error.tsx
+│   ├── not-found.tsx
+│   ├── globals.css
+│   └── layout.tsx
+│
+├── components/
+│   └── ui/
+│
+├── data/
+│   ├── DAFTAR NAMA PAHLAWAN DI TMP 2024 TOFIK.xlsx
+│   └── data_makam_cleaned.csv
+│
+├── features/
+│   ├── auth/
+│   ├── blok/
+│   ├── dashboard/
+│   ├── jadwal-tamu/
+│   ├── makam/
+│   ├── notifikasi/
+│   ├── tamu/
+│   └── user/
+│
+├── lib/
+│   ├── context/
+│   ├── reports/
+│   ├── supabase/
+│   ├── utils/
+│   ├── activity-log.ts
+│   └── routes.ts
+│
+├── supabase/
+│   └── migrations/
+│
+├── types/
+│   └── index.ts
+│
+├── next.config.js
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── supabase-schema.sql
+├── tailwind.config.js
+└── tsconfig.json
 ```
 
-`data/data_makam_cleaned.csv` and `data/DAFTAR NAMA PAHLAWAN DI TMP 2024 TOFIK.xlsx` are static source data files present in the repository; no code in the application reads them at runtime. They appear to be reference/seed data rather than application assets — this could not be verified further from the available source code.
+The `data/` directory contains static CSV/XLSX source data present in the repository. These files are not identified as runtime application dependencies.
 
-## Getting Started
+Generated or build-related artifacts are not considered application source.
 
-### Prerequisites
+---
 
-- Node.js (version not pinned in the repository — no `.nvmrc` or `engines` field was found)
-- A Supabase project (URL, anon key, and service role key)
-- npm (a `package-lock.json` is present; no other lockfile was found)
+# Getting Started
 
-### Installation
+## Prerequisites
+
+The repository requires:
+
+* Node.js compatible with the Next.js 14 toolchain
+* npm
+* A configured Supabase project
+* Required Supabase environment variables
+
+The repository does not currently pin a specific Node.js version through `.nvmrc` or a package `engines` field.
+
+---
+
+## Installation
+
+Install dependencies using the committed npm lockfile:
 
 ```bash
 npm install
 ```
 
-### Environment Configuration
+---
 
-No `.env`, `.env.example`, or `.env.local` file is present in the repository. The following environment variables are referenced directly in source code and are required for the application to run:
+## Environment Variables
 
-| Variable | Required | Used By | Purpose |
-|---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | `lib/supabase/client.ts` | Supabase project URL for both the browser client and server client |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | `lib/supabase/client.ts` | Public anon key used by the browser-side Supabase client (RLS-enforced) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes (for privileged API routes) | `lib/supabase/client.ts` (`createServerSupabaseClient`) | Service role key used only in `app/api/*` route handlers to bypass RLS for admin operations |
+Create a `.env.local` file in the project root.
 
-`lib/supabase/client.ts` throws at module load time if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, and `createServerSupabaseClient()` throws if `SUPABASE_SERVICE_ROLE_KEY` is missing. No variable values are reproduced here, and none should be committed to the repository.
+| Variable                        | Required                         | Purpose                                        |
+| ------------------------------- | -------------------------------- | ---------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes                              | Supabase project URL                           |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes                              | Public/browser Supabase key                    |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes for privileged server routes | Server-side administrative Supabase operations |
 
-### Running Locally
+The service-role key must remain server-side and must never be exposed to browser code.
+
+The repository does not contain a committed `.env.example` file.
+
+---
+
+## Database Configuration
+
+The repository contains database definitions through:
+
+```text
+supabase-schema.sql
+supabase/migrations/*.sql
+```
+
+The migration history covers functionality including:
+
+* Visitor scheduling
+* Activity types
+* Schedule notifications
+* Failed-login security alerts
+* Activity logging
+
+The base schema, generated database types, migrations, and application code should be reviewed together when initializing or synchronizing a Supabase environment.
+
+---
+
+## Running Locally
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-The dev server runs via `next dev` (default port 3000, per Next.js default — no custom port configuration was found).
+The development server uses the standard Next.js development behavior.
 
-## Application Structure
+---
 
-### Routing
+## Production Build
 
-The application uses the Next.js App Router with one route group, `(dashboard)`, for authenticated pages. Route protection is implemented client-side via `DashboardLayout` (`app/(dashboard)/layout.tsx`), which redirects to `/login` if no authenticated user is present. No `middleware.ts` file exists in the repository, so route protection is not enforced at the edge/middleware level — only inside client components after hydration.
+Build the application:
 
-| Route | Type | Purpose | Access | Implementation |
-|---|---|---|---|---|
-| `/login` | Page | Login form | Public (redirects away if already authenticated) | `app/login/page.tsx` → `features/auth/components/LoginPage.tsx` |
-| `/` | Page | Dashboard overview | Authenticated (any role) | `app/(dashboard)/page.tsx` → `features/dashboard/components/Dashboard.tsx` |
-| `/input-tamu` | Page | Visitor intake landing | Authenticated | `app/(dashboard)/input-tamu/page.tsx` |
-| `/input-tamu/tamu-umum` | Page | Register an individual visitor | Authenticated | `app/(dashboard)/input-tamu/tamu-umum/page.tsx` |
-| `/input-tamu/tamu-rombongan` | Page | Register a group visit | Authenticated | `app/(dashboard)/input-tamu/tamu-rombongan/page.tsx` |
-| `/daftar-tamu` | Page | Visitor list | Authenticated | `app/(dashboard)/daftar-tamu/page.tsx` |
-| `/jadwal-tamu` | Page | Visit/event scheduling calendar | Authenticated | `app/(dashboard)/jadwal-tamu/page.tsx` |
-| `/notifikasi` | Page | Notifications | Authenticated | `app/(dashboard)/notifikasi/page.tsx` |
-| `/daftar-blok` | Page | Cemetery block list | Authenticated | `app/(dashboard)/daftar-blok/page.tsx` |
-| `/daftar-makam` | Page | Grave records list | Authenticated | `app/(dashboard)/daftar-makam/page.tsx` |
-| `/input-makam` | Redirect | Redirects to `/daftar-makam` | — | `next.config.js` `redirects()` (non-permanent) |
-| `/user-management` | Page | User account administration | Authenticated + `master` role only | `app/(dashboard)/user-management/page.tsx`, gated by `RequireMaster` |
-| `/user-management/[id]` | Page | Edit a specific user | Authenticated + `master` role only | `app/(dashboard)/user-management/[id]/page.tsx`, gated by `RequireMaster` |
-| `/profile` | Page | Current user's profile | Authenticated | `app/(dashboard)/profile/page.tsx` |
-| `/help` | Page | Help/documentation page | Public (outside the dashboard layout) | `app/help/page.tsx` |
-| `/service-paused` | Page | Shown when the Supabase project is detected as paused | Public | `app/service-paused/page.tsx` |
-| `/api/users` | Route Handler (POST, DELETE) | Create/delete user accounts | Bearer token + `master` role, verified server-side | `app/api/users/route.ts` |
-| `/api/reports/dashboard` | Route Handler (GET) | Generate and download a dashboard PDF report | Bearer token + `master` role, verified server-side | `app/api/reports/dashboard/route.ts` |
-
-No server actions, no `loading.tsx` files, and no dedicated `error.tsx` per route segment were found beyond the single root-level `app/error.tsx` and `app/not-found.tsx`.
-
-### Features & Modules
-
-```text
-Application
-├── auth            — Login page, RequireMaster route guard, help page
-├── dashboard        — Overview widgets, period selector, schedule summary
-├── tamu             — Visitor intake & listing (umum + rombongan)
-├── jadwal-tamu      — Event scheduling calendar (month/week/year), attachments, conflict handling
-├── makam            — Grave record management (search, sort, CRUD)
-├── blok             — Cemetery block management (capacity/occupancy)
-├── user             — User account management (master-only)
-├── notifikasi       — Event reminders and security alerts
-└── Shared
-    ├── components/ui       — Sidebar, Toast, LoadingButton, PaginationBar, CameraCapture, ThemeToggle, etc.
-    └── lib                 — Supabase clients, contexts (auth/theme/sidebar/notification), activity log, PDF reports, date utils
+```bash
+npm run build
 ```
 
-Each feature under `features/` is self-contained: its own `components/`, optional `hooks/`, and an `api.ts` that performs Supabase queries directly. Cross-feature coupling was observed in `features/notifikasi/api.ts`, which imports `rowToJadwalTamu` and the `JadwalTamuRow` type from `features/jadwal-tamu/api.ts` to build notifications from schedule data. No other explicit cross-feature imports were found; feature boundaries are otherwise respected.
+Start the production server:
 
-### State Management
+```bash
+npm run start
+```
 
-| State type | Mechanism | Owner / Location |
-|---|---|---|
-| Authentication state | React Context (`AuthContext`), backed by Supabase session | `lib/context/auth-context.tsx` |
-| Theme (light/dark) | React Context + a blocking inline script to avoid flash-of-theme | `lib/context/theme-context.tsx` |
-| Sidebar collapsed/expanded | React Context | `lib/context/sidebar-context.tsx` |
-| Notifications | React Context | `lib/context/notification-context.tsx` |
-| Server/remote data (visitors, blocks, graves, schedules, users) | Local component/hook state, populated by direct calls to `features/*/api.ts` | Individual feature components/hooks (e.g. `features/user/hooks/useUserManagement.ts`) |
-| Form state | Local component state (`useState`) inside modal/form components | Feature components, e.g. `EventFormModal.tsx`, `CreateUserModal.tsx` |
+---
 
-No dedicated global state library (Redux, Zustand, Jotai, React Query, SWR, etc.) was found in `package.json` or in source imports. Server/remote data is fetched imperatively and held in local or context state rather than through a caching data-fetching library.
+# Application Structure
 
-### API
+## Routing
 
-The application exposes exactly two Next.js Route Handlers; all other data access happens directly from the browser to Supabase via `supabaseClient`.
+TMP uses the Next.js App Router.
 
-| Method | Endpoint | Purpose | Request | Response | Auth |
-|---|---|---|---|---|---|
-| POST | `/api/users` | Create a new user (Supabase Auth user + `profiles` row) | JSON body: `{ username, fullName, password, role }`; header `Authorization: Bearer <token>` | `{ data: { id, username, fullName, role, isActive, lastLoginAt, createdAt } }` or `{ error }` | Bearer token verified via `serverClient.auth.getUser`; caller's `profiles.role` must be `master` |
-| DELETE | `/api/users` | Delete a user (Supabase Auth user; `profiles` cascades) | JSON body: `{ userId }`; header `Authorization: Bearer <token>` | `{ success: true }` or `{ error }` | Same as above; caller cannot delete their own account |
-| GET | `/api/reports/dashboard` | Generate a dashboard PDF report for a given period | Query params: `view` (`minggu`\|`bulan`\|`tahun`), `month`, `year`, `week`; header `Authorization: Bearer <token>` | Binary `application/pdf` (as a file download) or `{ error }` JSON | Same bearer/`master`-role check as above |
+| Route                        | Type          | Access        | Purpose                            |
+| ---------------------------- | ------------- | ------------- | ---------------------------------- |
+| `/`                          | Page          | Authenticated | Dashboard overview                 |
+| `/login`                     | Page          | Public        | Authentication                     |
+| `/input-tamu`                | Page          | Authenticated | Visitor entry                      |
+| `/input-tamu/tamu-umum`      | Page          | Authenticated | Individual visitor entry           |
+| `/input-tamu/tamu-rombongan` | Page          | Authenticated | Group visitor entry                |
+| `/daftar-tamu`               | Page          | Authenticated | Visitor records                    |
+| `/jadwal-tamu`               | Page          | Authenticated | Visitor activity scheduling        |
+| `/notifikasi`                | Page          | Authenticated | Notifications                      |
+| `/daftar-blok`               | Page          | Authenticated | Cemetery block management          |
+| `/daftar-makam`              | Page          | Authenticated | Grave records                      |
+| `/user-management`           | Page          | Master        | User administration                |
+| `/user-management/[id]`      | Dynamic Page  | Master        | User details and activity          |
+| `/profile`                   | Page          | Authenticated | Current user profile               |
+| `/help`                      | Page          | Public        | Help                               |
+| `/service-paused`            | Page          | Public/System | Supabase/project unavailable state |
+| `/api/users`                 | Route Handler | Master        | User creation/deletion             |
+| `/api/reports/dashboard`     | Route Handler | Master        | Dashboard PDF export               |
 
-All other domain reads/writes (visitors, graves, blocks, schedules, notifications) go directly from the browser to Supabase's PostgREST API via `@supabase/supabase-js`, protected by Row Level Security policies defined in `supabase-schema.sql` and the migration files, not by a Next.js API layer.
+The compatibility path:
 
-### Authentication & Authorization
+```text
+/input-makam
+    ↓
+/daftar-makam
+```
 
-- **Authentication** is implemented via Supabase Auth, using `email = "<username>@makam.app"` as a synthetic email derived from a username/password login form (`lib/context/auth-context.tsx`, `usernameToEmail`). There is no separate "email" concept exposed to end users.
-- **Session handling**: the Supabase client persists sessions and auto-refreshes tokens (`persistSession: true`, `autoRefreshToken: true` in `lib/supabase/client.ts`). `AuthProvider` listens to `onAuthStateChange` and loads the corresponding `profiles` row.
-- **Account deactivation**: if a user's `profiles.is_active` is `false`, the client forces a sign-out on next profile load.
-- **Authorization** is role-based with exactly two roles, `master` and `operator` (`types/index.ts`). Two enforcement points were identified:
-  - **Client-side route guards**: `DashboardLayout` requires any authenticated user; `RequireMaster` additionally requires `role === 'master'` for `user-management` routes and gates the dashboard vs. input-tamu default in `app/login/page.tsx`.
-  - **Database-level Row Level Security**: `supabase-schema.sql` defines RLS policies per table (e.g. `"Master can manage blok"`, `"Authenticated can insert tamu_umum"`, `"Master can update tamu_umum"`), which is the actual enforcement boundary for direct client-to-Supabase queries.
-  - **Server-side route handlers** (`/api/users`, `/api/reports/dashboard`) independently re-verify the bearer token and `master` role using the service-role Supabase client before performing privileged operations.
-- No `middleware.ts` was found, so authorization is not enforced at the Next.js middleware/edge layer; it relies on client-side guards plus Supabase RLS plus in-handler checks in the two API routes.
+is implemented as a redirect rather than a physical App Router page.
 
-## Development
+---
 
-### Available Commands
+## Route Protection
 
-The following commands are defined in `package.json` and were verified to exist:
+Authenticated dashboard routes are protected through the dashboard layout and authentication context.
 
-| Command | Script | Purpose |
-|---|---|---|
-| `npm run dev` | `next dev` | Start the development server |
-| `npm run build` | `next build` | Production build |
-| `npm run start` | `next start` | Run the production build |
-| `npm run lint` | `next lint` | Run ESLint via Next.js's built-in linting |
+Master-only pages use `RequireMaster`.
 
-No `test`, `type-check`, or `format` scripts are defined in `package.json`.
+The repository does not contain a `middleware.ts`, so authentication routing is not implemented through Next.js middleware. Authorization is instead enforced through a combination of:
 
-### Code Quality
+* client-side application guards;
+* server-side authorization checks for privileged route handlers;
+* PostgreSQL Row Level Security for direct Supabase data access.
 
-- **TypeScript**: `strict: true` is enabled in `tsconfig.json`; the path alias `@/*` maps to the project root.
-- **ESLint**: enabled via `next lint`; no standalone `.eslintrc*` configuration file was found, so it relies on Next.js's default ESLint configuration (`eslint-config-next`, referenced implicitly by `next lint` — not independently verifiable from a config file in this repository).
-- **Prettier**: No configuration file found — not applicable/undocumented.
-- **Git hooks (e.g. Husky) / pre-commit checks**: Not found in the repository.
-- **Naming conventions (observed, not formally documented)**: feature folders and Supabase table/column names use `snake_case` (Indonesian domain terms, e.g. `jadwal_tamu`, `tanggal_mulai`), while TypeScript types and function names use `camelCase`, with explicit `rowToX` mapping functions (e.g. `rowToBlok`, `rowToJadwalTamu`, `rowToAppUser`) converting between the two at the API-module boundary. This is an **observed practice**, not enforced by tooling.
+---
 
-### Testing
+# Feature Modules
 
-No unit tests, integration tests, end-to-end tests, test fixtures, or test configuration were found anywhere in the repository, and no test script exists in `package.json`. Testing coverage cannot be documented because no evidence of testing was found in the repository.
+## `features/auth`
 
-## Security Considerations
+Responsible for:
 
-The following are objective, evidence-based observations, not a security audit or penetration test:
+* Authentication UI
+* Login
+* Authentication state
+* Password updates
+* Master-only UI guard
+* Help/login-related presentation
 
-- Two Supabase keys are used with different privilege levels: `NEXT_PUBLIC_SUPABASE_ANON_KEY` (browser, RLS-enforced) and `SUPABASE_SERVICE_ROLE_KEY` (server-only, bypasses RLS). The service role key is only referenced in `lib/supabase/client.ts`'s `createServerSupabaseClient()`, which in turn is only imported by the two `app/api/*` route handlers — it was not found referenced in any client component.
-- Both privileged API routes independently validate a bearer token and re-check the caller's `master` role server-side against the `profiles` table before performing sensitive operations (user creation/deletion, report export), rather than trusting client-supplied role claims.
-- Row Level Security policies are defined per table in `supabase-schema.sql` for `profiles`, `blok`, `makam`, `tamu_umum`, and `tamu_rombongan`. RLS policies for tables introduced in later migrations (e.g. `jadwal_tamu`, `activity_log`, `login_attempts`, `jadwal_tamu_notification_status`) were not confirmed within the reviewed schema files — this could not be verified from the available source code and should be checked directly against the live Supabase project.
-- A failed-login tracking mechanism exists: unsuccessful logins are recorded into a `login_attempts` table (`lib/context/auth-context.tsx`), and migration `20260803_login_failed_streak_alert.sql` suggests a streak-based alerting mechanism at the database level. The exact alerting behavior was not independently traced beyond the migration's presence.
-- No `.env`/`.env.example` file exists in the repository, and no secret values were found committed in source files.
-- No authentication/authorization enforcement exists at the Next.js middleware/edge layer; enforcement relies on client-side route guards (which can be bypassed by direct navigation before hydration completes, though the underlying data remains protected by Supabase RLS and the API routes' own checks), and on Supabase RLS/service-role checks.
+Shared authentication state is implemented through:
 
-No claim is made here that the application is secure; the above only reflects what could be verified from the repository.
+```text
+lib/context/auth-context.tsx
+```
 
-## Performance Considerations
+---
 
-No explicit performance tooling, caching strategy beyond React Query/SWR-equivalent libraries, code-splitting configuration, or performance budget was found in the repository beyond what Next.js provides by default. `app/api/reports/dashboard/route.ts` explicitly sets `export const dynamic = 'force-dynamic'` and `export const runtime = 'nodejs'`, opting that route out of static optimization/caching, which is required for its dynamic, per-user PDF generation. No other explicit performance-related configuration was identified.
+## `features/dashboard`
 
-## Build & Deployment
+Responsible for:
 
-No Dockerfile, `docker-compose.yml`, Vercel configuration, GitHub Actions/GitLab CI workflow, or other deployment/CI configuration file was identified in the repository. `next.config.js` defines a `serverComponentsExternalPackages` entry for `pdfkit`/`fontkit` (needed because `pdfkit` is used inside a Node.js API route), a redirect from `/input-makam` to `/daftar-makam`, and a `Permissions-Policy` response header (`camera=*, microphone=()`) applied to all routes. Deployment configuration was not identified in the repository.
+* Dashboard statistics
+* Visitor-period selection
+* Block occupancy visualization
+* Scheduled visitor summaries
+* Dashboard reporting support
 
-## Troubleshooting
+---
 
-The following behaviors are implemented in the codebase and may be relevant when diagnosing issues:
+## `features/tamu`
 
-- **"Service paused" redirect**: if a Supabase call fails in a way that matches `isSupabasePausedError` (`lib/supabase/is-project-paused.ts`), the app redirects to `/service-paused` (`lib/supabase/paused-redirect.ts`). This suggests the target Supabase project may be on a plan where it auto-pauses after inactivity.
-- **Auth initialization timeout**: `AuthProvider` forces `loading` to `false` after an 8-second timeout if session initialization has not settled, with a console warning referencing a possible "lock deadlock" in `supabase-js` (`lib/context/auth-context.tsx`). This is a defensive workaround already present in the code, not a known unresolved bug requiring new user action.
-- Environment variable misconfiguration throws immediately at module load (`lib/supabase/client.ts`) with an explicit error message naming the missing variable.
+Responsible for:
 
-## Project Status
+* Individual visitor records
+* Group visitor records
+* Visitor list
+* Visitor editing
+* Visitor deletion
+* Visitor photo upload
+* Visitor-specific hooks and utilities
 
-The repository does not contain a version/release history file (e.g. `CHANGELOG.md`), issue tracker references, or a project board. `package.json` declares `"version": "0.1.0"`. Project status beyond this could not be verified from the repository.
+---
 
-## Known Limitations
+## `features/jadwal-tamu`
 
-Based only on what is absent or explicitly guarded against in the repository:
+Responsible for:
 
-- No automated test suite exists.
-- No CI/CD pipeline exists.
-- No deployment configuration (Docker, Vercel, etc.) exists in the repository.
-- Route protection for authenticated pages is enforced client-side (component-level), not via Next.js middleware.
-- There is no centralized authorization utility shared between the two API route handlers; the `master`-role check is duplicated in each handler.
-- No global data-fetching/caching library (e.g. React Query, SWR) is used; server data is fetched imperatively into local/context state.
+* Scheduled activities
+* Calendar views
+* Event creation and editing
+* Schedule deletion through soft delete
+* Activity types
+* Schedule conflict checking
+* Attachments
+* Audit history
 
-## Documentation Gaps
+---
 
-| Item | Status |
-|---|---|
-| `.env.example` | Undocumented — no example environment file exists in the repository |
-| API schema/OpenAPI spec | Undocumented — only 2 route handlers exist and were manually documented above from source |
-| Automated testing | Undocumented — no tests found |
-| CI/CD pipeline | Undocumented — no CI configuration found |
-| Deployment platform/process | Undocumented — no deployment configuration found |
-| RLS policies for post-schema migrations (`jadwal_tamu`, `activity_log`, `login_attempts`, `jadwal_tamu_notification_status`) | Partially documented — table structures exist in migrations; RLS policy definitions for these tables were not confirmed in the reviewed files |
-| `three` dependency usage | Partially documented — declared as a dependency but its concrete usage site was not exhaustively traced during this audit |
-| Architecture Decision Records (ADRs) | Not applicable — none found and none appear intended, based on repository structure |
+## `features/makam`
 
-## Contributing
+Responsible for:
 
-No `CONTRIBUTING.md`, pull request template, or contribution guidelines were found in the repository. Contribution process is not documented.
+* Grave records
+* Grave search
+* Sorting
+* Validation
+* Grave CRUD operations
+* Block association
 
-## License
+---
 
-No `LICENSE` file or `license` field in `package.json` was found in the repository. Licensing terms were not identified and should not be assumed.
+## `features/blok`
+
+Responsible for:
+
+* Cemetery block records
+* Capacity
+* Occupancy
+* Block CRUD operations
+
+Block occupancy is also maintained through a PostgreSQL database trigger.
+
+---
+
+## `features/notifikasi`
+
+Responsible for:
+
+* Schedule notifications
+* Notification read state
+* Security alerts
+
+---
+
+## `features/user`
+
+Responsible for:
+
+* User management
+* Role management
+* Account status
+* User deletion
+* User activity history
+
+---
+
+# State Management
+
+TMP does not use a dedicated third-party global state-management library.
+
+State is distributed across React Context, component state, feature hooks, URL state, and Supabase persistence.
+
+| State Type                   | Mechanism                          |
+| ---------------------------- | ---------------------------------- |
+| Authentication/session       | `AuthContext`                      |
+| Theme                        | `ThemeContext`                     |
+| Sidebar                      | `SidebarContext`                   |
+| Notifications                | `NotificationContext`              |
+| Component state              | React `useState` and related hooks |
+| Feature state                | Feature-specific hooks/components  |
+| Navigation state             | Next.js App Router                 |
+| Persistent application state | Supabase PostgreSQL                |
+| Authentication persistence   | Supabase Auth session              |
+
+No Redux, Zustand, Jotai, React Query, SWR, or equivalent dedicated state/data-fetching library was identified in the repository.
+
+---
+
+# API
+
+TMP exposes two Next.js Route Handler groups for privileged server-side operations.
+
+## `POST /api/users`
+
+Creates a new application user.
+
+### Authorization
+
+Requires:
+
+* Valid Supabase access token
+* Caller with `master` role
+
+### Request
+
+```json
+{
+  "username": "<username>",
+  "fullName": "<full name>",
+  "password": "<password>",
+  "role": "master | operator"
+}
+```
+
+The implemented password validation requires a minimum length of eight characters.
+
+---
+
+## `DELETE /api/users`
+
+Deletes an application user.
+
+### Authorization
+
+Requires:
+
+* Valid Supabase access token
+* Caller with `master` role
+* Caller cannot delete their own account
+
+### Request
+
+```json
+{
+  "userId": "<uuid>"
+}
+```
+
+---
+
+## `GET /api/reports/dashboard`
+
+Generates a dashboard PDF report.
+
+### Authorization
+
+Requires:
+
+* Valid Supabase access token
+* Caller with `master` role
+
+### Query Parameters
+
+```text
+view
+month
+year
+week
+```
+
+Supported `view` values:
+
+```text
+minggu
+bulan
+tahun
+```
+
+The response is:
+
+```text
+Content-Type: application/pdf
+```
+
+Report exports are recorded in the application activity log.
+
+---
+
+## Feature-Level Data Access
+
+Most application data access does not pass through Next.js API routes.
+
+Instead, feature modules communicate directly with Supabase through modules such as:
+
+```text
+features/tamu/api.ts
+features/jadwal-tamu/api.ts
+features/makam/api.ts
+features/blok/api.ts
+features/notifikasi/api.ts
+features/user/api.ts
+```
+
+These browser-side requests use the public Supabase client and are subject to database-level Row Level Security.
+
+---
+
+# Authentication & Authorization
+
+TMP uses the following authorization model:
+
+```text
+Supabase Auth
+      +
+profiles.role
+      +
+profiles.is_active
+      +
+PostgreSQL Row Level Security
+      +
+Server-side authorization checks
+```
+
+## Roles
+
+| Role       | Purpose                                  |
+| ---------- | ---------------------------------------- |
+| `master`   | Administrative and privileged operations |
+| `operator` | Operational application usage            |
+
+---
+
+## Session Management
+
+The Supabase client is configured to persist authentication sessions and automatically refresh tokens.
+
+The authentication context listens for authentication state changes and loads the corresponding `profiles` record.
+
+---
+
+## Account Status
+
+User accounts contain an active/inactive state through:
+
+```text
+profiles.is_active
+```
+
+Disabled accounts are signed out by the authentication flow and cannot maintain an active application session.
+
+---
+
+## Database Authorization
+
+Direct browser-to-Supabase operations are protected by PostgreSQL Row Level Security.
+
+Policies use the authenticated user's identity through:
+
+```text
+auth.uid()
+```
+
+and the application role stored in `profiles`.
+
+Examples of protected operations include:
+
+* Master-only block management
+* Master-only grave management
+* Visitor insertion for authenticated users
+* Master-only visitor updates/deletions
+* User management
+* Protected schedule and notification operations
+
+---
+
+## Privileged Server Operations
+
+Server-side administrative operations use:
+
+```text
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+The service-role client is used only for privileged server-side operations and is not intended for browser execution.
+
+Privileged route handlers verify the incoming access token and independently check the caller's role before executing administrative operations.
+
+---
+
+# Notifications & Security
+
+## Schedule Notifications
+
+Schedule notifications use notification types such as:
+
+```text
+h_minus_1
+h
+```
+
+Notification status is maintained per user through:
+
+```text
+jadwal_tamu_notification_status
+```
+
+Users can mark individual notifications or all notifications as read.
+
+---
+
+## Failed Login Detection
+
+Login attempts are stored in:
+
+```text
+login_attempts
+```
+
+The database contains trigger-based failed-login detection logic that can create security alerts in:
+
+```text
+login_alert
+```
+
+The implemented detection logic evaluates recent login attempts and identifies repeated failed authentication activity within the configured detection window.
+
+Security alerts are restricted to Master users.
+
+---
+
+# File Storage
+
+Schedule attachments use the private Supabase Storage bucket:
+
+```text
+jadwal-tamu-attachment
+```
+
+Supported MIME types include:
+
+```text
+application/pdf
+image/jpeg
+image/png
+image/webp
+```
+
+The application enforces a maximum attachment size of:
+
+```text
+1 MB
+```
+
+Attachment access uses signed URLs with a limited validity period.
+
+Visitor photo uploads are also supported through Supabase Storage.
+
+---
+
+# Database
+
+## Core Tables
+
+| Table                             | Responsibility                               |
+| --------------------------------- | -------------------------------------------- |
+| `profiles`                        | Application users, roles, and account status |
+| `blok`                            | Cemetery blocks                              |
+| `makam`                           | Grave records                                |
+| `tamu_umum`                       | Individual visitor records                   |
+| `tamu_rombongan`                  | Group visitor records                        |
+| `jadwal_tamu`                     | Scheduled visitor activities                 |
+| `jadwal_tamu_tipe_kegiatan`       | Schedule activity types                      |
+| `jadwal_tamu_audit_log`           | Schedule audit history                       |
+| `jadwal_tamu_notification_status` | Per-user notification state                  |
+| `login_attempts`                  | Login attempt history                        |
+| `login_alert`                     | Security alerts                              |
+| `activity_log`                    | Application activity history                 |
+
+---
+
+## Important Database Behaviors
+
+### Grave Occupancy
+
+The `handle_makam_count()` database trigger maintains the `terisi` value on cemetery blocks.
+
+It responds to changes including:
+
+* Grave insertion
+* Grave deletion
+* Grave movement between blocks
+
+---
+
+### Automatic Timestamps
+
+Database triggers are used to automatically maintain `updated_at` fields where configured.
+
+---
+
+### User Profile Creation
+
+The database contains logic for automatically creating a corresponding `profiles` record when a Supabase Auth user is created through:
+
+```text
+handle_new_user()
+```
+
+---
+
+### Schedule Soft Delete
+
+Scheduled activities use soft deletion through fields including:
+
+```text
+deleted_at
+deleted_by
+deleted_by_username
+```
+
+Active schedule queries exclude records where `deleted_at` is not null.
+
+---
+
+# Development
+
+## Available Commands
+
+The following scripts are defined in `package.json`:
+
+| Command         | Purpose                                 |
+| --------------- | --------------------------------------- |
+| `npm run dev`   | Start the Next.js development server    |
+| `npm run build` | Build the production application        |
+| `npm run start` | Start the production application        |
+| `npm run lint`  | Run the configured Next.js lint command |
+
+No `test`, `type-check`, or `format` npm script is currently defined.
+
+---
+
+## TypeScript
+
+TypeScript is configured with strict type checking:
+
+```text
+strict: true
+```
+
+The project uses the path alias:
+
+```text
+@/*
+```
+
+which maps to the repository root.
+
+Example:
+
+```typescript
+import { supabaseClient } from '@/lib/supabase/client';
+```
+
+---
+
+## Code Organization
+
+Domain-specific code should remain within the appropriate:
+
+```text
+features/<feature>/
+```
+
+module.
+
+Shared infrastructure and cross-cutting concerns belong primarily under:
+
+```text
+lib/
+```
+
+Reusable UI primitives are located under:
+
+```text
+components/ui/
+```
+
+The repository uses explicit row-to-domain mapping functions in several feature APIs to convert Supabase `snake_case` records into application-level TypeScript representations.
+
+---
+
+# Testing
+
+No automated testing framework or test suite was identified in the supplied repository.
+
+The repository currently does not expose an npm test command.
+
+Therefore, automated:
+
+* unit-test coverage;
+* integration-test coverage;
+* end-to-end coverage;
+
+cannot be established from the repository.
+
+The available quality checks are currently:
+
+```bash
+npm run lint
+npm run build
+```
+
+---
+
+# Security Considerations
+
+TMP implements several concrete security controls:
+
+* Supabase Authentication
+* Role-based authorization
+* PostgreSQL Row Level Security
+* Server-side bearer-token verification for privileged APIs
+* Server-only service-role credentials
+* Private Supabase Storage
+* Signed attachment URLs
+* Active-account validation
+* Failed-login tracking
+* Security alerts
+* Application activity logging
+* Schedule audit logging
+* Application-level input validation
+* Database constraints and triggers
+
+## Client / Server Credential Boundary
+
+Browser-side operations use:
+
+```text
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+Server-side administrative operations use:
+
+```text
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+The service-role key bypasses normal RLS enforcement and must therefore remain strictly server-side.
+
+## Security Scope
+
+The security information in this README is an implementation overview based on repository inspection.
+
+It is **not** a penetration test, formal vulnerability assessment, or independent security audit.
+
+No claim is made that the application is completely secure.
+
+---
+
+# Performance Considerations
+
+The repository contains several implementation choices relevant to application performance:
+
+* Paginated grave retrieval
+* Date-range filtering for scheduled activities
+* Indexed schedule dates
+* Indexed activity-log timestamps
+* Indexed login-attempt username/time fields
+* Indexed notification status
+* Selective Supabase query projections
+* Server-side PDF generation
+* Next.js application-level optimization
+
+The dashboard PDF route explicitly uses a dynamic Node.js runtime because report generation is performed server-side.
+
+No formal load-testing configuration or production performance benchmark was identified in the repository.
+
+---
+
+# Build & Deployment
+
+## Production Build
+
+The production application is built with:
+
+```bash
+npm run build
+```
+
+and started with:
+
+```bash
+npm run start
+```
+
+The Next.js configuration includes server-side handling for PDFKit-related packages required by the dashboard report route.
+
+## Deployment
+
+The repository does not contain a verified deployment target or infrastructure configuration.
+
+No configuration was identified for:
+
+* Docker
+* Kubernetes
+* Vercel
+* AWS
+* Azure
+* Google Cloud
+* GitHub Actions
+* GitLab CI
+
+Deployment should therefore be configured according to the target hosting environment rather than inferred from the repository.
+
+---
+
+# Troubleshooting
+
+## Supabase Environment Configuration
+
+If the application reports missing Supabase configuration, verify:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+For privileged server operations, also verify:
+
+```text
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+---
+
+## Application Redirects to `/service-paused`
+
+TMP contains handling for Supabase project availability conditions.
+
+When a recognized Supabase paused-project condition occurs, the application can redirect users to:
+
+```text
+/service-paused
+```
+
+Verify the Supabase project status and connectivity.
+
+---
+
+## User Cannot Access Master Features
+
+Verify that:
+
+1. The user is authenticated.
+2. `profiles.role` is `master`.
+3. `profiles.is_active` is enabled.
+4. Required database RLS policies are present.
+5. The deployed database schema matches the application's expected schema.
+
+---
+
+## User Account Was Disabled
+
+The authentication context checks:
+
+```text
+profiles.is_active
+```
+
+A disabled account is signed out and cannot maintain an active application session.
+
+---
+
+## Schedule Attachment Upload Fails
+
+Verify:
+
+* File size does not exceed 1 MB.
+* File MIME type is supported.
+* The user has the required authorization.
+* The `jadwal-tamu-attachment` bucket exists.
+* Required Supabase Storage policies are configured.
+
+---
+
+## Database Schema Errors
+
+If the application reports missing tables or columns, compare the deployed Supabase database against:
+
+```text
+supabase-schema.sql
+supabase/migrations/
+lib/supabase/database.types.ts
+```
+
+These artifacts represent different parts of the database lifecycle and should be evaluated together when diagnosing schema synchronization issues.
+
+---
+
+# Project Status
+
+The repository represents an implemented administrative application containing working modules for:
+
+* Authentication
+* Visitor management
+* Cemetery block management
+* Grave management
+* Visitor scheduling
+* Notifications
+* User management
+* Dashboard reporting
+* Activity logging
+* Security alerts
+
+The repository currently provides development, build, and lint workflows.
+
+Automated testing, CI/CD, and deployment infrastructure are not currently included in the repository.
+
+The project version declared in `package.json` is:
+
+```text
+0.1.0
+```
+
+---
+
+# Known Limitations
+
+The following limitations are relevant to the current repository state.
+
+### Automated Testing
+
+No automated unit, integration, or end-to-end testing suite is currently included.
+
+### CI/CD
+
+No CI/CD workflow configuration was identified.
+
+### Deployment Configuration
+
+No deployment-specific infrastructure configuration was identified.
+
+### Route Protection
+
+Authenticated application routes rely primarily on client-side application guards rather than Next.js middleware.
+
+Database RLS and server-side authorization checks provide additional enforcement boundaries.
+
+### Authorization Duplication
+
+The two privileged API route handlers independently implement bearer-token and Master-role verification rather than using a centralized authorization wrapper.
+
+### Remote Data Fetching
+
+The application does not use a dedicated server-state/data-fetching library such as React Query or SWR. Remote data is primarily retrieved imperatively and stored in feature-level component or hook state.
+
+### Database Definition Synchronization
+
+The repository contains database schema definitions, migrations, generated types, and application code that should be treated as a combined source when determining the expected deployed database state.
+
+The supplied artifacts are not completely synchronized in every detail, so the live Supabase database should be treated as the authoritative deployed state when investigating schema discrepancies.
+
+### Environment Example
+
+No `.env.example` file is included in the repository.
+
+### License
+
+No `LICENSE` file or explicit package license declaration was identified.
+
+---
+
+# Contributing
+
+No formal contribution workflow, branch policy, pull-request template, or contribution guide is currently included in the repository.
+
+When modifying the project:
+
+1. Preserve existing feature boundaries.
+2. Keep shared infrastructure under `lib/`.
+3. Keep reusable UI primitives under `components/ui/`.
+4. Keep domain-specific logic inside the appropriate `features/<feature>/` module.
+5. Run linting before submitting changes.
+6. Verify that the production build succeeds.
+
+Recommended verification commands:
+
+```bash
+npm run lint
+npm run build
+```
+
+---
+
+# License
+
+No license file or explicit repository license declaration was identified in the supplied repository.
+
+Licensing terms therefore cannot be determined from the available source and should not be assumed.
+
+---
+
+# Source of Truth
+
+For implementation behavior, repository artifacts should generally be evaluated in the following order:
+
+1. **Application source code**
+2. **Next.js and package configuration**
+3. **Database migrations**
+4. **Database schema and generated types**
+5. **Supporting documentation**
+
+Where this README conflicts with the implementation, the implementation should be treated as the source of truth and the documentation should be updated accordingly.
+
+---
+
+## TMP at a Glance
+
+```text
+TMP Project
+│
+├── Next.js 14 App Router
+│
+├── Feature-Oriented Architecture
+│   ├── Auth
+│   ├── Dashboard
+│   ├── Visitor Management
+│   ├── Visit Scheduling
+│   ├── Grave Management
+│   ├── Cemetery Block Management
+│   ├── Notifications
+│   └── User Management
+│
+├── Shared Infrastructure
+│   ├── Authentication Context
+│   ├── Notification Context
+│   ├── Theme Context
+│   ├── Sidebar Context
+│   ├── Activity Logging
+│   └── PDF Reporting
+│
+└── Supabase
+    ├── Authentication
+    ├── PostgreSQL
+    ├── Row Level Security
+    └── Storage
+```
+
+**TMP brings cemetery administration, visitor management, scheduling, reporting, and operational security into a single integrated web application.**
