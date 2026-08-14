@@ -74,9 +74,6 @@ export function drawFooter(doc: PDFKit.PDFDocument, meta: ReportMeta, page: numb
   const right = 595.28 - PAGE_MARGIN.right;
   const y = 841.89 - PAGE_MARGIN.bottom + 18;
 
-  // Footer ditulis di area bawah margin konten. PDFKit otomatis nge-addPage()
-  // kalau nulis teks yang melewati batas margin bawah, jadi nonaktifkan
-  // sementara supaya nggak muncul halaman kosong tambahan.
   const savedBottom = doc.page.margins.bottom;
   doc.page.margins.bottom = 0;
 

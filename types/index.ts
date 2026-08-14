@@ -137,7 +137,7 @@ export interface SecurityAlert {
 export type NotifType = 'h_minus_1' | 'h';
 
 export interface NotificationItem {
-  id: string; // `${jadwalTamuId}:${notifType}`
+  id: string; 
   jadwalTamuId: string;
   notifType: NotifType;
   isRead: boolean;

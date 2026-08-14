@@ -13,7 +13,7 @@ function todayTomorrowStr() {
   };
 }
 
-const PAST_WINDOW_DAYS = 14; // seberapa jauh ke belakang notifikasi "Sebelumnya" ditampilkan
+const PAST_WINDOW_DAYS = 14; 
 
 export async function fetchNotifications(userId: string): Promise<{ data: NotificationItem[]; error?: string }> {
   const { today, tomorrow, pastFrom } = todayTomorrowStr();
@@ -49,8 +49,6 @@ export async function fetchNotifications(userId: string): Promise<{ data: Notifi
 
   const items: NotificationItem[] = events.map((event) => {
     const isPast = event.tanggalMulai < today;
-    // Event yang sudah lewat dianggap pakai kunci status 'h' (pengingat hari-H
-    // adalah pengingat terakhir yang berlaku sebelum tanggalnya lewat).
     const notifType: NotifType = isPast || event.tanggalMulai === today ? 'h' : 'h_minus_1';
     const key = `${event.id}:${notifType}`;
     return {
