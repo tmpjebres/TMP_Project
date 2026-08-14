@@ -1,533 +1,266 @@
 # TMP Project
 
-**Sistem Administrasi Taman Makam Pahlawan**
+### Sistem Administrasi Taman Makam Pahlawan
 
-TMP Project is a web-based administrative system designed to support the management of **Taman Makam Pahlawan (TMP)**. The application brings cemetery records, visitor management, activity scheduling, notifications, user administration, and reporting into a single platform.
+[![Next.js](https://img.shields.io/badge/Next.js-14.2.5-000000?logo=next.js\&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react\&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript\&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.1-06B6D4?logo=tailwindcss\&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.110.8-3ECF8E?logo=supabase\&logoColor=white)](https://supabase.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-2ea44f)](#project-status)
 
-Built with **Next.js 14** and **Supabase**, TMP combines a feature-oriented application structure with PostgreSQL, Row Level Security, Supabase Authentication, and private file storage.
+> A web-based administrative system for managing Taman Makam Pahlawan, including cemetery records, visitors, activities, notifications, and reporting.
 
 ---
 
 ## Overview
 
-TMP provides role-based access for two types of users:
+**TMP Project** is a web-based administrative platform designed to simplify and centralize the management of **Taman Makam Pahlawan (TMP)**.
 
-| Role         | Description                                                                                   |
-| ------------ | --------------------------------------------------------------------------------------------- |
-| **Master**   | Manages administrative data, users, schedules, reports, and other privileged operations.      |
-| **Operator** | Handles operational activities such as visitor registration and day-to-day application usage. |
+The system brings essential administrative and operational activities into a single application, providing a more organized way to manage cemetery information, visitor activities, scheduling, users, and reports.
 
-The application is organized around several core domains:
+The application supports role-based access for:
 
-* Cemetery block management
-* Grave management
-* Visitor management
-* Visitor activity scheduling
-* Notifications
-* User administration
-* Dashboard & reporting
-* Activity logging
-* Security alerts
+* **Master** — administrative and management operations
+* **Operator** — day-to-day operational activities
 
 ---
 
 ## Features
 
-### Cemetery Management
+<table>
+<tr>
+<td width="50%">
 
-Manage cemetery blocks and grave records with support for:
+### 🪦 Cemetery Management
 
-* Block capacity and occupancy
+* Cemetery block management
 * Grave records
-* Grave-to-block relationships
-* Search and sorting
-* CRUD operations
-* Automatic occupancy updates
+* Capacity and occupancy tracking
+* Search and organization
 
-Block occupancy is maintained at the database level through PostgreSQL triggers when grave records are added, removed, or moved between blocks.
+</td>
+<td width="50%">
 
-### Visitor Management
+### 👥 Visitor Management
 
-TMP supports two visitor categories:
+* Individual visitors
+* Group / organizational visitors
+* Visitor records
+* Photo capture and upload
 
-* **Individual / General Visitors**
-* **Group / Organizational Visitors**
+</td>
+</tr>
 
-Visitor management includes:
+<tr>
+<td width="50%">
 
-* Visitor registration
-* Visit information
-* Group information
-* Visitor list
-* Editing and deletion
-* Visitor photo capture and upload
+### 📅 Activity Scheduling
 
-### Visitor Activity Scheduling
-
-The scheduling module provides calendar-based management for visitor activities and events.
-
-Features include:
-
-* Activity information and type
-* Institution and activity leader
-* Group size
-* Start and end date/time
-* Month, week, and year calendar views
+* Calendar-based scheduling
+* Activity information
 * Schedule conflict detection
-* Conflict confirmation
 * Attachments and external links
-* Soft deletion
-* Schedule audit history
+* Activity history
 
-Supported attachments include PDF, JPEG, PNG, and WebP files. Attachments are stored in the private `jadwal-tamu-attachment` Supabase Storage bucket.
+</td>
+<td width="50%">
 
-### Notifications
+### 🔔 Notifications
 
-TMP provides schedule-related notifications for:
+* Upcoming activity notifications
+* Same-day notifications
+* Notification history
+* Security alerts
 
-* **H-1** — one day before an activity
-* **H** — activity scheduled for the current day
-* Past scheduled activities within the notification history
+</td>
+</tr>
 
-Notification read status is maintained individually for each user.
+<tr>
+<td width="50%">
 
-The notification system also surfaces security alerts generated from repeated failed login attempts.
+### 👤 User Management
 
-### User Management
+* User administration
+* Role management
+* Account activation
+* User activity history
 
-Master users can manage application accounts, including:
+</td>
+<td width="50%">
 
-* Create users
-* Update usernames and names
-* Change roles
-* Activate or deactivate accounts
-* Delete users
-* View user activity
-* Review login history
-
-Users cannot deactivate or delete their own account through the management interface.
-
-### Dashboard & Reporting
-
-The dashboard provides an overview of:
+### 📊 Dashboard & Reporting
 
 * Visitor statistics
-* Period-based visitor data
-* Cemetery block occupancy
-* Scheduled activities
-* Application summaries
+* Cemetery occupancy
+* Activity summaries
+* Period-based reporting
+* PDF reports
 
-Dashboard data can be exported as PDF reports through a server-side Next.js API route.
-
-Supported report periods:
-
-* Week
-* Month
-* Year
-
-Export operations are recorded in the activity log.
-
-### Activity & Security Logging
-
-TMP maintains activity records for administrative operations such as:
-
-* Create
-* Update
-* Delete
-* Activate
-* Deactivate
-* Export
-
-The scheduling module also maintains its own audit history.
-
-Failed login attempts are tracked and can generate security alerts when repeated unsuccessful authentication activity is detected.
+</td>
+</tr>
+</table>
 
 ---
 
-# Architecture
+## Technology Stack
 
-TMP follows a **feature-oriented architecture** built on the Next.js App Router.
+| Technology       | Role                                  |
+| ---------------- | ------------------------------------- |
+| **Next.js**      | Application framework                 |
+| **React**        | User interface                        |
+| **TypeScript**   | Application development               |
+| **Tailwind CSS** | Styling                               |
+| **Supabase**     | Authentication, database, and storage |
+| **PostgreSQL**   | Data persistence                      |
+| **Recharts**     | Data visualization                    |
+| **Lucide React** | Interface icons                       |
+| **PDFKit**       | PDF report generation                 |
+
+---
+
+## Architecture
+
+TMP uses a **feature-oriented architecture** built on the **Next.js App Router**.
 
 ```text
-┌──────────────────────────────────────────────┐
-│              Next.js App Router              │
-│         Routes · Pages · Layouts             │
-└───────────────────────┬──────────────────────┘
-                        │
-                        ▼
-┌──────────────────────────────────────────────┐
-│                Feature Modules               │
-│                                              │
-│ auth · dashboard · tamu · jadwal-tamu        │
-│ makam · blok · notifikasi · user             │
-└───────────────────────┬──────────────────────┘
-                        │
-             ┌──────────┴──────────┐
-             ▼                     ▼
-┌────────────────────────┐ ┌───────────────────┐
-│ Shared Infrastructure  │ │ Server API Routes │
-│                        │ │                   │
-│ Context · UI · Reports │ │ Users · Reports   │
-│ Supabase · Utilities   │ │                   │
-└────────────┬───────────┘ └─────────┬─────────┘
-             │                       │
-             └───────────┬───────────┘
-                         ▼
-              ┌─────────────────────┐
-              │      Supabase       │
-              │                     │
-              │ Auth · PostgreSQL   │
-              │ RLS · Storage       │
-              └─────────────────────┘
+┌──────────────────────────────────────┐
+│           Next.js Application        │
+│      Routes · Pages · Layouts        │
+└──────────────────┬───────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐
+│            Feature Modules           │
+│                                      │
+│ Auth · Dashboard · Visitors          │
+│ Scheduling · Cemetery · Users        │
+│ Notifications                        │
+└──────────────────┬───────────────────┘
+                   │
+          ┌────────┴────────┐
+          ▼                 ▼
+┌──────────────────┐ ┌─────────────────┐
+│ Shared Services  │ │ Server Handlers │
+│ UI · Context     │ │ Reports · Users │
+│ Utilities        │ │                 │
+└────────┬─────────┘ └────────┬────────┘
+         │                    │
+         └─────────┬──────────┘
+                   ▼
+          ┌─────────────────┐
+          │    Supabase     │
+          │ Auth · Database │
+          │ Storage · RLS   │
+          └─────────────────┘
 ```
 
-### Architectural Layers
-
-| Layer          | Location                | Responsibility                                          |
-| -------------- | ----------------------- | ------------------------------------------------------- |
-| Routing        | `app/`                  | Routes, pages, layouts, and API route handlers          |
-| Feature UI     | `features/*/components` | Domain-specific interfaces                              |
-| Feature Logic  | `features/*`            | Hooks, utilities, and domain behavior                   |
-| Data Access    | `features/*/api.ts`     | Supabase queries and data mapping                       |
-| Shared UI      | `components/ui/`        | Reusable UI components                                  |
-| Shared State   | `lib/context/`          | Authentication, notifications, theme, and sidebar state |
-| Infrastructure | `lib/`                  | Supabase clients, reports, activity logging, utilities  |
-| Domain Types   | `types/`                | Shared TypeScript types                                 |
-| Database       | `supabase/`             | Schema, migrations, policies, and triggers              |
-
-Feature modules communicate directly with Supabase through their respective `api.ts` modules. Privileged operations that require server-side credentials are handled through Next.js Route Handlers.
+The application separates domain-specific features from shared infrastructure while using Supabase as the primary backend platform.
 
 ---
 
-## Data Flow
+## Getting Started
 
-### Standard Feature Flow
+### Prerequisites
 
-```text
-User
- ↓
-Feature UI
- ↓
-Feature API
- ↓
-Supabase Client
- ↓
-PostgreSQL / Storage
- ↓
-Application Data
- ↓
-React State
- ↓
-UI
-```
-
-Most application data access uses the browser-side Supabase client and is protected by PostgreSQL Row Level Security.
-
-### Privileged Operations
-
-User management and dashboard PDF generation use server-side Next.js Route Handlers.
-
-```text
-Browser
- ↓
-Supabase Access Token
- ↓
-Authorization: Bearer <token>
- ↓
-Next.js Route Handler
- ↓
-Token Verification
- ↓
-Master Role Verification
- ↓
-Privileged Operation
- ↓
-Response
-```
-
----
-
-# Technology Stack
-
-| Technology                 | Purpose                               |
-| -------------------------- | ------------------------------------- |
-| **Next.js 14.2.5**         | Application framework and App Router  |
-| **React 18**               | UI rendering                          |
-| **TypeScript**             | Application language                  |
-| **Tailwind CSS 3.4.1**     | Styling                               |
-| **Supabase**               | Authentication, database, and storage |
-| **PostgreSQL**             | Application database                  |
-| **Recharts**               | Dashboard charts                      |
-| **Lucide React**           | UI icons                              |
-| **date-fns**               | Date manipulation                     |
-| **PDFKit**                 | PDF report generation                 |
-| **Three.js**               | 3D/UI dependency                      |
-| **PostCSS + Autoprefixer** | CSS processing                        |
-
----
-
-# Project Structure
-
-```text
-.
-├── app/
-│   ├── (dashboard)/
-│   │   ├── daftar-blok/
-│   │   ├── daftar-makam/
-│   │   ├── daftar-tamu/
-│   │   ├── input-tamu/
-│   │   ├── jadwal-tamu/
-│   │   ├── notifikasi/
-│   │   ├── profile/
-│   │   ├── user-management/
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   │
-│   ├── api/
-│   │   ├── reports/dashboard/
-│   │   └── users/
-│   │
-│   ├── help/
-│   ├── login/
-│   ├── service-paused/
-│   ├── error.tsx
-│   ├── not-found.tsx
-│   ├── globals.css
-│   └── layout.tsx
-│
-├── components/
-│   └── ui/
-│
-├── data/
-│   ├── DAFTAR NAMA PAHLAWAN DI TMP 2024 TOFIK.xlsx
-│   └── data_makam_cleaned.csv
-│
-├── features/
-│   ├── auth/
-│   ├── blok/
-│   ├── dashboard/
-│   ├── jadwal-tamu/
-│   ├── makam/
-│   ├── notifikasi/
-│   ├── tamu/
-│   └── user/
-│
-├── lib/
-│   ├── context/
-│   ├── reports/
-│   ├── supabase/
-│   ├── utils/
-│   ├── activity-log.ts
-│   └── routes.ts
-│
-├── supabase/
-│   └── migrations/
-│
-├── types/
-│   └── index.ts
-│
-├── next.config.js
-├── package.json
-├── package-lock.json
-├── postcss.config.js
-├── supabase-schema.sql
-├── tailwind.config.js
-└── tsconfig.json
-```
-
----
-
-# Getting Started
-
-## Prerequisites
-
-Before running TMP locally, make sure you have:
+Make sure the following are available:
 
 * Node.js
 * npm
 * A Supabase project
-* Required Supabase environment variables
 
-## Installation
+### Installation
 
 Clone the repository and install dependencies:
 
 ```bash
+git clone <repository-url>
+cd <repository-directory>
 npm install
 ```
 
-## Environment Variables
+### Environment Variables
 
-The service-role key is used only for server-side administrative operations and must never be exposed to client-side code.
+Create a `.env.local` file in the project root:
 
-## Database
-
-The database structure is maintained through supabase
-
----
-
-# Application Modules
-
-| Module        | Responsibility                             |
-| ------------- | ------------------------------------------ |
-| `auth`        | Authentication, login, access guards       |
-| `dashboard`   | Dashboard statistics and reporting         |
-| `tamu`        | Individual and group visitor management    |
-| `jadwal-tamu` | Visitor activity scheduling                |
-| `makam`       | Grave management                           |
-| `blok`        | Cemetery block management                  |
-| `notifikasi`  | Schedule notifications and security alerts |
-| `user`        | User administration                        |
-
----
-
-# Routing
-
-TMP uses the Next.js App Router.
-
-| Route                        | Access        | Purpose                    |
-| ---------------------------- | ------------- | -------------------------- |
-| `/`                          | Authenticated | Dashboard                  |
-| `/login`                     | Public        | Login                      |
-| `/input-tamu`                | Authenticated | Visitor entry              |
-| `/input-tamu/tamu-umum`      | Authenticated | Individual visitor entry   |
-| `/input-tamu/tamu-rombongan` | Authenticated | Group visitor entry        |
-| `/daftar-tamu`               | Authenticated | Visitor records            |
-| `/jadwal-tamu`               | Authenticated | Activity scheduling        |
-| `/notifikasi`                | Authenticated | Notifications              |
-| `/daftar-blok`               | Authenticated | Cemetery blocks            |
-| `/daftar-makam`              | Authenticated | Grave records              |
-| `/user-management`           | Master        | User administration        |
-| `/user-management/[id]`      | Master        | User details               |
-| `/profile`                   | Authenticated | User profile               |
-| `/help`                      | Public        | Help                       |
-| `/service-paused`            | Public        | Service availability state |
-
-The legacy `/input-makam` path redirects to `/daftar-makam`.
-
----
-
-# State Management
-
-TMP uses React state and Context rather than a dedicated global state-management library.
-
-| State           | Implementation                |
-| --------------- | ----------------------------- |
-| Authentication  | `AuthContext`                 |
-| Theme           | `ThemeContext`                |
-| Sidebar         | `SidebarContext`              |
-| Notifications   | `NotificationContext`         |
-| Feature state   | React state and feature hooks |
-| Navigation      | Next.js App Router            |
-| Persistent data | Supabase PostgreSQL           |
-
----
-
-# API
-
-TMP uses Next.js Route Handlers for privileged server-side operations.
-
----
-
-# Authentication & Authorization
-
-TMP uses **Supabase Auth** together with application roles and PostgreSQL Row Level Security.
-
-### Roles
-
-* `master` — administrative access
-* `operator` — operational access
-
-### Username Authentication
-
-The login interface uses usernames. Internally, usernames are mapped to a Supabase Auth email using:
-
-```text
-<username>@makam.app
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-### Account Status
+> **Important:** The Supabase service-role key is a server-side secret and must never be exposed to the client or committed to the repository.
 
-Account activation is controlled through:
+### Database
+
+The project includes its database schema and migrations under:
 
 ```text
-profiles.is_active
+supabase-schema.sql
+supabase/migrations/
 ```
 
-Inactive accounts are signed out by the authentication flow.
+Apply the required database configuration to your Supabase project before running the application.
 
-### Authorization
+### Run Development Server
 
-Authorization is enforced through:
+```bash
+npm run dev
+```
 
-* Application-level route guards
-* Server-side authorization in privileged API routes
+The application will start using the standard Next.js development server.
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## Project Structure
+
+The project follows a feature-oriented structure:
+
+```text
+.
+├── app/                 # Application routes and pages
+├── components/          # Shared UI components
+├── features/            # Domain-specific modules
+├── lib/                 # Shared infrastructure and utilities
+├── types/               # Shared TypeScript types
+├── supabase/            # Database migrations
+├── data/                # Supporting project data
+├── package.json
+└── next.config.js
+```
+
+Each major application domain is organized as an independent feature module to keep related UI, logic, and data operations together.
+
+---
+
+## Security
+
+TMP applies security controls across the application and database layers, including:
+
+* Authentication and role-based authorization
 * PostgreSQL Row Level Security
+* Server-side handling of privileged operations
+* Private file storage
+* Signed file access
+* Account activation controls
+* Activity and security logging
+* Input validation
+
+Sensitive credentials are restricted to server-side environments.
 
 ---
 
-# Database
+## Development
 
-## Core Tables
-
-| Table                             | Purpose                                  |
-| --------------------------------- | ---------------------------------------- |
-| `profiles`                        | User profiles, roles, and account status |
-| `blok`                            | Cemetery blocks                          |
-| `makam`                           | Grave records                            |
-| `tamu_umum`                       | Individual visitors                      |
-| `tamu_rombongan`                  | Group visitors                           |
-| `jadwal_tamu`                     | Scheduled activities                     |
-| `jadwal_tamu_tipe_kegiatan`       | Activity types                           |
-| `jadwal_tamu_audit_log`           | Schedule audit history                   |
-| `jadwal_tamu_notification_status` | Notification state                       |
-| `login_attempts`                  | Login attempt history                    |
-| `login_alert`                     | Security alerts                          |
-| `activity_log`                    | Application activity log                 |
-
-### Database Triggers
-
-TMP uses database triggers for several application behaviors, including:
-
-* Maintaining cemetery block occupancy
-* Updating timestamp fields
-* Creating user profiles
-* Detecting repeated failed login attempts
-
----
-
-# File Storage
-
-TMP uses Supabase Storage for application files.
-
-The scheduling module stores attachments in:
-
-```text
-jadwal-tamu-attachment
-```
-
-Supported file types:
-
-```text
-PDF
-JPEG
-PNG
-WebP
-```
-
-Maximum attachment size:
-
-```text
-1 MB
-```
-
-Schedule attachments are stored in a private bucket and accessed through signed URLs.
-
----
-
-# Development
-
-## Available Commands
+Available commands:
 
 | Command         | Description                  |
 | --------------- | ---------------------------- |
@@ -536,55 +269,35 @@ Schedule attachments are stored in a private bucket and accessed through signed 
 | `npm run start` | Start production server      |
 | `npm run lint`  | Run linting                  |
 
-TypeScript is configured with strict mode enabled, and the project uses the `@/*` path alias for root-level imports.
-
-Example:
-
-```typescript
-import { supabaseClient } from '@/lib/supabase/client';
-```
+TypeScript is configured with strict mode enabled.
 
 ---
 
-# Security
+## Project Status
 
-TMP includes several application and database-level security mechanisms:
+**Active Development**
 
-* Supabase Authentication
-* Role-based authorization
-* PostgreSQL Row Level Security
-* Server-side token verification
-* Server-only service-role credentials
-* Private Supabase Storage
-* Signed file URLs
-* Account activation controls
-* Failed-login tracking
-* Security alerts
-* Activity logging
-* Schedule audit logging
-* Application-level input validation
-
-The `SUPABASE_SERVICE_ROLE_KEY` is restricted to server-side operations and must never be exposed to the browser.
-
----
-
-# Project Status
-
-TMP is currently under active development with core modules for:
+Core application functionality currently includes:
 
 * Authentication
-* Visitor management
 * Cemetery management
+* Visitor management
 * Activity scheduling
 * Notifications
-* User administration
-* Dashboard reporting
+* User management
+* Dashboard and reporting
 * Activity and security logging
-
-The application can be developed and built using the standard Next.js workflow provided in the repository.
 
 ---
 
-# License
+## License
 
-This project is currently intended for its project-specific use. Redistribution or reuse should follow the terms defined by the project owner.
+This project is intended for project-specific use.
+
+Redistribution or reuse should follow the terms defined by the project owner.
+
+---
+
+<p align="center">
+  Built with Next.js, TypeScript, and Supabase.
+</p>
