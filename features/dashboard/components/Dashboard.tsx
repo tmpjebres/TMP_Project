@@ -49,7 +49,7 @@ export default function Dashboard() {
   const chartLabelColor = isDark ? "#EBEFED" : "#222222";
   const chartTooltipStyle = isDark
     ? { borderRadius: 10, border: "1px solid #28332F", background: "#161E1B", color: "#EBEFED", fontSize: 14, fontWeight: 500 }
-    : { borderRadius: 10, border: "1px solid #EEE", fontSize: 14, fontWeight: 500 };
+    : { borderRadius: 10, border: "1px solid #EEE", background: "#FFFFFF", fontSize: 14, fontWeight: 500 };
   const areaUmumColor = isDark ? "#7BC4B8" : "#2D6A4F";
   const areaRombonganColor = isDark ? "#5FA69C" : "#1B4332";
 
@@ -334,6 +334,8 @@ export default function Dashboard() {
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: chartAxisColor, fontSize: 13 }} allowDecimals={false} />
                     <Tooltip
                       contentStyle={chartTooltipStyle}
+                      itemStyle={{ color: (chartTooltipStyle as any).color ?? "#1A1A1A" }}
+                      labelStyle={{ color: (chartTooltipStyle as any).color ?? "#1A1A1A" }}
                       formatter={(value: number, name: string, entry: any) => {
                         if (entry?.dataKey === "rombongan") {
                           const peserta = entry?.payload?.pesertaRombongan ?? 0;
@@ -384,7 +386,12 @@ export default function Dashboard() {
                       <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} horizontal={false} />
                       <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: chartAxisColor, fontSize: 13 }} domain={[0, Math.max(...blokData.map(d => d.kapasitas), 10) + 15]} />
                       <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: chartLabelColor, fontSize: 15, fontWeight: 600 }} width={60} />
-                      <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v, "Terisi"]} />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        itemStyle={{ color: (chartTooltipStyle as any).color ?? "#1A1A1A" }}
+                        labelStyle={{ color: (chartTooltipStyle as any).color ?? "#1A1A1A" }}
+                        formatter={(v: number) => [v, "Terisi"]}
+                      />
                       <Bar dataKey="terisi" name="Terisi" radius={[0, 6, 6, 0]}>
                         {blokData.map((entry, i) => <Cell key={i} fill={isDark ? (BLOK_COLORS_DARK[BLOK_COLORS.indexOf(entry.color)] ?? entry.color) : entry.color} />)}
                         <LabelList dataKey="terisi" position="right" style={{ fontSize: 14, fontWeight: 700, fill: chartLabelColor }} />
