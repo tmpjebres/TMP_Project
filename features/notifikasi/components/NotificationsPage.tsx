@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { BellRing, CheckCheck } from 'lucide-react';
+import { BellRing, CheckCheck, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/lib/context/auth-context';
 import { useNotifications } from '@/lib/context/notification-context';
 import NotificationCard from './NotificationCard';
@@ -24,9 +24,11 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   const [selection, setSelection] = useState<NotificationSelection | null>(null);
+  const [showSebelumnya, setShowSebelumnya] = useState(false);
 
-  const hariIni = items.filter((i) => i.notifType === 'h');
-  const besok = items.filter((i) => i.notifType === 'h_minus_1');
+  const hariIni = items.filter((i) => !i.isPast && i.notifType === 'h');
+  const besok = items.filter((i) => !i.isPast && i.notifType === 'h_minus_1');
+  const sebelumnya = items.filter((i) => i.isPast);
   const isEmpty = items.length === 0 && securityAlerts.length === 0;
 
   async function handleMarkAllRead() {
@@ -100,6 +102,33 @@ export default function NotificationsPage() {
                   />
                 ))}
               </Section>
+            )}
+
+            {sebelumnya.length > 0 && (
+              <div>
+                <button
+                  onClick={() => setShowSebelumnya((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-neutral-gray dark:text-dark-text-secondary uppercase tracking-wider mb-3 hover:text-neutral-black dark:hover:text-dark-text-primary transition-colors"
+                >
+                  Sebelumnya
+                  <span className="normal-case font-medium text-neutral-gray/70 dark:text-dark-text-secondary/70">
+                    ({sebelumnya.length})
+                  </span>
+                  <ChevronDown size={14} className={`transition-transform ${showSebelumnya ? 'rotate-180' : ''}`} />
+                </button>
+                {showSebelumnya && (
+                  <div className="grid grid-cols-1 gap-3">
+                    {sebelumnya.map((item) => (
+                      <NotificationCard
+                        key={item.id}
+                        item={item}
+                        onSelect={() => setSelection({ kind: 'jadwal', item })}
+                        onMarkRead={() => markRead(item.jadwalTamuId, item.notifType)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </>
         )}

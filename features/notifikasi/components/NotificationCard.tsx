@@ -2,7 +2,7 @@
 
 import { Check, Clock } from 'lucide-react';
 import type { NotificationItem } from '@/types';
-import { formatJam, pastelForType } from '@/features/jadwal-tamu/utils';
+import { formatJam, formatTanggalPendek, pastelForType } from '@/features/jadwal-tamu/utils';
 
 interface NotificationCardProps {
   item: NotificationItem;
@@ -12,8 +12,11 @@ interface NotificationCardProps {
 }
 
 export default function NotificationCard({ item, active, onSelect, onMarkRead }: NotificationCardProps) {
-  const { event, notifType, isRead } = item;
+  const { event, notifType, isRead, isPast } = item;
   const pastel = pastelForType(event.tipeKegiatan);
+  const badgeLabel = isPast
+    ? formatTanggalPendek(new Date(`${event.tanggalMulai}T00:00:00`))
+    : notifType === 'h' ? 'Hari ini' : 'Besok (H-1)';
 
   return (
     <button
@@ -32,9 +35,12 @@ export default function NotificationCard({ item, active, onSelect, onMarkRead }:
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span
             className="px-2 py-0.5 rounded-md text-[10px] font-semibold"
-            style={{ backgroundColor: notifType === 'h' ? '#FDE7EC' : '#FFF4E0', color: notifType === 'h' ? '#B4436C' : '#B4791E' }}
+            style={{
+              backgroundColor: isPast ? '#EEEEEE' : notifType === 'h' ? '#FDE7EC' : '#FFF4E0',
+              color: isPast ? '#6B6B6B' : notifType === 'h' ? '#B4436C' : '#B4791E',
+            }}
           >
-            {notifType === 'h' ? 'Hari ini' : 'Besok (H-1)'}
+            {badgeLabel}
           </span>
         </div>
 

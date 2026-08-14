@@ -9,17 +9,22 @@ function todayTomorrowStr() {
   return {
     today: format(now, 'yyyy-MM-dd'),
     tomorrow: format(addDays(now, 1), 'yyyy-MM-dd'),
+    pastFrom: format(addDays(now, -PAST_WINDOW_DAYS), 'yyyy-MM-dd'),
   };
 }
 
+const PAST_WINDOW_DAYS = 14; // seberapa jauh ke belakang notifikasi "Sebelumnya" ditampilkan
+
 export async function fetchNotifications(userId: string): Promise<{ data: NotificationItem[]; error?: string }> {
-  const { today, tomorrow } = todayTomorrowStr();
+  const { today, tomorrow, pastFrom } = todayTomorrowStr();
 
   const { data: eventsRaw, error: eventsError } = await supabaseClient
     .from('jadwal_tamu')
     .select('*')
     .is('deleted_at', null)
-    .in('tanggal_mulai', [today, tomorrow])
+    .gte('tanggal_mulai', pastFrom)
+    .lte('tanggal_mulai', tomorrow)
+    .order('tanggal_mulai', { ascending: false })
     .order('jam_mulai', { ascending: true });
 
   if (eventsError) return { data: [], error: eventsError.message };
@@ -43,18 +48,24 @@ export async function fetchNotifications(userId: string): Promise<{ data: Notifi
   });
 
   const items: NotificationItem[] = events.map((event) => {
-    const notifType: NotifType = event.tanggalMulai === today ? 'h' : 'h_minus_1';
+    const isPast = event.tanggalMulai < today;
+    // Event yang sudah lewat dianggap pakai kunci status 'h' (pengingat hari-H
+    // adalah pengingat terakhir yang berlaku sebelum tanggalnya lewat).
+    const notifType: NotifType = isPast || event.tanggalMulai === today ? 'h' : 'h_minus_1';
     const key = `${event.id}:${notifType}`;
     return {
       id: key,
       jadwalTamuId: event.id,
       notifType,
       isRead: statusMap.get(key) ?? false,
+      isPast,
       event,
     };
   });
 
   items.sort((a, b) => {
+    if (a.isPast !== b.isPast) return a.isPast ? 1 : -1;
+    if (a.isPast) return b.event.tanggalMulai.localeCompare(a.event.tanggalMulai);
     if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
     if (a.notifType !== b.notifType) return a.notifType === 'h' ? -1 : 1;
     return a.event.jamMulai.localeCompare(b.event.jamMulai);

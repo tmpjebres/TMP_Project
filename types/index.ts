@@ -141,6 +141,7 @@ export interface NotificationItem {
   jadwalTamuId: string;
   notifType: NotifType;
   isRead: boolean;
+  isPast: boolean; 
   event: JadwalTamu;
 }
 
