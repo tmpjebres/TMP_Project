@@ -2,6 +2,7 @@ import { CheckCircle2, X, AlertCircle } from "lucide-react";
 import { useState, useCallback } from "react";
 import { Blok, Makam } from "@/types";
 import LoadingButton from "@/components/ui/LoadingButton";
+import Portal from "@/components/ui/Portal";
 import {
   validateMakamForm,
   validateField as validateSingleField,
@@ -166,6 +167,7 @@ export function MakamModal({
   const hasErrors = Object.values(errors).some(Boolean);
 
   return (
+    <Portal>
     <div
       className="fixed inset-0 bg-black/40 flex items-start justify-center z-50 p-4 overflow-y-auto"
       role="dialog"
@@ -340,5 +342,6 @@ export function MakamModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

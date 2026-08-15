@@ -10,6 +10,7 @@ import { PaginationBar } from '@/components/ui/PaginationBar';
 import { useAuth } from '@/lib/context/auth-context';
 import type { Makam } from '@/types';
 import { LoadingSpinner } from '@/components/ui/LoadingAnimation';
+import Portal from '@/components/ui/Portal';
 
 function ConfirmDialog({
   message,
@@ -21,6 +22,7 @@ function ConfirmDialog({
   onCancel: () => void;
 }) {
   return (
+    <Portal>
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
         <h2
@@ -43,6 +45,7 @@ function ConfirmDialog({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 

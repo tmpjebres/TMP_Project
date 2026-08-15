@@ -2,6 +2,7 @@ import { CheckCircle2, X } from "lucide-react";
 import { useState } from "react";
 import { Blok } from "@/types/index";
 import LoadingButton from "@/components/ui/LoadingButton";
+import Portal from "@/components/ui/Portal";
 
 export function BlokModal({
   initial,
@@ -43,6 +44,7 @@ export function BlokModal({
   };
 
   return (
+    <Portal>
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
         <div className="flex items-center justify-between mb-6">
@@ -115,5 +117,6 @@ export function BlokModal({
         </form>
       </div>
     </div>
+    </Portal>
   );
 }

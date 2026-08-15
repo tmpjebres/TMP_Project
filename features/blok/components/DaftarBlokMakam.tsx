@@ -8,6 +8,7 @@ import { getAllBlok, createBlok, updateBlok, deleteBlok } from "@/features/blok/
 import LoadingButton from "@/components/ui/LoadingButton";
 import { BlokModal } from "./BlokModal";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
+import Portal from "@/components/ui/Portal";
 
 export default function DaftarBlokMakam() {
   const { isMaster } = useAuth();
@@ -211,6 +212,7 @@ export default function DaftarBlokMakam() {
       )}
 
       {deleteTarget && (
+        <Portal>
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-sm p-8">
             <h2
@@ -243,6 +245,7 @@ export default function DaftarBlokMakam() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );
