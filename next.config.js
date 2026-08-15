@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
+    cpus: 1,
     serverComponentsExternalPackages: ["pdfkit", "fontkit"],
   },
   async redirects() {

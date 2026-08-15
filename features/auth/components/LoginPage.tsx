@@ -61,7 +61,7 @@ function FieldGlass({
         onChange={(e) => onChange(e.target.value)}
         className={`w-full bg-transparent border-none outline-none pt-6 pb-[0.6rem] text-neutral-black dark:text-dark-text-primary font-body
           [&:-webkit-autofill]:[-webkit-text-fill-color:theme(colors.neutral.black)]
-          [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_1000px_theme(colors.tranparent)_inset]
+          [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_1000px_theme(colors.transparent)_inset]
           [&:-webkit-autofill]:[transition:background-color_9999s_ease-in-out_0s]
           [&:-webkit-autofill:focus]:[-webkit-box-shadow:0_0_0_1000px_theme(colors.green.light/70%)_inset]
           ${rightSlot ? "pr-8" : ""}`}
