@@ -1,8 +1,6 @@
 import { supabaseClient } from "@/lib/supabase/client";
-import { logActivity, type ActivityChanges } from "@/lib/activity-log";
+import { logActivity } from "@/lib/activity-log";
 import type { AppUser, Role } from "@/types";
-
-const ROLE_LABEL: Record<Role, string> = { master: "Master", operator: "Operator" };
 
 function rowToAppUser(row: {
   id: string;
@@ -94,71 +92,31 @@ export async function updateUserProfile(
     updates = { ...updates, fullName: trimmed };
   }
 
-  const { userId: currentUserId, role: currentRole, error: authErr } =
-    await getCurrentUserRole();
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabaseClient.auth.getSession();
 
-  if (authErr) return { error: authErr };
-  if (currentRole !== "master") {
-    return { error: "Hanya master yang dapat mengubah data user." };
+  if (sessionError || !session?.access_token) {
+    return { error: "Sesi tidak valid. Silakan login ulang." };
   }
 
-  // Master tidak boleh downgrade diri sendiri
-  if (currentUserId === userId && updates.role && updates.role !== "master") {
-    return { error: "Master tidak dapat mengubah role dirinya sendiri." };
+  const res = await fetch("/api/users", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ userId, ...updates }),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    return { error: json?.error ?? "Gagal menyimpan perubahan. Coba lagi." };
   }
 
-  if (updates.username) {
-    const { data: existing, error: dupError } = await supabaseClient
-      .from("profiles")
-      .select("id")
-      .eq("username", updates.username)
-      .neq("id", userId)
-      .maybeSingle();
-
-    if (dupError) return { error: "Gagal memverifikasi keunikan username." };
-    if (existing) return { error: "Username sudah digunakan oleh user lain." };
-  }
-
-  const { data: oldProfile } = await supabaseClient
-    .from("profiles")
-    .select("username, full_name, role")
-    .eq("id", userId)
-    .single<{ username: string; full_name: string | null; role: Role }>();
-
-  const payload: Partial<{ username: string; full_name: string; role: Role }> = {};
-  if (updates.username !== undefined) payload.username = updates.username;
-  if (updates.fullName !== undefined) payload.full_name = updates.fullName;
-  if (updates.role !== undefined) payload.role = updates.role;
-
-  const { data, error } = await (supabaseClient
-    .from("profiles") as any)
-    .update(payload)
-    .eq("id", userId)
-    .select("id, username, full_name, role, is_active, last_login_at, created_at")
-    .single();
-
-  if (error) {
-    if (error.code === "23505") {
-      return { error: "Username sudah digunakan oleh user lain." };
-    }
-    return { error: "Gagal menyimpan perubahan. Coba lagi." };
-  }
-
-  const changes: ActivityChanges = {};
-  if (oldProfile) {
-    if (updates.username !== undefined && updates.username !== oldProfile.username) {
-      changes.username = { from: oldProfile.username, to: updates.username };
-    }
-    if (updates.fullName !== undefined && updates.fullName !== (oldProfile.full_name ?? "")) {
-      changes.fullName = { from: oldProfile.full_name ?? "-", to: updates.fullName };
-    }
-    if (updates.role !== undefined && updates.role !== oldProfile.role) {
-      changes.role = { from: ROLE_LABEL[oldProfile.role], to: ROLE_LABEL[updates.role] };
-    }
-  }
-
-  logActivity("update", "user", data.username, changes);
-  return { data: rowToAppUser(data) };
+  return { data: json.data as AppUser };
 }
 
 export async function toggleUserStatus(
@@ -201,7 +159,6 @@ export interface UserActivityEntry {
   createdAt: string;
 }
 
-/** Gabungan activity_log + login_attempts untuk satu user, diurutkan terbaru dulu */
 export async function getUserActivityLog(
   userId: string,
   username: string,
